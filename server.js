@@ -5,7 +5,7 @@ let resources = require('./resourcesServer.js');
 
 app.listen(3000, () => console.log("Server running on port 3000"));
 
-let model = require('./model/model.js');
+//let model = require('./model/model.js');
 
 
 app.engine('html', mustache());
