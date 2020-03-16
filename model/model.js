@@ -19,7 +19,7 @@ db.prepare('CREATE TABLE projectEvents (projectId INTEGER(7) REFERENCES projects
 exports.createUser = function(email, username, password, status) {
     let check = db.prepare('SELECT email, username FROM users WHERE email=? OR username=?').get([email, username]);
     if (check === undefined) {
-        let insert = db.prepare('INSERT INTO users VALUES(?, ?, ?, ?');
+        let insert = db.prepare('INSERT INTO users VALUES (?, ?, ?, ?)');
         insert.run([email, username, password, status]);
         return true;
     }
@@ -39,19 +39,25 @@ exports.createProject = function(name, description, creator) {
     return projectId;
 }*/
 
-//Another version that take into account the autocincrement of the project Id attributes.
+
+/**
+ * Another version that take into account the autoincrement of the projectId attribute.
+ */
 exports.createProject = function(name, description, creator) {
     let insert = db.prepare('INSERT INTO users VALUES (?, ?, ?)');
     let insertedProjectId = insert.run([name, description, creator]).lastInsertRowid;
     return insertedProjectId;
 }
 
+/**
+ * 2 last lines changed to know if the table is updated successfully.
+ */
 exports.updateProject = function(projectId, name, description, creator) {
     let check = db.prepare('SELECT projectId FROM projects WHERE projectId=?');
     let test = check.get([projectId]);
     if (test === undefined) return false;
 
     let update = db.prepare('UPDATE projects SET name=?, description=?, creator=? WHERE projectId=?');
-    update.run([name, description, creator, projectId]);
-    return true;
+    let result = update.run([name, description, creator, projectId]).changes;
+    return result == 1;
 }
