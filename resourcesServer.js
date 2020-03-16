@@ -1,7 +1,7 @@
 let express = require('express');
 let app = express();
 
-let icons_link = "./node_modules/bootstrap-icons/icons"
+let icons_link = "/node_modules/bootstrap-icons/icons"
 
 app.get('/style.css', (req, res) => {
     res.set('Content-Type', 'text/css');
@@ -18,10 +18,15 @@ app.get('/earth-icon.png', (req, res) => {
     res.sendFile(__dirname + '/resources/earth-icon.png');
 });
 
-app.get('/person-fill.svg', (req, res) => {
-    console.log(req.query);
-    res.set('Content-Type', 'image/svg');
-    res.sendFile(icons_link + "person-fill.svg");
+app.get('/bg-faded-blue.png', (req, res) => {
+    res.set('Content-Type', 'image/png');
+    res.sendFile(__dirname + '/resources/bg-faded-blue.png');
+})
+
+app.get('/*.svg', (req, res) => {
+    console.log(req.url);
+    res.set('Content-Type', 'image/webp');
+    res.sendFile(__dirname + icons_link + req.url);
 });
 
 
