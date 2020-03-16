@@ -3,6 +3,8 @@ let app = express();
 let mustache = require('mustache-express');
 let resources = require('./resourcesServer.js');
 
+app.listen(3000, () => console.log("Server running on port 3000"));
+
 let model = require('./model/model.js');
 
 
