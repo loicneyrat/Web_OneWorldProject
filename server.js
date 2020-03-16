@@ -1,7 +1,7 @@
 let express = require('express');
 let app = express();
 let mustache = require('mustache-express');
-let resources = require('resourcesServer.js');
+let resources = require('./resourcesServer.js');
 
 let model = require('./model/model.js');
 

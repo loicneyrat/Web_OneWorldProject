@@ -1,20 +1,21 @@
 var sqlite = require('better-sqlite3');
 var db = new sqlite('database.sqlite');
 
-/*
-db.prepare('DROP TABLE users');
-db.prepare('DROP TABLE projects;');
-db.prepare('DROP TABLE projectMembers');
-db.prepare('DROP TABLE projectKeyWords');
-db.prepare('DROP TABLE projectEvents');
-*/
+db.prepare('DROP TABLE users').run();
+db.prepare('DROP TABLE projects').run();
+//db.prepare('DROP TABLE projectMembers').run();
+//db.prepare('DROP TABLE projectKeyWords').run();
+//db.prepare('DROP TABLE projectEvents').run();
 
-db.prepare('CREATE TABLE users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE, password VARCHAR2(50)), status VARCHAR2(20)').run();
-// AUTOINCREMENT added for projectId in projects//
-db.prepare('CREATE TABLE projects (projectId INTEGER(7) PRIMARY KEY AUTOINCREMENT, name VARCHAR2(60), description VARCHAR2(1000), creator VARCHAR2(30) REFERENCES users)').run();
-db.prepare('CREATE TABLE projectMembers (projectId INTEGER(7) REFERENCES projects, user VARCHAR2(30) REFERENCES users, status VARCHAR2(15), PRIMARY KEY(projectId, user)').run();
-db.prepare('CREATE TABLE projectKeyWords (projectId INTEGER(7) REFERENCES projects, keyword VARCHAR2(15), PRIMARY KEY (projectId, keyword)').run();
-db.prepare('CREATE TABLE projectEvents (projectId INTEGER(7) REFERENCES projects, event VARCHAR2(500), PRIMARY KEY(projectId, event)').run();
+
+db.prepare('CREATE TABLE users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE, password VARCHAR2(50), status VARCHAR2(20))').run();
+// AUTOINCREMENT added for projectId in projects ? Need to change type for INTEGER instead of INTEGER(7)
+db.prepare('CREATE TABLE projects (projectId INTEGER(7) PRIMARY KEY, name VARCHAR2(60), description VARCHAR2(1000), creator VARCHAR2(30) REFERENCES users)').run();
+
+// Execution error for these query : incomplete input
+//db.prepare('CREATE TABLE projectMembers (projectId INTEGER(7) REFERENCES projects, user VARCHAR2(30) REFERENCES users, status VARCHAR2(15), PRIMARY KEY (projectId, user)').run();
+//db.prepare('CREATE TABLE projectKeyWords (projectId INTEGER(7) REFERENCES projects, keyword VARCHAR2(15), PRIMARY KEY (projectId, keyword)').run();
+//db.prepare('CREATE TABLE projectEvents (projectId INTEGER(7) REFERENCES projects, event VARCHAR2(500), PRIMARY KEY (projectId, event)').run();
 
 exports.createUser = function(email, username, password, status) {
     let check = db.prepare('SELECT email, username FROM users WHERE email=? OR username=?').get([email, username]);
@@ -31,23 +32,26 @@ exports.updateUser = function(email, username, password, status) {
     update.run([username, password, status, email]);
 }
 
-/*
+
 exports.createProject = function(name, description, creator) {
     let projectId = db.prepare('SELECT count(projectId) FROM projects').get();
     let insert = db.prepare('INSERT INTO project VALUES (?, ?, ?, ?)');
     insert.run([projectId, name, description, creator]);
     return projectId;
-}*/
+}
 
 
 /**
  * Another version that take into account the autoincrement of the projectId attribute.
- */
+ *//*
 exports.createProject = function(name, description, creator) {
     let insert = db.prepare('INSERT INTO users VALUES (?, ?, ?)');
     let insertedProjectId = insert.run([name, description, creator]).lastInsertRowid;
     return insertedProjectId;
 }
+*/
+
+
 
 /**
  * 2 last lines changed to know if the table is updated successfully.
