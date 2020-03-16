@@ -1,0 +1,12 @@
+body {
+    background-image: url(../resources/bg-faded-blue.png);
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+
+h1, h2, h3, h4 {
+    margin-top: 15px;
+    text-align: center;
+    color: black;
+}

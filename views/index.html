@@ -1,0 +1,157 @@
+{{>header}}
+
+<script>
+    document.body.setAttribute('style', "background-image: url(../resources/112868.jpg);background-size: cover; background-attachment: fixed;");
+  </script>
+  <div class="row" style="margin-top: 15vh;">
+    <div class="col-md-8 mx-auto">
+      <h1 style="color: white;">Welcome to One World Project</h1>
+      <h3 style="color:white;">An ambitious project group to make our world a better place</h3>
+      <p class="mt-5" style="size: 3rem; color: orange">
+            Depuis toujours, l’Homme se sert des ressources naturelles de la Terre pour créer, façonner son propre environnement, 
+            dans le but de se protéger, se garantir un certain confort de vie et d’évoluer.
+            Cependant, depuis plusieurs décennies, la question de l’utilisation de ces ressources fait débat. 
+            En effet, beaucoup de ressources utilisées sont épuisables ou s’effacent petit-à-petit de la surface du globe, 
+            notre mode de vie s’en trouvant dégradé. Les conséquences de ces exploitations massives de notre planète mènent 
+            à des changements climatiques sans précédents, des disparitions d’espèces de toutes sortes, et menacent directement notre monde. 
+            Des prises de conscience émergent et de plus en plus de gouvernement, de multinationales et d’autres acteurs prennent des mesures 
+            pour limiter leur impact environnemental. Pour accompagner ce mouvement, nous avons créé One World Project pour mettre 
+            en avant les projets existants et de toutes tailles en matière d’écologie, et en encourager la création, nous basant sur les valeurs
+            humaines de générosité, solidarité, d'entraide et de partage. <strong>We need you !</strong>
+      </p>
+      <h5 class="text-white"><strong>Robin Severac, Loïc Neyrat,</strong> <i>founders of One World Projects</i></p>
+    </div>
+  </div>
+
+  <!--Améliorer avec des sections-->
+  <div class="container" id="signup-form" style="margin-top: 25vh; margin-bottom: 200px;">
+    <div class="row mt-5">
+      <div class="col-md-8 mx-auto">
+          <h1 class="text-white">Make our world a better place!</h1>
+          <h3 class="text-white">Be a part of the adventure!</h3>
+      </div>
+    </div>
+  
+    <div class="card mx-auto mt-4" style="width:600px; border: 1px solid black;">
+      <div class="card-body">
+        <form action="" method="post">
+          <div class="form-group">
+            <label for="mail">Your email* : </label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text">@</span>
+              </div>
+              <input class="form-control" type="email" placeholder="name@example.com" name="mail" required="">
+            </div>
+            <small id="emailHelp" class="form-text text-muted"> To keep your account handy, without newsletter, spams, and no-one else but you and us.</small>
+          </div>
+          <div class="form-group">
+            <label for="pseudo">Your pseudo* : </label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><img src="node_modules/bootstrap-icons/icons/person-fill.svg"></span>
+              </div>
+              <input class="form-control" type="text" placeholder="Pseudo" name="pseudo" required="">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="pwd">Your password* : </label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><img src="node_modules/bootstrap-icons/icons/shield-lock-fill.svg"></span>
+              </div>
+              <input class="form-control" type="password" placeholder="Password" name="pwd" required="" id="pwd">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="verifpwd">Confirm your password* : </label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><img src="node_modules/bootstrap-icons/icons/lock-fill.svg"></span>
+              </div>
+              <input class="form-control" type="password" name="verifpwd" required="" id="verifpwd">
+            </div>
+          </div>
+          <div class="row ml-2 mr-2">
+            <div class="col-sm-6">
+              <small class="form-text"><input type="checkbox" onclick="pwdVisibility()"> Show password</small>
+            </div>
+            <div class="col-sm-6" style="padding-left: 170px;">
+              <button class="btn btn-primary" type="submit">Sign up!</button>
+            </div>
+          </div>
+        </form> 
+      </div>
+    </div>
+  
+  <script>
+  function pwdVisibility() {
+      var pwd = document.getElementById('pwd');
+      var verifpwd = document.getElementById('verifpwd');
+      pwd.type = pwd.type === "password" ? "text" : "password";
+      verifpwd.type = verifpwd.type === "password" ? "text" : "password";
+  }
+  </script>
+  </div>
+  <!--Améliorer avec des sections-->
+  <div class="container" id="login-form" style="margin-top: 25vh; margin-bottom: 200px;">
+    <div class="row mt-5">
+      <div class="col-md-8 mx-auto">
+          <h1 class="text-white">Nice to see you!</h1>
+      </div>
+    </div>
+  
+    <div class="card mx-auto mt-4" style="width:600px; border: 1px solid black;">
+      <div class="card-body">
+        <form action="" method="post">
+          <div class="form-group">
+            <label for="mail">Your email* : </label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text">@</span>
+              </div>
+              <input class="form-control" type="email" placeholder="name@example.com" name="mail" required="">
+            </div>
+            <small id="emailHelp" class="form-text text-muted"> To keep your account handy, without newsletter, spams, and no-one else but you and us.</small>
+          </div>
+          <div class="form-group">
+            <label for="pseudo">Your pseudo* : </label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><img src="node_modules/bootstrap-icons/icons/person-fill.svg"></span>
+              </div>
+              <input class="form-control" type="text" placeholder="Pseudo" name="pseudo" required="">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="pwd">Your password* : </label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><img src="node_modules/bootstrap-icons/icons/shield-lock-fill.svg"></span>
+              </div>
+              <input class="form-control" type="password" placeholder="Password" name="pwd" required="" id="pwd">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="verifpwd">Confirm your password* : </label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><img src="node_modules/bootstrap-icons/icons/lock-fill.svg"></span>
+              </div>
+              <input class="form-control" type="password" name="verifpwd" required="" id="verifpwd">
+            </div>
+          </div>
+          <div class="row ml-2 mr-2">
+            <div class="col-sm-6">
+              <small class="form-text"><input type="checkbox" onclick="pwdVisibility()"> Show password</small>
+            </div>
+            <div class="col-sm-6" style="padding-left: 170px;">
+              <button class="btn btn-primary" type="submit">Sign up!</button>
+            </div>
+          </div>
+        </form> 
+      </div>
+    </div>
+
+
+{{>footer}}
