@@ -12,7 +12,7 @@ app.set('views', './views');
 
 
 app.use('/styles', resources);
-
+app.use('/resources', resources);
 
 app.get('/', (req, res) => {
     res.render('index.html');
