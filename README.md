@@ -115,7 +115,3 @@ Depuis toujours, l’Homme se sert des ressources naturelles de la Terre pour cr
 Cependant, depuis plusieurs décennies, la question de l’utilisation de ces ressources fait débat. En effet, beaucoup de ressources utilisées sont épuisables ou s’effacent petit-à-petit de la surface du globe, notre mode de vie s’en trouvant dégradé. Les conséquences de ces exploitations de masse des ressources de notre planète mènent à des changements climatiques sans précédents, des disparitions d’espèces de toutes sortes, et menace directement notre monde. Des prises de conscience émergent et de plus en plus de gouvernement, de multinationales et d’autres acteurs prennent des mesures pour limiter leur impact. Pour accompagner cela à toutes les échelles, nous avons créé One World Project pour montrer les projets existants en matière d’écologie et la création de tels projets. Ce concept ce base sur les valeurs de soutien, de partenariats, d’échanges et de solidarité.
 
 Nous avons besoin de vous ! Alors rejoignez l’aventure !
-
-
-
-
