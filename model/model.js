@@ -166,6 +166,5 @@ exports.resetDatabase = function() {
 
 var sqlCheck = function(parameter, table) {
     let check = db.prepare(`SELECT ? FROM ${table} WHERE ?=?`).get([parameter, parameter, parameter]);
-    
     return check !== undefined;
 }

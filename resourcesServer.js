@@ -23,10 +23,10 @@ app.get('/bg-faded-blue.png', (req, res) => {
     res.sendFile(__dirname + '/resources/bg-faded-blue.png');
 })
 
-app.get('/*.svg', (req, res) => {
+app.get('/person-fill.svg', (req, res) => {
     console.log(req.url);
     res.set('Content-Type', 'image/webp');
-    res.sendFile(__dirname + icons_link + req.url);
+    res.sendFile(__dirname + icons_link + "/person-fill.svg");
 });
 
 
