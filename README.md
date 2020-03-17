@@ -75,6 +75,19 @@ Répertoires (à partir de la racine du projet) :
     Model : contient le fichier javascript gérant les interactions avec la base de données.
     Principal : racine du projet, contient la base de données sqlite, le serveur principal (server.js) et le serveur de ressources utilisés pour les requêtes du clients correspondant à une feuille de style ou une image, les répertoires pré-cités, un répertoire node_modules créé par la commande npm install <module>.
 
+
+TABLES SQL
+
+USERS: email (PRIMARY KEY), username (UNIQUE), password, status;
+
+PROJECTS: projectId, name, description, creator;
+
+PROJECT_MEMBERS: projectId, users, status;
+
+PROJECT_KEYWORDS: projectId, keyword;
+
+PROJECT_EVENTS: projectId, event;
+
  
 
 ROUTES DU SERVEUR PRINCIPAL
@@ -108,11 +121,11 @@ ROUTES DU SERVEUR PRINCIPAL
     JLJEBBEJKRHEKR idem"/delete-user? username=" (get) => Supprime l'utilisateur dont le nom est mis dans l'url (si utilisateur normal => le username peut uniquement être le sien").
 
 
-COOKIE CÔTE CLIENT
+COOKIE COTE CLIENT
 
 1 cookie session (tiers)
 
-1 cookie stockant le statut de l'utilisateur (normal ou modérateur)
+1 cookie stockant le statut de l'utilisateur (normal ou modérateur) (possiblement placé avec le cookie de session, si nous le pouvons)
 
 
 Texte page d’accueil : 
