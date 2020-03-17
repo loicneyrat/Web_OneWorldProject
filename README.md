@@ -54,7 +54,6 @@ UTILISATEUR (administrateur) :
 
 
 PROJET :
-
     A un créateur.
     A des adhérents.
     A des abonnés.
@@ -101,9 +100,13 @@ PROJECT_EVENTS: projectId, event, date;
 ROUTES DU SERVEUR PRINCIPAL
 
     ACCUEIL
-        "/" (﻿get)﻿ => Renvoie sur la page d'accueil du site, qui contient (notamment) les formulaires de connexion et de création de compte.
+        "/" (﻿get)﻿ => Renvoie sur la page d'accueil du site, contenant un texte d'introduction au projet.
 
-        "/home" (get) => Envoie vers la page d'accueil de l'utilisateur ayant pour pseudo "username" une fois connecté.
+        "/login-form" (get) => Renvoie sur le formulaire de connexion utilisateur.
+        
+        "/signup-form" (get) => Renvoie sur le formulaire de création d'un compte utilisateur.
+
+        "/home/:username" (get) => Envoie vers la page d'accueil de l'utilisateur ayant pour pseudo "username" une fois connecté. Cette page contient la liste es projets suivis, créés par l'utilisateur, ou dont il est membre.
 
     CONNEXION/CREATION DE COMPTE
         "/login" (post) => Envoie des données saisies dans le formulaire de connexion. Redirection vers "/" si la connexion a échoué ou si les données saisies sont invalides, vers "/home/:username" sinon
@@ -141,7 +144,7 @@ ROUTES DU SERVEUR PRINCIPAL
 
         "/leave/:projectId" (get) => supprime le projet des projets dont l'utilisateur est membre, renvoie vers le projet détaillé si réussi, vers une page d'erreur sinon.
 
-        "/home/my-projects" (get) => renvoie une page contenant la liste des projets suivis, créés ou dont l'utilisateur est membre.
+        
 
 
     ADMINISTRATION
@@ -156,8 +159,10 @@ ROUTES DU SERVEUR PRINCIPAL
 
 LES VUES : 
     - header : contient un champ de recherche, un bouton qui renvoie à la page d'accueil, un menant vers les projets suivis par l'utilisateur (si connecté), un autre renvoyant vers la page des notifications (si implémentées).
-    - footer : contient ?????
-    - index.html : page d'accueil sur le site. Contiendra les formulaires de connexion et de création de compte.
+    - footer : contient nos noms en tant qu'auteur du site et le lien vers le projet gitHub.
+    - index.html : page d'accueil sur le site.
+    - signup-form.html : Contiendra le formulaire de création de compte.
+    - login-form.html :  Contiendra le formulaire de connexion.
 
     POUR LES PROJETS : 
     - project-details : affiche les détails d'un projet (titre, description, créateur, mot clef...) et les événements associés. Permet à un utilisateur connecté de suivre le projet, d'y adhérer (ou de cesser de le suivre/d'y adhérer). Permet au créateur de supprimer le projet. 
@@ -168,7 +173,7 @@ LES VUES :
     - update-status-form : affiche le formulaire pour modifier le statut d'un membre d'un projet.
 
     POUR UN UTILISATEUR :
-    - my-project-list : affiche la liste des projets créés, suivis et ceux dont l'utilisateur est membre. 
+    - home.html : page d'accueil de l'utilisateur connecté. Affiche la liste des projets créés, suivis et ceux dont l'utilisateur est membre. 
     - (BONUS) notifications : affiche la liste des notifications de l'utilisateur.
 
     POUR LES ADMINISTRATEURS DU SITE :
@@ -178,11 +183,52 @@ LES VUES :
 
 
 
-COOKIE COTE CLIENT
+COOKIES COTE CLIENT
 
 1 cookie session (tiers)
 
 1 cookie stockant le statut de l'utilisateur (normal ou modérateur) (possiblement placé avec le cookie de session, si nous le pouvons)
+
+
+PROGRAMME PREVISIONNEL (sous réserve de modifications)
+
+A chaque semaine correspondra une partie des routes du serveur à accomplir ainsi que toutes les fonctions, vues et autres outils qui y sont rattachés : 
+- Du 16 au 18 Mars : partie préliminaire
+        • Création de l'arboscence de fichiers.
+        • Création du modèle
+        • Importation des modules nécessiares grâce à la commande npm
+        • Créatin du header.html et du footer.html
+        • Importation de ressources (images)
+        • Création du stylesheets supplémentaires style.css
+        • Création du serveur principal (server.js) et du serveur de ressources (resourcesServer.js);
+
+- Du 19 au 26 Mars : partie ACCUEIL 
+        • Création des vues index.html, login-form.html, signup-form.html.
+        • Création des routes associées à la demande des formulaires.
+        • Création des routes associées à la gestion des données renvoyées par les formulaires.
+        • Création des méthodes de validation des données et de sécurité.
+        • Raccordement au modèle.
+
+- Du 27 Mars au 2 Avril : Partie UTILISATEURS et ADMINISTRATEUR
+        • Création de home.html et de sa route associée.
+        • Mise en lien avec le générateur de template.
+
+- Du 3 au 9 Avril : partie PROJETS (1)
+        • Création des formulaires create-project-form, update-project-form, confirm-project-delete, update-status-form.
+        • Création des routes "get" et "post" pour les formulaires pré-cités.
+        • Mise en lien avec le modèle.
+
+- Du 10 au 16 Avril : partie PROJETS (2)
+        • Création des pages project-details et project-members-list.
+        • Création des routes associées.
+        • Mise en lien et essais des pages avec le moteur de template mustache.
+        • Raccordement au modèle.
+
+- Du 17 au 23 Avril : REGLAGES D'EVENTUELS BUGS, OPTIMISATION / AMELIORATION DU CODE, BONUS
+
+
+
+
 
 
 Texte page d’accueil : 
