@@ -1,7 +1,8 @@
 let express = require('express');
 let app = express();
 
-let icons_link = "/node_modules/bootstrap-icons/icons"
+let img_link = __dirname + "/resources";
+let styesheet_link = __dirname + "styles";
 
 app.get('/style.css', (req, res) => {
     res.set('Content-Type', 'text/css');
@@ -26,7 +27,7 @@ app.get('/bg-faded-blue.png', (req, res) => {
 app.get('/person-fill.svg', (req, res) => {
     console.log(req.url);
     res.set('Content-Type', 'image/webp');
-    res.sendFile(__dirname + icons_link + "/person-fill.svg");
+    res.sendFile(img_link + "/person-fill.svg");
 });
 
 
