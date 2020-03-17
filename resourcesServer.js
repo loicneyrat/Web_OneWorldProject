@@ -9,9 +9,9 @@ app.get('/style.css', (req, res) => {
     res.sendFile(__dirname + '/styles/style.css');
 });
 
-app.get('/112868.jpg', (req, res) => {
-    res.set('Content-Type', 'image/jpg');
-    res.sendFile(img_link+ '/112868.jpg');
+app.get('/*', (req, res) => {
+    res.set('Content-Type', 'image/webp');
+    res.sendFile(img_link + req.url);
 });
 
 app.get('/earth-icon.png', (req, res) => {
@@ -24,10 +24,6 @@ app.get('/bg-faded-blue.png', (req, res) => {
     res.sendFile(__dirname + '/resources/bg-faded-blue.png');
 })
 
-app.get('/*.svg', (req, res) => {
-    res.set('Content-Type', 'image/svg');
-    res.sendFile(img_link + req.url);
-});
 
 
 
