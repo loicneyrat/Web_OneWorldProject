@@ -25,8 +25,7 @@ app.get('/bg-faded-blue.png', (req, res) => {
 })
 
 app.get('/person-fill.svg', (req, res) => {
-    console.log(req.url);
-    res.set('Content-Type', 'image/webp');
+    res.set('Content-Type', 'image/svg');
     res.sendFile(img_link + "/person-fill.svg");
 });
 
