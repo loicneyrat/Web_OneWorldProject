@@ -41,11 +41,17 @@ UTILISATEURS (normal) : Un utilisateur peut :
     BONUS (Commentaires sous les événements des projets qu'il suit)
     BONUS (Communication avec d’autres utilisateurs)
 
-UTILISATEURS (modérateurs) :
+(BONUS) UTILISATEURS (modérateurs) :
 
     Bénéficie de tous les droits d’un utilisateur normal.
     Peut supprimer un projet jugé inadapté au concept du site (même s’il n’en est pas l’instigateur).
     Peut supprimer un utilisateur.
+
+UTILISATEUR (administrateur) :
+
+    Bénéficie de tous les droits d'un modérateur. 
+    Peut nommer un utilisateur modérateur.
+
 
 PROJET :
 
@@ -55,10 +61,10 @@ PROJET :
     A une description.
     A un titre.
     A une catégorie.
-    A une date de création.
+    A une date de création. 
     Est associé a des mots-clefs choisis par le créateur.
-    A de potentiels événements associés (ajoutés par des membres ayant un statut particulier au sein du projet, ou par le créateur lui-même)
     Peut être supprimer par son créateur ou un modérateur.
+    A de potentiels événements associés (ajoutés par des membres ayant un statut particulier au sein du projet, ou par le créateur lui-même)
     BONUS (Envoie les notifications à ses adhérents et followers par mail.)
     BONUS (Peut être commenté).
 
@@ -82,45 +88,94 @@ TABLES SQL
 
 USERS: email (PRIMARY KEY), username (UNIQUE), password, status;
 
-PROJECTS: projectId, title, description, creator;
+PROJECTS: projectId, title, description, creator, date;
 
 PROJECT_MEMBERS: projectId, users, status;
 
 PROJECT_KEYWORDS: projectId, keyword;
 
-PROJECT_EVENTS: projectId, event;
+PROJECT_EVENTS: projectId, event, date;
 
  
 
 ROUTES DU SERVEUR PRINCIPAL
 
-    "/" (﻿get)﻿ => Renvoie sur la page d'accueil du site, qui contient (notamment) les formulaires de connexion et de création de compte.
+    ACCUEIL
+        "/" (﻿get)﻿ => Renvoie sur la page d'accueil du site, qui contient (notamment) les formulaires de connexion et de création de compte.
 
-    "/home/:username" (get) => Envoie vers la page d'accueil de l'utilisateur ayant pour pseudo "username" une fois connecté.
+        "/home" (get) => Envoie vers la page d'accueil de l'utilisateur ayant pour pseudo "username" une fois connecté.
 
-    "/login" (post) => Envoie des données saisies dans le formulaire de connexion. Redirection vers "/" si la connexion a échoué ou si les données saisies sont invalides, vers "/home/:username" sinon
+    CONNEXION/CREATION DE COMPTE
+        "/login" (post) => Envoie des données saisies dans le formulaire de connexion. Redirection vers "/" si la connexion a échoué ou si les données saisies sont invalides, vers "/home/:username" sinon
 
-    "/signup" (post) =>  Même comportement que "/login" mais adapté à la validation des données du formulaire d'inscription.
+        "/signup" (post) =>  Même comportement que "/login" mais adapté à la validation des données du formulaire d'inscription.
 
-    ﻿"/search?query=recherche de l'utilisateur" (get) => Envoie, après vérification des données saisies dans le champ de recherche, une page contenant la liste des projets résultant de la recherche dans la base de données.
 
-    "/project?projectId=numéro du projet sur lequel l'utilisateur a cliqué" (get) => Renvoie la page complète et détaillée du projet.
+    RECHERCHE
+        ﻿"/search?query=recherche de l'utilisateur" (get) => Envoie, après vérification des données saisies dans le champ de recherche, une page contenant la liste des projets résultant de la recherche dans la base de données.
 
-    AARBHBKHBRJEBZHRJHE je ferai plutôt un "form/:projectId" directement, et le formulaire demande la confirmation ?"/delete-project-form?projectId=" (get) => renvoie sur le formulaire de suppression du projet.
+        "/project?projectId=numéro du projet sur lequel l'utilisateur a cliqué" (get) => Renvoie la page complète et détaillée du projet.
+    
 
-    "/delete-project/:projectId" (get) => redirection vers "/home/:username si la suppression a réussi, message d'erreur sinon.
+    GESTION D'UN PROJET
+        "/create-project-form/:username" (get) => Envoie vers le formulaire de création d'un projet en vérifiant que l'utilisateur est bien connecté.
 
-    DJEZBLBDZHLBD idem"/update-project-form?projectId=" (get) => Envoie du formulaire de modification de projet chargé avec les données relatives au projet demandé.
+        "/create-project/" (post) => Envoie vers la page du projet nouvellement créé si la création a réussie, message d'erreur sur le formulaire sinon.
 
-    "/update/:projectId" (post) => Envoie vers la page complète et détaillé du projet si la modification a réussi, affiche un message d'erreur sur le formulaire sinon.
+        "/update-project-form/:projectId (get) => Envoie du formulaire de modification de projet chargé avec les données relatives au projet demandé.
 
-    "/create-project-form/:username" (get) => Envoie vers le formulaire de création d'un projet en vérifiant que l'utilisateur est bien connecté.
+        "/update/:projectId" (post) => Envoie vers la page complète et détaillée du projet si la modification a réussi, affiche un message d'erreur sur le formulaire sinon.
 
-    "/create-project" (post) => Envoie vers la page du projet nouvellement créé si la création a réussie, message d'erreur sur le formulaire sinon.
+        "/delete-project-form/:projectId" (get) => renvoie sur le formulaire de suppression du projet après vérification que l'utilisateur peut effectivement le supprimer.
 
-    "/delete-user-form/:username" (get) => Envoie vers le formulaire de suppression d'un utilisateur (modérateur uniquement).
+        "/delete-project" (get) => récupère les informations du formulaire (ici, le projectId). Redirection vers "/home/:username si la suppression a réussi, message d'erreur sinon.
 
-    JLJEBBEJKRHEKR idem"/delete-user? username=" (get) => Supprime l'utilisateur dont le nom est mis dans l'url (si utilisateur normal => le username peut uniquement être le sien").
+        "/project-member-list" (get) => uniquement pour les modérateurs et le créateur. Renvoie la liste des membres d'un projet (sans inclure les abonnés).
+
+    POUR UN UTILISATEUR
+        "/follow/:projectId" (get) => ajoute le projet aux projets suivis, renvoie vers le projet détaillé si réussi, vers une page d'erreur sinon. 
+
+        "/join/:projectId" (get) => ajoute le projet aux projets dont l'utilisateur est membre, renvoie vers le projet détaillé si réussi, vers une page d'erreur sinon. 
+
+        "/unfollow/:projectId" (get) => supprime le projet des projets suivis, renvoie vers le projet détaillé si réussi, vers une page d'erreur sinon.
+
+        "/leave/:projectId" (get) => supprime le projet des projets dont l'utilisateur est membre, renvoie vers le projet détaillé si réussi, vers une page d'erreur sinon.
+
+        "/home/my-projects" (get) => renvoie une page contenant la liste des projets suivis, créés ou dont l'utilisateur est membre.
+
+
+    ADMINISTRATION
+        "/delete-user/:username" (get) => Envoie vers le formulaire de confirmation de suppression d'un utilisateur. Si utilisateur a le statut "regular", le username est forcément le sien.  
+
+        "/user-list" (get)  => renvoie la liste des utilisateurs du site classée par ordre alphabétique.
+
+        (BONUS) "/change-status-form/:username" (get) => renvoie le formulaire pour modifier le statut d'un utilisateur.
+
+        (BONUS) "/change-status" (get) => récupère les informations du formulaire, effectue le changement. Renvoie vers la liste des utilisateurs mise à jour si réussi, message d'erreur sinon.
+
+
+LES VUES : 
+    - header : contient un champ de recherche, un bouton qui renvoie à la page d'accueil, un menant vers les projets suivis par l'utilisateur (si connecté), un autre renvoyant vers la page des notifications (si implémentées).
+    - footer : contient ?????
+    - index.html : page d'accueil sur le site. Contiendra les formulaires de connexion et de création de compte.
+
+    POUR LES PROJETS : 
+    - project-details : affiche les détails d'un projet (titre, description, créateur, mot clef...) et les événements associés. Permet à un utilisateur connecté de suivre le projet, d'y adhérer (ou de cesser de le suivre/d'y adhérer). Permet au créateur de supprimer le projet. 
+    - create-project-form : affiche le formulaire de création de projet. 
+    - update-project-form : formulaire de mise à jour du projet.
+    - confirm-project-delete : formulaire de confirmation de la suppression d'un projet. 
+    - project-members-list : montre la liste des membres d'un projet (username) et leur statut. Permet aux modérateurs et au créateur d'exclure certains membres. Au créateur : affiche le bouton pour modifier le statut d'un des membres.
+    - update-status-form : affiche le formulaire pour modifier le statut d'un membre d'un projet.
+
+    POUR UN UTILISATEUR :
+    - my-project-list : affiche la liste des projets créés, suivis et ceux dont l'utilisateur est membre. 
+    - (BONUS) notifications : affiche la liste des notifications de l'utilisateur.
+
+    POUR LES ADMINISTRATEURS DU SITE :
+    - users-list : affiche la liste des utilisateurs classée par ordre alphabétique. Permet de modifier le statut d'un utilisateur(BONUS), ou de supprimer son compte.
+    - confirm-user-delete : formulaire de confirmation de la suppression d'un utilisateur.
+    - (BONUS) set-moderator-form : pour l'administrateur uniquement : formulaire pour modifier le statut d'un utilisateur.  
+
 
 
 COOKIE COTE CLIENT
