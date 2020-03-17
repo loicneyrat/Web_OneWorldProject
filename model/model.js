@@ -15,7 +15,7 @@ db.prepare('CREATE TABLE projectEvents(projectId INTEGER REFERENCES projects ON 
 exports.createUser = function(email, username, password, status) {
     let check = db.prepare('SELECT email, username FROM users WHERE email=? OR username=?').get([email, username]);
     if (check === undefined) {
-        let insert = db.prepare('INSERT INTO users VALUES(?, ?, ?, ?');
+        let insert = db.prepare('INSERT INTO users VALUES(?, ?, ?, ?)');
         insert.run([email, username, password, status]);
         return true;
     }
@@ -40,7 +40,7 @@ exports.deleteUser = function(email) {
 }
 
 exports.createProject = function(name, description, creator) {
-    let insert = db.prepare('INSERT INTO project VALUES (?, ?, ?, ?)');
+    let insert = db.prepare('INSERT INTO projects VALUES (?, ?, ?, ?)');
     let projectId = insert.run([projectId, name, description, creator]).lastInsertRowId;
     return projectId;
 }
