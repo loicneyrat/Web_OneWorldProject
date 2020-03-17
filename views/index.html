@@ -19,7 +19,7 @@
             en avant les projets existants et de toutes tailles en matière d’écologie, et en encourager la création, nous basant sur les valeurs
             humaines de générosité, solidarité, d'entraide et de partage. <strong>We need you !</strong>
       </p>
-      <h5 class="text-white"><strong>Robin Severac, Loïc Neyrat,</strong> <i>founders of One World Projects</i></p>
+      <h5 class="text-white mt-5"><strong>Robin Severac, Loïc Neyrat,</strong> <i>founders of One World Projects</i></p>
     </div>
   </div>
 
@@ -49,7 +49,7 @@
             <label for="pseudo">Your pseudo* : </label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><img src="../node_modules/bootstrap-icons/icons/person-fill.svg"></span>
+                <span class="input-group-text"><img src="../resources/person-fill.svg"></span>
               </div>
               <input class="form-control" type="text" placeholder="Pseudo" name="pseudo" required="">
             </div>
@@ -58,7 +58,7 @@
             <label for="pwd">Your password* : </label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><img src="../node_modules/bootstrap-icons/icons/shield-lock-fill.svg"></span>
+                <span class="input-group-text"><img src="../resources/shield-lock-fill.svg"></span>
               </div>
               <input class="form-control" type="password" placeholder="Password" name="pwd" required="" id="pwd">
             </div>
@@ -67,7 +67,7 @@
             <label for="verifpwd">Confirm your password* : </label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><img src="../node_modules/bootstrap-icons/icons/lock-fill.svg"></span>
+                <span class="input-group-text"><img src="../resources/lock-fill.svg"></span>
               </div>
               <input class="form-control" type="password" name="verifpwd" required="" id="verifpwd">
             </div>
@@ -105,16 +105,6 @@
       <div class="card-body">
         <form action="" method="post">
           <div class="form-group">
-            <label for="mail">Your email* : </label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text">@</span>
-              </div>
-              <input class="form-control" type="email" placeholder="name@example.com" name="mail" required="">
-            </div>
-            <small id="emailHelp" class="form-text text-muted"> To keep your account handy, without newsletter, spams, and no-one else but you and us.</small>
-          </div>
-          <div class="form-group">
             <label for="pseudo">Your pseudo* : </label>
             <div class="input-group">
               <div class="input-group-prepend">
@@ -127,18 +117,9 @@
             <label for="pwd">Your password* : </label>
             <div class="input-group">
               <div class="input-group-prepend">
-                <span class="input-group-text"><img src="../node_modules/bootstrap-icons/icons/shield-lock-fill.svg"></span>
+                <span class="input-group-text"><img src="../resources/shield-lock-fill.svg"></span>
               </div>
-              <input class="form-control" type="password" placeholder="Password" name="pwd" required="" id="pwd">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="verifpwd">Confirm your password* : </label>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><img src="../node_modules/bootstrap-icons/icons/lock-fill.svg"></span>
-              </div>
-              <input class="form-control" type="password" name="verifpwd" required="" id="verifpwd">
+              <input class="form-control" type="password" placeholder="Password" name="connectpwd" required="" id="pwd">
             </div>
           </div>
           <div class="row ml-2 mr-2">
@@ -146,12 +127,18 @@
               <small class="form-text"><input type="checkbox" onclick="pwdVisibility()"> Show password</small>
             </div>
             <div class="col-sm-6" style="padding-left: 170px;">
-              <button class="btn btn-primary" type="submit">Sign up!</button>
+              <button class="btn btn-primary" type="submit">Log in!</button>
             </div>
           </div>
         </form> 
       </div>
     </div>
+    <script>
+      function pwdVisibility() {
+        var pwd = document.getElementById('connectpwd');
+        pwd.type = pwd.type === "password" ? "text" : "password";
+      }
+      </script>
 
 
 {{>footer}}
