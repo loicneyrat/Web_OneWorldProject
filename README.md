@@ -19,6 +19,8 @@ CAHIER DES CHARGES
 
 *certains éléments sont indiqués comme étant des bonus : ils ne seront réalisés que si le temps nous le permet, en prenant en considération leur complexité et les autres projets que nous avons a réaliser pour la Licence.
 
+*ce cahier des charges constitue un prévisionnel de ce qui sera fait. Tout peut être amené à changer en cours de production.
+
 CLIENT (non-utilisateur) :
 
     Effectuer une recherche de projets
@@ -80,7 +82,7 @@ TABLES SQL
 
 USERS: email (PRIMARY KEY), username (UNIQUE), password, status;
 
-PROJECTS: projectId, name, description, creator;
+PROJECTS: projectId, title, description, creator;
 
 PROJECT_MEMBERS: projectId, users, status;
 
