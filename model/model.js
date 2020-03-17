@@ -3,7 +3,7 @@ var db = new sqlite('database.sqlite');
 
 db.prepare('CREATE TABLE users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE, password VARCHAR2(50), status VARCHAR2(20))').run();
 
-db.prepare('CREATE TABLE projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR2(60), description VARCHAR2(1000), creator VARCHAR2(30) REFERENCES users)').run();
+db.prepare('CREATE TABLE projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR2(60), description VARCHAR2(1000), creator VARCHAR2(30) REFERENCES users)').run();
 
 db.prepare('CREATE TABLE projectMembers(projectId INTEGER REFERENCES projects ON DELETE CASCADE, user VARCHAR2(30) REFERENCES users ON DELETE CASCADE, status VARCHAR2(15), PRIMARY KEY(projectId, user))').run();
 
@@ -39,18 +39,18 @@ exports.deleteUser = function(email) {
     return true;
 }
 
-exports.createProject = function(name, description, creator) {
+exports.createProject = function(title, description, creator) {
     let insert = db.prepare('INSERT INTO projects VALUES (?, ?, ?, ?)');
-    let projectId = insert.run([projectId, name, description, creator]).lastInsertRowId;
+    let projectId = insert.run([projectId, title, description, creator]).lastInsertRowId;
     return projectId;
 }
 
-exports.updateProject = function(projectId, name, description, creator) {
+exports.updateProject = function(projectId, title, description, creator) {
     let check = sqlCheck(projectId, projects);
     if (check == false) return false;
 
-    let update = db.prepare('UPDATE projects SET name=?, description=?, creator=? WHERE projectId=?');
-    let result = update.run([name, description, creator, projectId]).changes;
+    let update = db.prepare('UPDATE projects SET title=?, description=?, creator=? WHERE projectId=?');
+    let result = update.run([title, description, creator, projectId]).changes;
     return result == 1;
 }
 
@@ -155,7 +155,7 @@ exports.resetDatabase = function() {
 
     db.prepare('CREATE TABLE users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE, password VARCHAR2(50)), status VARCHAR2(20)').run();
 
-    db.prepare('CREATE TABLE projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR2(60), description VARCHAR2(1000), creator VARCHAR2(30) REFERENCES users)').run();
+    db.prepare('CREATE TABLE projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR2(60), description VARCHAR2(1000), creator VARCHAR2(30) REFERENCES users)').run();
 
     db.prepare('CREATE TABLE projectMembers(projectId INTEGER REFERENCES projects ON DELETE CASCADE, user VARCHAR2(30) REFERENCES users ON DELETE CASCADE, status VARCHAR2(15), PRIMARY KEY(projectId, user))').run();
 
