@@ -50,8 +50,10 @@ exports.deleteUser = function(email) {
     return result == 1;
 }
 
+
+//TODO modifier la function pour associer un tableau de catégories au résultat. 
 exports.getProjects = function(username) {
-    let query = db.prepare('SELECT P.title, P.creator, P.category FROM Projects P, Users U WHERE P.creator=U.email AND U.username=?');
+    let query = db.prepare('SELECT P.title, P.creator FROM Projects P, Users U WHERE P.creator=U.email AND U.username=?');
     let projectsList = query.all([username]);
 
     for (let i = 0; i < projectsList.length ; i++) {
@@ -67,6 +69,7 @@ exports.getProjects = function(username) {
 
     return projectsList;
 }
+
 
 /***
  * 
