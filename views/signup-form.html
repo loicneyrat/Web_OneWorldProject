@@ -1,0 +1,78 @@
+{{>header}}
+
+<!--Améliorer avec des sections-->
+<div class="container" id="signup-form" style="margin-top: 25vh; margin-bottom: 200px;">
+    <div class="row mt-5">
+      <div class="col-md-8 mx-auto">
+          <h1 class="text-white">Make our world a better place!</h1>
+          <h3 class="text-white">Be a part of the adventure!</h3>
+      </div>
+    </div>
+  
+    <div class="card mx-auto mt-4" style="width:600px; border: 1px solid black;">
+      <div class="card-body">
+        <form action="" method="post">
+          <div class="form-group">
+            <label for="mail">Your email* : </label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text">@</span>
+              </div>
+              <input class="form-control" type="email" placeholder="name@example.com" name="mail" required="">
+            </div>
+            <small id="emailHelp" class="form-text text-muted"> To keep your account handy, without newsletter, spams, and no-one else but you and us.</small>
+          </div>
+          <div class="form-group">
+            <label for="pseudo">Your pseudo* : </label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fa fa-user"></i></span>
+              </div>
+              <input class="form-control" type="text" placeholder="Pseudo" name="pseudo" required="">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="pwd">Your password* : </label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fas fa-key"></i></span>
+              </div>
+              <input class="form-control" type="password" placeholder="Password" name="pwd" required="" id="pwd">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="verifpwd">Confirm your password* : </label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fas fa-shield-alt"></i></span>
+              </div>
+              <input class="form-control" type="password" name="verifpwd" required="" id="verifpwd">
+            </div>
+          </div>
+          <div class="row ml-2 mr-2">
+            <div class="col-sm-6">
+              <small class="form-text"><input type="checkbox" onclick="pwdVisibility()"> Show password</small>
+            </div>
+            <div class="col-sm-6" style="padding-left: 170px;">
+              <button class="btn btn-primary" type="submit">Sign up!</button>
+            </div>
+          </div>
+        </form> 
+      </div>
+    </div>
+  
+  <script>
+  function pwdVisibility() {
+      var pwd = document.getElementById('pwd');
+      var verifpwd = document.getElementById('verifpwd');
+      pwd.type = pwd.type === "password" ? "text" : "password";
+      verifpwd.type = verifpwd.type === "password" ? "text" : "password";
+  }
+  </script>
+  </div>
+
+
+
+
+
+{{>footer}}
