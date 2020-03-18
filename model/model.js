@@ -3,11 +3,13 @@ var db = new sqlite('database.sqlite');
 
 db.prepare('CREATE TABLE users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE, password VARCHAR2(50), status VARCHAR2(20))').run();
 
-db.prepare('CREATE TABLE projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR2(60), description VARCHAR2(1000), category VARCHAR2(20), creator VARCHAR2(30) REFERENCES users), date DATE').run();
+db.prepare('CREATE TABLE projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR2(60), description VARCHAR2(1000), creator VARCHAR2(30) REFERENCES users), date DATE').run();
 
 db.prepare('CREATE TABLE projectMembers(projectId INTEGER REFERENCES projects ON DELETE CASCADE, user VARCHAR2(30) REFERENCES users ON DELETE CASCADE, status VARCHAR2(15), PRIMARY KEY(projectId, user))').run();
 
 db.prepare('CREATE TABLE projectKeyWords(projectId INTEGER REFERENCES projects ON DELETE CASCADE, keyword VARCHAR2(15), PRIMARY KEY(projectId, keyword))').run();
+
+db;prepare('CREATE TABLE projectCategories (projectId INTEGER REFERENCES projects, category VARCHAR(20), PRIMARY KEY(projectId, category)').run();
 
 db.prepare('CREATE TABLE projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE, event VARCHAR2(500), date DATE, PRIMARY KEY(projectId, event))').run();
 
@@ -94,13 +96,21 @@ exports.getUsersList = function() {
  */
 
 
-exports.createProject = function(title, description, category, creator, date, keywords) {
-    let insert = db.prepare('INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?)');
-    let projectId = insert.run([title, description, category, creator, date]).lastInsertRowId;
+exports.createProject = function(title, description, categories, creator, date, keywords) {
+    let insert = db.prepare('INSERT INTO projects VALUES (?, ?, ?, ?)');
+    let projectId = insert.run([title, description, creator, date]).lastInsertRowId;
 
+    //remove all duplicates from the array.
+    keywords.filter((item, index) => keywords.indexOf(item) === index);
     for(let i = 0 ; i < keywords.length ; i++) {
         addKeyword(projectId, keywords[i]);
     }
+
+    categories.filter((item, index) => categories.indexOf(item) === index);
+    for(let i = 0 ; i < categories.length ; i++) {
+        addCategory(projectId, categories[i]);
+    }
+
     return projectId;
 }
 
@@ -148,7 +158,7 @@ exports.updateMemberStatus = function(projectId, user, status) {
     return result == 1;
 }
 
-exports.deleteMember = function(projectId, user) {
+exports.removeMember = function(projectId, user) {
     let check = db.prepare('SELECT projectId, user FROM projectMembers WHERE projectId=? AND user=?').get([projectId, user]);
     if(check === undefined) return false;
 
@@ -183,7 +193,7 @@ exports.addKeyword = function(projectId, keyword) {
     return result == 1;
 }
 
-exports.deleteKeyword = function(projectId, keyword) {
+exports.removeKeyword = function(projectId, keyword) {
     let check = sqlCheck(projectId, projectKeywords);
     if (check == false) return false;
 
@@ -219,7 +229,7 @@ exports.updateEvent = function(projectId, previousEvent, newEvent) {
     return result == 1;
 }
 
-exports.deleteEvent = function(projectId, event) {
+exports.removeEvent = function(projectId, event) {
     let check = db.prepare('SELECT * FROM projectEvents WHERE projectId=? AND event=?').get([projectId, event]);
     if (check === undefined) return false;
 
@@ -227,6 +237,34 @@ exports.deleteEvent = function(projectId, event) {
     let result = toDelete.run([projectId, event]).changes;
     return result == 1;
 }
+
+
+/***
+ * 
+ *          FOR THE CATEGORIES
+ * 
+ */
+
+ exports.addCategory = function(projectId, category) {
+    let check = sqlCheck(projectId, projects);
+    if (check === undefined) return false;
+
+    check = db.prepare('SELECT * FROM projectCategories WHERE projectID=? AND category=?').get([projectId, category]);
+    if (check !== undefined) return false;
+
+
+    let insert = db.prepare('INSERT INTO projectCategories VALUES (?, ?)');
+    let result = insert.run([projectId, category]).changes;
+    return result == 1;
+ }
+
+ exports.removeCategory = function(projectId, category) {
+    let check = sqlCheck(projectId, projects);
+    if (check === undefined) return false;
+
+    let result = db.prepare('DELETE FROM projectKeywords WHERE projectId=? AND category=?').run([projectId, category]).changes;
+    return result == 1;
+ }
 
 
 /***
@@ -251,6 +289,8 @@ exports.resetDatabase = function() {
     db.prepare('CREATE TABLE projectMembers(projectId INTEGER REFERENCES projects ON DELETE CASCADE, user VARCHAR2(30) REFERENCES users ON DELETE CASCADE, status VARCHAR2(15), PRIMARY KEY(projectId, user))').run();
 
     db.prepare('CREATE TABLE projectKeyWords(projectId INTEGER REFERENCES projects ON DELETE CASCADE, keyword VARCHAR2(15), PRIMARY KEY(projectId, keyword))').run();
+
+    db;prepare('CREATE TABLE projectCategories (projectId INTEGER REFERENCES projects, category VARCHAR(20), PRIMARY KEY(projectId, category)').run();
 
     db.prepare('CREATE TABLE projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE, event VARCHAR2(500), date DATE, PRIMARY KEY(projectId, event))').run();
 }
