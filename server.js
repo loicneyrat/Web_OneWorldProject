@@ -25,6 +25,10 @@ app.get('/login-form', (req, res) => {
     res.render('login-form.html');
 });
 
+app.get('/signup-form', (req, res) => {
+    res.render('signup-form.html');
+});
+
 app.get('/#', (req, res) => {
     res.redirect('/');
 });
