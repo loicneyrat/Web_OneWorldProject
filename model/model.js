@@ -3,45 +3,104 @@ var db = new sqlite('database.sqlite');
 
 db.prepare('CREATE TABLE users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE, password VARCHAR2(50), status VARCHAR2(20))').run();
 
-db.prepare('CREATE TABLE projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR2(60), description VARCHAR2(1000), creator VARCHAR2(30) REFERENCES users)').run();
+db.prepare('CREATE TABLE projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR2(60), description VARCHAR2(1000), category VARCHAR2(20), creator VARCHAR2(30) REFERENCES users), date DATE').run();
 
 db.prepare('CREATE TABLE projectMembers(projectId INTEGER REFERENCES projects ON DELETE CASCADE, user VARCHAR2(30) REFERENCES users ON DELETE CASCADE, status VARCHAR2(15), PRIMARY KEY(projectId, user))').run();
 
 db.prepare('CREATE TABLE projectKeyWords(projectId INTEGER REFERENCES projects ON DELETE CASCADE, keyword VARCHAR2(15), PRIMARY KEY(projectId, keyword))').run();
 
-db.prepare('CREATE TABLE projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE, event VARCHAR2(500), PRIMARY KEY(projectId, event))').run();
+db.prepare('CREATE TABLE projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE, event VARCHAR2(500), date DATE, PRIMARY KEY(projectId, event))').run();
+
+
+/***
+ * 
+ *          FOR A USER
+ * 
+ */
 
 
 exports.createUser = function(email, username, password, status) {
     let check = db.prepare('SELECT email, username FROM users WHERE email=? OR username=?').get([email, username]);
     if (check === undefined) {
         let insert = db.prepare('INSERT INTO users VALUES(?, ?, ?, ?)');
-        insert.run([email, username, password, status]);
-        return true;
+        let result = insert.run([email, username, password, status]).changes;
+        return result == 1;
     }
     return false;
 }
 
-exports.updateUser = function(email, username, password, status) {
+exports.updateUserCredentials = function(email, username, password) {
     let check = sqlCheck(email, users);
     if (check == false) return false;
 
-    let update = db.prepare('UPDATE users SET username=?, password=?, status=? WHERE email=?');
-    update.run([username, password, status, email]);
-    return true;
+    let update = db.prepare('UPDATE users SET username=?, password=? WHERE email=?');
+    let result = update.run([username, password, email]).changes;
+    return result == 1;
 }
+
 
 exports.deleteUser = function(email) {
     let check = sqlCheck(email, users);
     if (check == false) return false;
 
-    db.prepare('DELETE FROM users WHERE email=?').run([email]);
-    return true;
+    let query = db.prepare('DELETE FROM users WHERE email=?');
+    let result = query.run([email]).changes;
+    return result == 1;
 }
 
-exports.createProject = function(title, description, creator) {
-    let insert = db.prepare('INSERT INTO projects VALUES (?, ?, ?, ?)');
-    let projectId = insert.run([projectId, title, description, creator]).lastInsertRowId;
+exports.getProjects = function(username) {
+    let query = db.prepare('SELECT P.title, P.creator, P.category FROM Projects P, Users U WHERE P.creator=U.email AND U.username=?');
+    let projectsList = query.all([username]);
+
+    for (let i = 0; i < projectsList.length ; i++) {
+        projectsList[i][status] = creator;
+    }
+
+    query = db.prepare('SELECT P.title, P.creator, P.category, M.status FROM Projects P, ProjectMembers M, Users U WHERE P.projectId = M.projectId AND U.email = M.user AND U.username=?');
+    let projectsFollowed = query.all([username]);
+
+    for (let i = 0; i < projectsFollowed.length ; i++) {
+        projectsList.push(projectsFollowed[i]);
+    }
+
+    return projectsList;
+}
+
+/***
+ * 
+ *          FOR THE ADMINISTRATORS
+ * 
+ */
+
+exports.updateUserStatus = function (email, status) {
+    let check = sqlCheck(email, users);
+    if (check == false) return false;
+
+    let update = db.prepare('UPDATE users SET status=? WHERE email=?');
+    let result = update.run([status, email]).changes;
+    return result == 1;
+}
+
+exports.getUsersList = function() {
+    let query = db.prepare('SELECT username, status FROM Users ORDER BY username');
+    return query.all();
+}
+
+
+/***
+ * 
+ *          FOR THE PROJECTS
+ * 
+ */
+
+
+exports.createProject = function(title, description, category, creator, date, keywords) {
+    let insert = db.prepare('INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?)');
+    let projectId = insert.run([title, description, category, creator, date]).lastInsertRowId;
+
+    for(let i = 0 ; i < keywords.length ; i++) {
+        addKeyword(projectId, keywords[i]);
+    }
     return projectId;
 }
 
@@ -62,6 +121,12 @@ exports.deleteProject = function(projectId) {
     return result == 1;
 }
 
+/***
+ * 
+ *          FOR THE PROJECT MEMBERS
+ * 
+ */
+
 exports.addMember = function(projectId, user, status) {
     let check = sqlCheck(projectId, projects);
     if (check == false) return false;
@@ -70,16 +135,16 @@ exports.addMember = function(projectId, user, status) {
     if (check !== undefined) return false;
 
     let insert = db.prepare('INSERT INTO projectMembers VALUES (?, ?, ?)');
-    insert.run([projectId, user, status]);
-    return true;
+    let result = insert.run([projectId, user, status]).changes;
+    return result == 1;
 }
 
-exports.updateMember = function(projectId, user, status) {
+exports.updateMemberStatus = function(projectId, user, status) {
     let check = db.prepare('SELECT projectId, user FROM projectMembers WHERE projectId=? AND user=?').get([projectId, user]);
     if(check === undefined) return false;
 
-    let update = db.prepare('UPDATE projectMembers SET user=?, status=? WHERE projectId=?');
-    let result = update.run([user, status, projectId]).changes;
+    let update = db.prepare('UPDATE projectMembers SET status=? WHERE projectId=?');
+    let result = update.run([status, projectId]).changes;
     return result == 1;
 }
 
@@ -92,6 +157,19 @@ exports.deleteMember = function(projectId, user) {
     return result == 1;
 }
 
+exports.getMembers = function(projectId) {
+    let query = db.prepare('SELECT U.username, P.status FROM projectMembers P, users U WHERE P.user = U.email AND projectId=? ORDER BY username');
+    let result = query.all([projectId]);
+
+    return result;
+}
+
+/***
+ * 
+ *          FOR THE KEYWORDS
+ * 
+ */
+
 exports.addKeyword = function(projectId, keyword) {
     let check = sqlCheck(projectId, projects);
     if (check == false) return false;
@@ -101,8 +179,8 @@ exports.addKeyword = function(projectId, keyword) {
 
 
     let insert = db.prepare('INSERT INTO projectKeywords VALUES (?, ?)');
-    insert.run([projectId, keyword]);
-    return true;
+    let result = insert.run([projectId, keyword]).changes;
+    return result == 1;
 }
 
 exports.deleteKeyword = function(projectId, keyword) {
@@ -113,7 +191,13 @@ exports.deleteKeyword = function(projectId, keyword) {
     return result == 1;
 }
 
-exports.addEvent = function(projectId, event) {
+/***
+ * 
+ *          FOR THE EVENTS
+ * 
+ */
+
+exports.addEvent = function(projectId, event, date) {
     let check = sqlCheck(projectId, projects);
     if (check == false) return false;
 
@@ -121,9 +205,9 @@ exports.addEvent = function(projectId, event) {
     if (check !== undefined) return false;
 
 
-    let insert = db.prepare('INSERT INTO projectEvents VALUES (?, ?)');
-    insert.run([projectId, event]);
-    return true;
+    let insert = db.prepare('INSERT INTO projectEvents VALUES (?, ?, ?)');
+    let result = insert.run([projectId, event, date]).changes;
+    return result == 1;
 }
 
 exports.updateEvent = function(projectId, previousEvent, newEvent) {
@@ -144,6 +228,13 @@ exports.deleteEvent = function(projectId, event) {
     return result == 1;
 }
 
+
+/***
+ * 
+ *          TO RESTART
+ * 
+ */
+
 exports.resetDatabase = function() {
     db.prepare('DROP TABLE projectEvents').run();
     db.prepare('DROP TABLE projectKeywords').run();
@@ -155,14 +246,21 @@ exports.resetDatabase = function() {
 
     db.prepare('CREATE TABLE users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE, password VARCHAR2(50)), status VARCHAR2(20)').run();
 
-    db.prepare('CREATE TABLE projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR2(60), description VARCHAR2(1000), creator VARCHAR2(30) REFERENCES users)').run();
+    db.prepare('CREATE TABLE projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR2(60), description VARCHAR2(1000), category VARCHAR2(20), creator VARCHAR2(30) REFERENCES users), date DATE').run();
 
     db.prepare('CREATE TABLE projectMembers(projectId INTEGER REFERENCES projects ON DELETE CASCADE, user VARCHAR2(30) REFERENCES users ON DELETE CASCADE, status VARCHAR2(15), PRIMARY KEY(projectId, user))').run();
 
     db.prepare('CREATE TABLE projectKeyWords(projectId INTEGER REFERENCES projects ON DELETE CASCADE, keyword VARCHAR2(15), PRIMARY KEY(projectId, keyword))').run();
 
-    db.prepare('CREATE TABLE projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE, event VARCHAR2(500), PRIMARY KEY(projectId, event))').run();
+    db.prepare('CREATE TABLE projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE, event VARCHAR2(500), date DATE, PRIMARY KEY(projectId, event))').run();
 }
+
+
+/***
+ * 
+ *          INTERNAL FUNCTIONS
+ * 
+ */
 
 var sqlCheck = function(parameter, table) {
     let check = db.prepare(`SELECT ? FROM ${table} WHERE ?=?`).get([parameter, parameter, parameter]);
