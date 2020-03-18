@@ -22,11 +22,11 @@ app.get('/', (req, res) => {
 });
 
 app.get('/login-form', (req, res) => {
-    res.render('login-form.html');
+    res.render('login-form');
 });
 
 app.get('/signup-form', (req, res) => {
-    res.render('signup-form.html');
+    res.render('signup-form');
 });
 
 app.get('/#', (req, res) => {
