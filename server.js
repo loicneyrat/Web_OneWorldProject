@@ -31,15 +31,10 @@ app.get('/', (req, res) => {
     res.render('index.html');
 });
 
-app.get('/login-form', (req, res) => {
-    res.render('login-form');
-});
-
 app.get('/signup-form', (req, res) => {
     res.render('signup-form');
 });
 
-//password check with the confirm password made in a client script.
 app.post('/signup', (req, res) => {
     let email = req.body.mail;
     let username = req.body.username;
@@ -67,6 +62,10 @@ app.post('/signup', (req, res) => {
     }
 });
 
+app.get('/login-form', (req, res) => {
+    res.render('login-form');
+});
+
 app.post('/login', (req, res) => {
     let email = req.body.mail;
     let password = req.body.password;
@@ -79,12 +78,12 @@ app.post('/login', (req, res) => {
         res.locals.wrongCredentials;
         res.render('login-form');
     }
-})
+});
 
 app.get('/logout', (req, res) => {
     req.session = null;
     res.redirect('/');
-})
+});
 
 app.get('/#', (req, res) => {
     res.redirect('/');
