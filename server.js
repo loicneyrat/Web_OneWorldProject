@@ -24,7 +24,7 @@ app.use(bodyParser.urlencoded({extended : false}));
 
 
 function isAuthenticated(req, res, next) {
-    res.locals.authenticated = req.session.user != undefined;
+    res.locals.authenticated = req.session.user !== undefined;
     next();
 }
 
