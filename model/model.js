@@ -1,18 +1,19 @@
 var sqlite = require('better-sqlite3');
 var db = new sqlite('database.sqlite');
-/*
-db.prepare('CREATE TABLE users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE, password VARCHAR2(50), status VARCHAR2(20))').run();
 
-db.prepare('CREATE TABLE projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR2(60), description VARCHAR2(1000), creator VARCHAR2(30) REFERENCES users), date DATE').run();
 
-db.prepare('CREATE TABLE projectMembers(projectId INTEGER REFERENCES projects ON DELETE CASCADE, user VARCHAR2(30) REFERENCES users ON DELETE CASCADE, status VARCHAR2(15), PRIMARY KEY(projectId, user))').run();
+db.prepare('CREATE TABLE IF NOT EXISTS users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE, password VARCHAR2(50), status VARCHAR2(20))').run();
 
-db.prepare('CREATE TABLE projectKeyWords(projectId INTEGER REFERENCES projects ON DELETE CASCADE, keyword VARCHAR2(15), PRIMARY KEY(projectId, keyword))').run();
+db.prepare('CREATE TABLE IF NOT EXISTS projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR2(60), description VARCHAR2(1000), creator VARCHAR2(30) REFERENCES users, date DATE)').run();
 
-db;prepare('CREATE TABLE projectCategories (projectId INTEGER REFERENCES projects, category VARCHAR(20), PRIMARY KEY(projectId, category)').run();
+db.prepare('CREATE TABLE IF NOT EXISTS projectMembers(projectId INTEGER REFERENCES projects ON DELETE CASCADE, user VARCHAR2(30) REFERENCES users ON DELETE CASCADE, status VARCHAR2(15), PRIMARY KEY(projectId, user))').run();
 
-db.prepare('CREATE TABLE projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE, event VARCHAR2(500), date DATE, PRIMARY KEY(projectId, event))').run();
-*/
+db.prepare('CREATE TABLE IF NOT EXISTS projectKeyWords(projectId INTEGER REFERENCES projects ON DELETE CASCADE, keyword VARCHAR2(15), PRIMARY KEY(projectId, keyword))').run();
+
+db.prepare('CREATE TABLE IF NOT EXISTS projectCategories (projectId INTEGER REFERENCES projects, category VARCHAR(20), PRIMARY KEY(projectId, category))').run();
+
+db.prepare('CREATE TABLE IF NOT EXISTS projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE, event VARCHAR2(500), date DATE, PRIMARY KEY(projectId, event))').run();
+
 
 /***
  * 
@@ -75,10 +76,10 @@ exports.getProjects = function(username) {
  * 
  */
 
- exports.login = function(email, password) {
-     let query = db.prepare('SELECT password FROM Users WHERE email=?');
+ exports.login = function(email, userpassword) {
+     let query = db.prepare('SELECT password FROM users WHERE email=?');
      let result = query.get([email]);
-     return password === result[password];
+     return result !== undefined && userpassword == result[password];
  }
 
  exports.credentialsAreFree = function(email, username) {
@@ -318,6 +319,7 @@ exports.resetDatabase = function() {
 
     db.prepare('CREATE TABLE projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE, event VARCHAR2(500), date DATE, PRIMARY KEY(projectId, event))').run();
 }
+
 
 
 /***
