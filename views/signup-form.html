@@ -12,13 +12,13 @@
     <div class="card mx-auto mt-4" style="width:550px; border: 1px solid black;">
       <div class="card-body">
         {{#emailTaken}}
-          <p class="text-danger font-italic">Cet email est déjà utilisé. Si vous souhaitez vous connecter à votre compte, cliquez sur le bouton "connexion" en haut à droite de cette page.</p>
+          <p class="text-danger font-italic">This email is already used. If you want to login, please click on the button above.</p>
         {{/emailTaken}}
         {{#usernameTaken}}
-          <p class="text-danger font-italic">Ce nom d'utilisateur est déjà pris. Merci d'en choisir un autre.</p>
+          <p class="text-danger font-italic">This username is already used! Please, choose another one.</p>
         {{/usernameTaken}}
         {{#pwdNotConfirmed}}
-        <p class="text-danger font-italic">Les mots de passe rentrés sont différents.</p>
+        <p class="text-danger font-italic">Passwords should be the same.</p>
         {{/pwdNotConfirmed}}
         <form action="/signup" method="post">
           <div class="form-group">
