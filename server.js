@@ -2,6 +2,8 @@ let express = require('express');
 let app = express();
 let mustache = require('mustache-express');
 let resources = require('./resourcesServer.js');
+const cookieSession = require('cookie-session');
+const bodyParser = require('body-parser');
 
 app.listen(3000, () => console.log("Server running on port 3000"));
 
@@ -15,7 +17,14 @@ app.set('views', './views');
 
 app.use('/styles', resources);
 app.use('/resources', resources);
+app.use(cookieSession({secret: 'WeLoveBeingConfined'}));
+app.use(isAuthenticated);
+app.use(bodyParser.urlencoded({extended = false}));
 
+
+function isAuthenticated(req, res, next) {
+    res.locals.authenticated = req.session.user != undefined;
+}
 
 app.get('/', (req, res) => {
     res.render('index.html');

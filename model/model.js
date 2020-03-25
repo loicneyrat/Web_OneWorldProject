@@ -77,17 +77,22 @@ exports.getProjects = function(username) {
  * 
  */
 
- exports.checkPassword = function(email, password) {
+ exports.login = function(email, password) {
      let query = db.prepare('SELECT password FROM Users WHERE email=?');
      let result = query.get([email]);
      return password === result[password];
  }
 
- exports.emailIsFree(email) {
-     let query = db.prepare('SELECT * FROM Users WHERE email=?');
-     return query.get([email]) === undefined;
+ exports.credentialsAreFree = function(email, username) {
+     let query = db.prepare('SELECT email FROM Users WHERE email=?');
+     if (query.get([email]) !== undefined) return -1;
+
+     query = db.prepare('SELECT username FROM Users WHERE username=?');
+     if(query.get([username] !== undefined)) return -2;
+     
+     return 1;
  }
- 
+
 
 /***
  * 
