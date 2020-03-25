@@ -1,7 +1,6 @@
 let express = require('express');
 let app = express();
 let mustache = require('mustache-express');
-let resources = require('./resourcesServer.js');
 const cookieSession = require('cookie-session');
 const bodyParser = require('body-parser');
 const model = require('./model/model.js');
@@ -16,8 +15,8 @@ app.set('view engine', 'html');
 app.set('views', './views');
 
 
-app.use('/styles', resources);
-app.use('/resources', resources);
+app.use('/styles', express.static(__dirname + '/styles'));
+app.use('/resources', express.static(__dirname + '/resources'));
 app.use(cookieSession({secret: 'WeLoveBeingConfined'}));
 app.use(isAuthenticated);
 app.use(bodyParser.urlencoded({extended : false}));
