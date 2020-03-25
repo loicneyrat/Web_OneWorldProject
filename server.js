@@ -14,12 +14,12 @@ app.engine('html', mustache());
 app.set('view engine', 'html');
 app.set('views', './views');
 
-
-app.use('/styles', express.static(__dirname + '/styles'));
-app.use('/resources', express.static(__dirname + '/resources'));
 app.use(cookieSession({secret: 'WeLoveBeingConfined'}));
 app.use(isAuthenticated);
 app.use(bodyParser.urlencoded({extended : false}));
+
+app.use('/styles', express.static(__dirname + '/styles'));
+app.use('/resources', express.static(__dirname + '/resources'));
 
 
 function isAuthenticated(req, res, next) {
