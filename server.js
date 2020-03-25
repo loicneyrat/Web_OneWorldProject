@@ -20,11 +20,12 @@ app.use('/styles', resources);
 app.use('/resources', resources);
 app.use(cookieSession({secret: 'WeLoveBeingConfined'}));
 app.use(isAuthenticated);
-app.use(bodyParser.urlencoded({extended = false}));
+app.use(bodyParser.urlencoded({extended : false}));
 
 
 function isAuthenticated(req, res, next) {
     res.locals.authenticated = req.session.user != undefined;
+    next();
 }
 
 app.get('/', (req, res) => {
