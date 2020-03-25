@@ -42,23 +42,24 @@ app.post('/signup', (req, res) => {
     let password = req.body.pwd;
     let confirmedPassword = req.body.verifpwd;
 
-    if (password !== confirmedPassword) {
+    if (password != confirmedPassword) {
         res.locals.pwdNotConfirmed;
         res.render('signup-form');
     }
 
     let checkResult = model.credentialsAreFree(email, username);
-    if (checkResult === -1) {
+    if (checkResult == -1) {
         res.locals.emailTaken = true;
         res.render('signup-form');
     }
-    else if (checkResult === -2) {
+    else if (checkResult == -2) {
         res.locals.usernameTaken = true;
         res.render('signup-form');
     }
     else {
+        let regular = "normal";
         model.createUser(email, username, password, regular);
-        req.session.user=email;
+        req.session.user = email;
         res.redirect('/home');
     }
 });
@@ -70,13 +71,13 @@ app.get('/login-form', (req, res) => {
 app.post('/login', (req, res) => {
     let email = req.body.mail;
     let password = req.body.password;
-
     if (model.login(email, password)) {
-        req.session.user=email;
+        console.log('login valid');
+        req.session.user = email;
         res.redirect('/home');
     }
     else {
-        res.locals.wrongCredentials;
+        res.locals.wrongCredentials = true;
         res.render('login-form');
     }
 });
@@ -86,12 +87,21 @@ app.get('/logout', (req, res) => {
     res.redirect('/');
 });
 
+app.get('/home', (req, res) => {
+    console.log(res.locals.authenticated);
+    if (!res.locals.authenticated) {
+        res.locals.wrongCredentials = true;
+        res.render('login-form');
+    } 
+    else res.render('home');
+});
+
 app.get('/#', (req, res) => {
     res.redirect('/');
 });
 
 app.use((req, res, next) => {
-    res.sendStatus(404);
+    //res.sendStatus(404);
     res.send("404 Not Found");
     next();
 });
