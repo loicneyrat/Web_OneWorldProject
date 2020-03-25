@@ -11,7 +11,16 @@
   
     <div class="card mx-auto mt-4" style="width:550px; border: 1px solid black;">
       <div class="card-body">
-        <form action="" method="post">
+        {{#emailTaken}}
+          <p class="text-danger font-italic">Cet email est déjà utilisé. Si vous souhaitez vous connecter à votre compte, cliquez sur le bouton "connexion" en haut à droite de cette page.</p>
+        {{/emailTaken}}
+        {{#usernameTaken}}
+          <p class="text-danger font-italic">Ce nom d'utilisateur est déjà pris. Merci d'en choisir un autre.</p>
+        {{/usernameTaken}}
+        {{#pwdNotConfirmed}}
+        <p class="text-danger font-italic">Les mots de passe rentrés sont différents.</p>
+        {{/pwdNotConfirmed}}
+        <form action="/signup" method="post">
           <div class="form-group">
             <label for="mail">Your email* : </label>
             <div class="input-group">
@@ -23,12 +32,12 @@
             <small id="emailHelp" class="form-text text-muted"> To keep your account handy, without newsletter, spams, and no-one else but you and us.</small>
           </div>
           <div class="form-group">
-            <label for="pseudo">Your username* : </label>
+            <label for="username">Your username* : </label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-user"></i></span>
               </div>
-              <input class="form-control" type="text" placeholder="username" name="pseudo" required>
+              <input class="form-control" type="text" placeholder="username" name="username" required>
             </div>
           </div>
           <div class="form-group">

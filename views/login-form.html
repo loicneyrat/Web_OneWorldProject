@@ -10,14 +10,17 @@
   
     <div class="card mx-auto mt-4" style="width:550px; border: 1px solid black;">
       <div class="card-body">
-        <form action="" method="post">
+        {{#wrongCredentials}}
+        <p class="text-danger font-italic">Mauvaise adresse email ou mauvais mot de passe.</p>
+        {{/wrongCredentials}}
+        <form action="/login" method="post">
           <div class="form-group">
-            <label for="pseudo">Your username* : </label>
+            <label for="mail">Your username* : </label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-user"></i></span>
               </div>
-              <input class="form-control" type="text" placeholder="Username" name="pseudo" required>
+              <input class="form-control" type="email" placeholder="name@example.com" name="mail" required>
             </div>
           </div>
           <div class="form-group">

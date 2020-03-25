@@ -4,6 +4,7 @@ let mustache = require('mustache-express');
 let resources = require('./resourcesServer.js');
 const cookieSession = require('cookie-session');
 const bodyParser = require('body-parser');
+const model = require('./model/model.js');
 
 app.listen(3000, () => console.log("Server running on port 3000"));
 
@@ -37,6 +38,53 @@ app.get('/login-form', (req, res) => {
 app.get('/signup-form', (req, res) => {
     res.render('signup-form');
 });
+
+//password check with the confirm password made in a client script.
+app.post('/signup', (req, res) => {
+    let email = req.body.mail;
+    let username = req.body.username;
+    let password = req.body.pwd;
+    let confirmedPassword = req.body.verifpwd;
+
+    if (password !== confirmedPassword) {
+        res.locals.pwdNotConfirmed;
+        res.render('signup-form');
+    }
+
+    let checkResult = model.credentialsAreFree(email, username);
+    if (checkResult === -1) {
+        res.locals.emailTaken = true;
+        res.render('signup-form');
+    }
+    else if (checkResult === -2) {
+        res.locals.usernameTaken = true;
+        res.render('signup-form');
+    }
+    else {
+        model.createUser(email, username, password, regular);
+        req.session.user=email;
+        res.redirect('/home');
+    }
+});
+
+app.post('/login', (req, res) => {
+    let email = req.body.mail;
+    let password = req.body.password;
+
+    if (model.login(email, password)) {
+        req.session.user=email;
+        res.redirect('/home');
+    }
+    else {
+        res.locals.wrongCredentials;
+        res.render('login-form');
+    }
+})
+
+app.get('/logout', (req, res) => {
+    req.session = null;
+    res.redirect('/');
+})
 
 app.get('/#', (req, res) => {
     res.redirect('/');
