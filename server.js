@@ -42,17 +42,17 @@ app.post('/signup', (req, res) => {
     let password = req.body.pwd;
     let confirmedPassword = req.body.verifpwd;
 
-    if (password != confirmedPassword) {
+    if (password !== confirmedPassword) {
         res.locals.pwdNotConfirmed;
         res.render('signup-form');
     }
 
     let checkResult = model.credentialsAreFree(email, username);
-    if (checkResult == -1) {
+    if (checkResult === -1) {
         res.locals.emailTaken = true;
         res.render('signup-form');
     }
-    else if (checkResult == -2) {
+    else if (checkResult === -2) {
         res.locals.usernameTaken = true;
         res.render('signup-form');
     }
@@ -72,7 +72,6 @@ app.post('/login', (req, res) => {
     let email = req.body.mail;
     let password = req.body.password;
     if (model.login(email, password)) {
-        console.log('login valid');
         req.session.user = email;
         res.redirect('/home');
     }
@@ -88,7 +87,6 @@ app.get('/logout', (req, res) => {
 });
 
 app.get('/home', (req, res) => {
-    console.log(res.locals.authenticated);
     if (!res.locals.authenticated) {
         res.locals.wrongCredentials = true;
         res.render('login-form');

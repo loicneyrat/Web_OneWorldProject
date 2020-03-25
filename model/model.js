@@ -77,18 +77,16 @@ exports.getProjects = function(username) {
  */
 
  exports.login = function(email, userpassword) {
-     console.log(userpassword);
      let query = db.prepare('SELECT password FROM users WHERE email=?');
      let result = query.get([email]);
-     return result !== undefined && result.password == userpassword;
+     return result !== undefined && result.password === userpassword;
  }
 
  exports.credentialsAreFree = function(email, username) {
      let query = db.prepare('SELECT email FROM Users WHERE email=?');
      if (query.get([email]) !== undefined) return -1;
-
      query = db.prepare('SELECT username FROM Users WHERE username=?');
-     if(query.get([username]) !== undefined) return -2;
+     if (query.get([username]) !== undefined) return -2;
      return 1;
  }
 
@@ -141,19 +139,19 @@ exports.createProject = function(title, description, categories, creator, date, 
 
 exports.updateProject = function(projectId, title, description, creator) {
     let check = sqlCheck(projectId, projects);
-    if (check == false) return false;
+    if (check === false) return false;
 
     let update = db.prepare('UPDATE projects SET title=?, description=?, creator=? WHERE projectId=?');
     let result = update.run([title, description, creator, projectId]).changes;
-    return result == 1;
+    return result === 1;
 }
 
 exports.deleteProject = function(projectId) {
     let check = sqlCheck(projectId, projects);
-    if (check == false) return false;
+    if (check === false) return false;
 
     let result = db.prepare('DELETE FROM projects WHERE projectId=?').run([projectId]).changes;
-    return result == 1;
+    return result === 1;
 }
 
 /***
@@ -164,14 +162,14 @@ exports.deleteProject = function(projectId) {
 
 exports.addMember = function(projectId, user, status) {
     let check = sqlCheck(projectId, projects);
-    if (check == false) return false;
+    if (check === false) return false;
     
     check = db.prepare('SELECT * FROM projectMembers WHERE projectID=? AND user=?').get([projectId, user]);
     if (check !== undefined) return false;
 
     let insert = db.prepare('INSERT INTO projectMembers VALUES (?, ?, ?)');
     let result = insert.run([projectId, user, status]).changes;
-    return result == 1;
+    return result === 1;
 }
 
 exports.updateMemberStatus = function(projectId, user, status) {
@@ -180,7 +178,7 @@ exports.updateMemberStatus = function(projectId, user, status) {
 
     let update = db.prepare('UPDATE projectMembers SET status=? WHERE projectId=?');
     let result = update.run([status, projectId]).changes;
-    return result == 1;
+    return result === 1;
 }
 
 exports.removeMember = function(projectId, user) {
@@ -189,13 +187,12 @@ exports.removeMember = function(projectId, user) {
 
     let query = db.prepare('DELETE FROM projectMembers WHERE projectId=? AND user=?');
     let result = query.run([projectId, user]).changes;
-    return result == 1;
+    return result === 1;
 }
 
 exports.getMembers = function(projectId) {
     let query = db.prepare('SELECT U.username, P.status FROM projectMembers P, users U WHERE P.user = U.email AND projectId=? ORDER BY username');
     let result = query.all([projectId]);
-
     return result;
 }
 
@@ -207,7 +204,7 @@ exports.getMembers = function(projectId) {
 
 exports.addKeyword = function(projectId, keyword) {
     let check = sqlCheck(projectId, projects);
-    if (check == false) return false;
+    if (check === false) return false;
     
     check = db.prepare('SELECT * FROM projectKeywords WHERE projectID=? AND keyword=?').get([projectId, keyword]);
     if (check !== undefined) return false;
@@ -215,15 +212,15 @@ exports.addKeyword = function(projectId, keyword) {
 
     let insert = db.prepare('INSERT INTO projectKeywords VALUES (?, ?)');
     let result = insert.run([projectId, keyword]).changes;
-    return result == 1;
+    return result === 1;
 }
 
 exports.removeKeyword = function(projectId, keyword) {
     let check = sqlCheck(projectId, projectKeywords);
-    if (check == false) return false;
+    if (check === false) return false;
 
     let result = db.prepare('DELETE FROM projectKeywords WHERE projectId=? AND keyword=?').run([projectId, keyword]).changes;
-    return result == 1;
+    return result === 1;
 }
 
 /***
@@ -234,7 +231,7 @@ exports.removeKeyword = function(projectId, keyword) {
 
 exports.addEvent = function(projectId, event, date) {
     let check = sqlCheck(projectId, projects);
-    if (check == false) return false;
+    if (check === false) return false;
 
     check = db.prepare('SELECT * FROM projectEvents WHERE projectID=? AND event=?').get([projectId, event]);
     if (check !== undefined) return false;
@@ -242,7 +239,7 @@ exports.addEvent = function(projectId, event, date) {
 
     let insert = db.prepare('INSERT INTO projectEvents VALUES (?, ?, ?)');
     let result = insert.run([projectId, event, date]).changes;
-    return result == 1;
+    return result === 1;
 }
 
 exports.updateEvent = function(projectId, previousEvent, newEvent) {
@@ -251,7 +248,7 @@ exports.updateEvent = function(projectId, previousEvent, newEvent) {
 
     let update = db.prepare('UPDATE projectEvents SET event=? WHERE projectId=? AND event=?');
     let result = update.run([newEvent, projectId, previousEvent]).changes;
-    return result == 1;
+    return result === 1;
 }
 
 exports.removeEvent = function(projectId, event) {
@@ -260,7 +257,7 @@ exports.removeEvent = function(projectId, event) {
 
     let toDelete = db.prepare('DELETE FROM projectEvents WHERE projectId=? AND event=?');
     let result = toDelete.run([projectId, event]).changes;
-    return result == 1;
+    return result === 1;
 }
 
 
@@ -280,7 +277,7 @@ exports.removeEvent = function(projectId, event) {
 
     let insert = db.prepare('INSERT INTO projectCategories VALUES (?, ?)');
     let result = insert.run([projectId, category]).changes;
-    return result == 1;
+    return result === 1;
  }
 
  exports.removeCategory = function(projectId, category) {
@@ -288,7 +285,7 @@ exports.removeEvent = function(projectId, event) {
     if (check === undefined) return false;
 
     let result = db.prepare('DELETE FROM projectKeywords WHERE projectId=? AND category=?').run([projectId, category]).changes;
-    return result == 1;
+    return result === 1;
  }
 
 
