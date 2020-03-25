@@ -1,51 +1,28 @@
-/* ---------------------------------------------------
-    SIDEBAR STYLE
------------------------------------------------------ */
-#sidebar {
-    width: 250px;
-    position: fixed;
-    margin-top: 0px;
-    left: 0;
-    height: 100vh;
-    /*z-index: 999;*/
-    background: #F7D358;
-    color: #fff;
-    transition: all 0.3s;
+.card-header {
+    text-align: center;
 }
 
-#sidebar.active {
-    margin-left: -250px;
-    background: #F7D358;
+.list-group-item {
+    background : white;
+    text-decoration: none;
+    color: black;
 }
 
-#sidebar .sidebar-header {
-    padding: 20px;
-    background: #F7D358;
+.list-group-item:hover {
+    background: #0080FF;
+    color: white;
+    transition-duration: 200ms;
 }
 
-#sidebar ul.components {
-    padding: 20px 0;
-    border-bottom: 1px solid #F7D358;
+
+#logout-item {
+    text-align: center;
+    color: red;
+    background-color: #F2F2F2;
 }
 
-#sidebar ul p {
-    color: #fff;
-    padding: 10px;
-}
-
-#sidebar ul li a {
-    padding: 10px;
-    font-size: 1.1em;
-    display: block;
-}
-#sidebar ul li a:hover {
-    color: #F7D358;
-    background: #fff;
-
-    
-}
-
-#sidebar ul li.active > a, a[aria-expanded="true"] {
-    color: #fff;
-    background: #F7D358;
+#logout-item:hover {
+    background: #B40404;
+    color: white;
+    transition-duration: 200ms;
 }
