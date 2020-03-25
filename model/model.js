@@ -73,6 +73,24 @@ exports.getProjects = function(username) {
 
 /***
  * 
+ *          TO LOGIN AND SIGNIN
+ * 
+ */
+
+ exports.checkPassword = function(email, password) {
+     let query = db.prepare('SELECT password FROM Users WHERE email=?');
+     let result = query.get([email]);
+     return password === result[password];
+ }
+
+ exports.emailIsFree(email) {
+     let query = db.prepare('SELECT * FROM Users WHERE email=?');
+     return query.get([email]) === undefined;
+ }
+ 
+
+/***
+ * 
  *          FOR THE ADMINISTRATORS
  * 
  */
