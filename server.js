@@ -105,7 +105,8 @@ app.get('/confirm-user-delete/:username', (req, res) => {
     else if (getUserStatus(userEmail) === 'administrator' || 'supervisor')
         res.render('delete-user-form', {"username" : req.params.username});
     else {
-        res.render('/unauthorized-action');
+        res.render('unauthorized-action');
+        setTimeout(5000, res.redirect('/'));
     }
 });
 
@@ -184,6 +185,16 @@ app.post('/update-username', (req, res) => {
             res.locals.updateFailure = true;
             res.render('update-username-form', {"username" : username});
         }
+    }
+});
+
+app.get('/usersList', (req, res) => {
+    if (model.getUserStatus(req.session.user) !== "administrator" || "supervisor") {
+        res.render('unauthorized-action');
+        setTimeout(5000, res.redirect('/'));
+    } else {
+        let usersList = model.getUsersList();
+        res.render('users-list', {"usersList" : usersList});
     }
 });
 
