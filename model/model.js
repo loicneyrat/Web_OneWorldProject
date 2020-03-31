@@ -30,12 +30,21 @@ exports.createUser = function(email, username, password, status) {
     return false;
 }
 
-exports.updateUserCredentials = function(email, username, password) {
+exports.updateUserPassword = function(email, password) {
     let check = sqlCheck(email, users);
     if (check == false) return false;
 
-    let update = db.prepare('UPDATE users SET username=?, password=? WHERE email=?');
-    let result = update.run([username, password, email]).changes;
+    let update = db.prepare('UPDATE users SET password=? WHERE email=?');
+    let result = update.run([password, email]).changes;
+    return result == 1;
+}
+
+exports.updateUserUsername = function(email, username) {
+    let check = sqlCheck(email, users);
+    if (check == false) return false;
+
+    let update = db.prepare('UPDATE users SET username=? WHERE email=?');
+    let result = update.run([username, email]).changes;
     return result == 1;
 }
 
@@ -60,6 +69,11 @@ exports.getUserStatus = function(email) {
 exports.getUserId = function(username) {
     let query = db.prepare('SELECT email FROM Users WHERE username=?');
     let result = query.get([username]).email;
+}
+
+exports.getUserPassword = function(email) {
+    let query = db.prepare('SELECT password FROM Users WHERE email=?');
+    return query.get([email]).password;
 }
 
 

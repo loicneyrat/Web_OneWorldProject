@@ -1,0 +1,13 @@
+{{> header}}
+
+{{#deleteFailure}}<p class="text-danger font-italic">La suppression a échoué. Merci de réessayer. Si l'erreur persiste, contactez un administrateur.</p>
+{{/deleteFailure}}
+<form method="GET" action="/user-delete">
+    <input type="hidden" name="username" value="{{username}}">
+    <label for="delete">Vous vous apprêtez à supprimer ce compte : {{username}}. Cette action est irréversible. Merci de taper "SUPPRIMER" dans la barre ci-dessous pour confirmer la suppression.</label>
+    {{#wrongWord}}Le champ n'a pas été rempli. Merci de réessayer.{{/wrongWord}}
+        <input type="text" name="delete">
+        <input type="submit" name="Valider">
+</form>
+
+{{> footer}}

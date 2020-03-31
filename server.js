@@ -102,10 +102,88 @@ app.get('/confirm-user-delete/:username', (req, res) => {
 
     if (req.params.username === userEmail)
         res.render('delete-user-form', {"username" : req.params.username});
-    else if (getUserId(userEmail) === 'administrator' || 'supervisor')
+    else if (getUserStatus(userEmail) === 'administrator' || 'supervisor')
         res.render('delete-user-form', {"username" : req.params.username});
     else {
         res.render('/unauthorized-action');
+    }
+});
+
+app.get('/confirm-user-delete', (req, res) => {
+    let word = req.params.delete.toUpperCase;
+    if(word === "SUPPRIMER") {
+        let userEmail = model.getUserId(req.params.username);
+        if(model.deleteUser(userEmail)){
+            res.render('delete-confirmation');
+            setTimeout(5000, res.redirect('/'));
+        }
+        else {
+            res.locals.deleteFailure = true;
+            res.render('delete-user-form', {"username" : req.params.username});
+        }
+    }
+    else{
+        res.locals.wrongWord = true;
+        res.render('delete-user-form', {"username": req.params.username});
+    }
+});
+
+app.get('/change-password-form', (req, res) => {
+    res.render('change-password-form');
+});
+
+app.post('/update-password', (res, req) => {
+    let oldPassword = req.body.oldPwd;
+    let newPassword = req.body.newPwd;
+    let confirmedPassword = req.body.verifpwd;
+    let userPassword = mode.getUserPassword(req.session.user);
+
+    if(userPassword !== oldPassword) {
+        res.locals.wrongPassword = true;
+        res.render('change-password-form')
+    }
+    else if(newPassword !== confirmedPassword) {
+        res.locals.pwdNotConfirmed = true;
+        res.render('change-password-form');
+    }
+    else {
+        if(model.updateUserPassword(req.session.user, newPassword)) {
+            res.render('update-confirmation');
+            setTimeout(5000, res.redirect('/home'));
+        }
+        else {
+            res.locals.updateFailure = true;
+            res.render('/change-password-form');
+        }
+    }
+});
+
+app.get('/update-username-form', (req, res) => {
+    res.render('change-username-form');
+});
+
+app.post('/update-username', (req, res) => {
+    let username = req.body.username;
+    let password = req.body.pwd;
+    let checkResult = model.credentialsAreFree(req.session.user, username);
+
+    if (password !== model.getUserPassword(req.session.user)) {
+        res.locals.wrongPassword = true;
+        res.render('update-username-form', {"username" : username});
+    }
+    else if (checkResult === -2) {
+        res.locals.usernameTaken = true;
+        res.render('update-username-form');
+    }
+    else {
+        if (model.updateUserUsername(req.session.user, username)) {
+            res.render('update-confirmation');
+            setTimeout(5000, res.redirect('/home'));
+        }
+        else {
+            res.locals.updateFailure = true;
+            res.render('update-username-form', {"username" : username});
+        }
     }
 });
 
