@@ -62,13 +62,14 @@ exports.getUserStatus = function(email) {
     let check = sqlCheck(email, users);
     if (check == false) return null;
 
-    let query = db.prepare('SELECT status FROM Users WHERE email=?');
+    let query = db.prepare('SELECT status FROM users WHERE email=?');
     return db.get([email]).status;
 }
 
 exports.getUserId = function(username) {
-    let query = db.prepare('SELECT email FROM Users WHERE username=?');
+    let query = db.prepare('SELECT email FROM users WHERE username=?');
     let result = query.get([username]).email;
+    return result;
 }
 
 exports.getUserPassword = function(email) {
