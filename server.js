@@ -199,8 +199,7 @@ app.get('/usersList', (req, res) => {
 });
 
 app.use((req, res, next) => {
-    //res.sendStatus(404);
-    res.send("404 Not Found");
+    res.send("404 Not Found URL : " + req.url);
     next();
 });
 
