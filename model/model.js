@@ -49,6 +49,19 @@ exports.deleteUser = function(email) {
     return result == 1;
 }
 
+exports.getUserStatus = function(email) {
+    let check = sqlCheck(email, users);
+    if (check == false) return null;
+
+    let query = db.prepare('SELECT status FROM Users WHERE email=?');
+    return db.get([email]).status;
+}
+
+exports.getUserId = function(username) {
+    let query = db.prepare('SELECT email FROM Users WHERE username=?');
+    let result = query.get([username]).email;
+}
+
 
 //TODO modifier la function pour associer un tableau de catégories au résultat. 
 exports.getProjects = function(username) {
@@ -315,6 +328,8 @@ exports.resetDatabase = function() {
     db;prepare('CREATE TABLE projectCategories (projectId INTEGER REFERENCES projects, category VARCHAR(20), PRIMARY KEY(projectId, category)').run();
 
     db.prepare('CREATE TABLE projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE, event VARCHAR2(500), date DATE, PRIMARY KEY(projectId, event))').run();
+
+    createUser('admin@admin.fr', 'Administrator', 'AZERTY', 'administrator');
 }
 
 

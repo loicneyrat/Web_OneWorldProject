@@ -97,6 +97,18 @@ app.get('/#', (req, res) => {
     res.redirect('/');
 });
 
+app.get('/confirm-user-delete/:username', (req, res) => {
+    let userEmail = model.getUserId(req.session.user);
+
+    if (req.params.username === userEmail)
+        res.render('delete-user-form', {"username" : req.params.username});
+    else if (getUserId(userEmail) === 'administrator' || 'supervisor')
+        res.render('delete-user-form', {"username" : req.params.username});
+    else {
+        res.render('/unauthorized-action');
+    }
+});
+
 app.use((req, res, next) => {
     //res.sendStatus(404);
     res.send("404 Not Found");
