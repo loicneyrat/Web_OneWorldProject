@@ -9,6 +9,9 @@
       </div>
       <div class="list-group list-group-flush">
         <a class="list-group-item" href="/profile/{{username}}">Mes informations</a>
+        {{#isAdmin}}
+        <a class="list-group-item" href="/usersList">Liste des utilisateurs du site</a>
+        {{/isAdmin}}
         <a class="list-group-item" href="#">Projets créés</a>
         <a class="list-group-item" href="#">Projets auxquels j'adhère</a>
         <a class="list-group-item" href="#">Projets que je suis</a>
