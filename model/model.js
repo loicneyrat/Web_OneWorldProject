@@ -20,7 +20,7 @@ db.prepare('CREATE TABLE IF NOT EXISTS projectEvents(projectId INTEGER REFERENCE
  *          FOR A USER
  * 
  */
-exports.createUser = function(email, username, password, status) {
+function createUser(email, username, password, status) {
     let check = db.prepare('SELECT email, username FROM users WHERE email=? OR username=?').get([email, username]);
     if (check === undefined) {
         let insert = db.prepare('INSERT INTO users VALUES(?, ?, ?, ?)');

@@ -136,9 +136,10 @@ app.post('/update-password', (res, req) => {
     let oldPassword = req.body.oldPwd;
     let newPassword = req.body.newPwd;
     let confirmedPassword = req.body.verifpwd;
-    let userPassword = mode.getUserPassword(req.session.user);
+    let userEmail = req.session.email;
+    
 
-    if(userPassword !== oldPassword) {
+    if(!model.login(userEmail, oldPassword)) {
         res.locals.wrongPassword = true;
         res.render('change-password-form')
     }
@@ -188,7 +189,8 @@ app.post('/update-username', (req, res) => {
 });
 
 app.get('/usersList', (req, res) => {
-    if (model.getUserStatus(req.session.user) !== "administrator" || "supervisor") {
+    let userStatus = model.getUserStatus(req.session.user);
+    if ( userStatus !== "administrator" || userStatus !== "supervisor") {
         res.render('unauthorized-action');
         setTimeout(5000, res.redirect('/'));
     } else {
