@@ -17,20 +17,14 @@ exports.createProject = function(title, description, categories, creator, date, 
 }
 
 exports.updateProject = function(projectId, title, description, creator) {
-    let check = sqlCheck(projectId, projects);
-    if (check === false) return false;
-
     let update = db.prepare('UPDATE projects SET title=?, description=?, creator=? WHERE projectId=?');
-    let result = update.run([title, description, creator, projectId]).changes;
-    return result === 1;
+    let result = update.run([title, description, creator, projectId]);
+    return result.changes === 1;
 }
 
 exports.deleteProject = function(projectId) {
-    let check = sqlCheck(projectId, projects);
-    if (check === false) return false;
-
-    let result = db.prepare('DELETE FROM projects WHERE projectId=?').run([projectId]).changes;
-    return result === 1;
+    let result = db.prepare('DELETE FROM projects WHERE projectId=?').run([projectId]);
+    return result.changes === 1;
 }
 
 /***
@@ -40,15 +34,9 @@ exports.deleteProject = function(projectId) {
  */
 
 exports.addMember = function(projectId, user, status) {
-    let check = sqlCheck(projectId, projects);
-    if (check === false) return false;
-    
-    check = db.prepare('SELECT * FROM projectMembers WHERE projectID=? AND user=?').get([projectId, user]);
-    if (check !== undefined) return false;
-
     let insert = db.prepare('INSERT INTO projectMembers VALUES (?, ?, ?)');
-    let result = insert.run([projectId, user, status]).changes;
-    return result === 1;
+    let result = insert.run([projectId, user, status]);
+    return result.changes === 1;
 }
 
 exports.updateMemberStatus = function(projectId, user, status) {
@@ -61,12 +49,9 @@ exports.updateMemberStatus = function(projectId, user, status) {
 }
 
 exports.removeMember = function(projectId, user) {
-    let check = db.prepare('SELECT projectId, user FROM projectMembers WHERE projectId=? AND user=?').get([projectId, user]);
-    if(check === undefined) return false;
-
     let query = db.prepare('DELETE FROM projectMembers WHERE projectId=? AND user=?');
-    let result = query.run([projectId, user]).changes;
-    return result === 1;
+    let result = query.run([projectId, user]);
+    return result.changes === 1;
 }
 
 exports.getMembers = function(projectId) {

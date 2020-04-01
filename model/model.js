@@ -106,11 +106,7 @@ exports.updateProject = function(projectId, title, description, creator) {
 }
 
 exports.deleteProject = function(projectId) {
-    let check = sqlCheck(projectId, projects);
-    if (check === false) return false;
-
-    let result = db.prepare('DELETE FROM projects WHERE projectId=?').run([projectId]).changes;
-    return result === 1;
+    return projectsHandler.deleteProject(projectId);
 }
 
 /***
@@ -120,39 +116,19 @@ exports.deleteProject = function(projectId) {
  */
 
 exports.addMember = function(projectId, user, status) {
-    let check = sqlCheck(projectId, projects);
-    if (check === false) return false;
-    
-    check = db.prepare('SELECT * FROM projectMembers WHERE projectID=? AND user=?').get([projectId, user]);
-    if (check !== undefined) return false;
-
-    let insert = db.prepare('INSERT INTO projectMembers VALUES (?, ?, ?)');
-    let result = insert.run([projectId, user, status]).changes;
-    return result === 1;
+    return projectsHandler.addMember(projectId, user, status);
 }
 
 exports.updateMemberStatus = function(projectId, user, status) {
-    let check = db.prepare('SELECT projectId, user FROM projectMembers WHERE projectId=? AND user=?').get([projectId, user]);
-    if(check === undefined) return false;
-
-    let update = db.prepare('UPDATE projectMembers SET status=? WHERE projectId=?');
-    let result = update.run([status, projectId]).changes;
-    return result === 1;
+    return projectsHandler.updateMemberStatus(projectId, user, status);
 }
 
 exports.removeMember = function(projectId, user) {
-    let check = db.prepare('SELECT projectId, user FROM projectMembers WHERE projectId=? AND user=?').get([projectId, user]);
-    if(check === undefined) return false;
-
-    let query = db.prepare('DELETE FROM projectMembers WHERE projectId=? AND user=?');
-    let result = query.run([projectId, user]).changes;
-    return result === 1;
+    return projectsHandler.removeMember(projectId, user);
 }
 
 exports.getMembers = function(projectId) {
-    let query = db.prepare('SELECT U.username, P.status FROM projectMembers P, users U WHERE P.user = U.email AND projectId=? ORDER BY username');
-    let result = query.all([projectId]);
-    return result;
+    return projectsHandler.getMembers(projectId);
 }
 
 /***

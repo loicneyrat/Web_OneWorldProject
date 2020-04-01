@@ -1,26 +1,26 @@
 function createUser(email, username, password, status) {
     let insert = db.prepare('INSERT INTO users VALUES(?, ?, ?, ?)');
     let result = insert.run([email, username, password, status]);
-    return result.changes == 1;
+    return result.changes === 1;
 }
 
 exports.updateUserPassword = function(email, password) {
     let update = db.prepare('UPDATE users SET password=? WHERE email=?');
     let result = update.run([password, email]);
-    return result.changes == 1;
+    return result.changes === 1;
 }
 
 exports.updateUserUsername = function(email, username) {
     let update = db.prepare('UPDATE users SET username=? WHERE email=?');
     let result = update.run([username, email]);
-    return result.changes == 1;
+    return result.changes === 1;
 }
 
 
 exports.deleteUser = function(email) {
     let query = db.prepare('DELETE FROM users WHERE email=?');
     let result = query.run([email]);
-    return result.changes == 1;
+    return result.changes === 1;
 }
 
 exports.getUserStatus = function(email) {
