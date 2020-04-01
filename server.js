@@ -191,9 +191,9 @@ app.post('/update-username', (req, res) => {
 
 app.get('/usersList', (req, res) => {
     let userStatus = model.getUserStatus(req.session.user);
-    if ( userStatus !== "administrator" || userStatus !== "supervisor") {
-        res.render('unauthorized-action');
-        setTimeout(5000, res.redirect('/'));
+    if ( userStatus !== "administrator" && userStatus !== "supervisor") {
+        res.render('unauthorized-action', {referer: req.headers.referer});
+        //setTimeout(res.redirect('/'), 5000); Ne fonctionne pas (cause une erreur d'exécution) Ajout d'un bouton qui renvoie vers la page précédente.
     } else {
         let usersList = model.getUsersList();
         res.render('users-list', {"usersList" : usersList});
