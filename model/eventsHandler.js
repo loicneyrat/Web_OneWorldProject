@@ -1,3 +1,8 @@
+var sqlite = require('better-sqlite3');
+var db = new sqlite('database.sqlite');
+
+
+
 exports.addEvent = function(projectId, event, date) {
     
     if(eventAlreadyExist(projectId, event, date)) return false;

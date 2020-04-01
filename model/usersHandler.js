@@ -1,4 +1,8 @@
-function createUser(email, username, password, status) {
+var sqlite = require('better-sqlite3');
+var db = new sqlite('database.sqlite');
+
+
+exports.createUser = function(email, username, password, status) {
     let insert = db.prepare('INSERT INTO users VALUES(?, ?, ?, ?)');
     let result = insert.run([email, username, password, status]);
     return result.changes === 1;

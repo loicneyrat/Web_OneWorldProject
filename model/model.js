@@ -26,7 +26,7 @@ db.prepare('CREATE TABLE IF NOT EXISTS projectEvents(projectId INTEGER REFERENCE
  *          FOR A USER
  * 
  */
-function createUser(email, username, password, status) {
+exports.createUser = function(email, username, password, status) {
     return usersHandler.createUser(email, username, password, status);
 }
 

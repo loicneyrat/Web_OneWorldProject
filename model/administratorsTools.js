@@ -1,3 +1,7 @@
+var sqlite = require('better-sqlite3');
+var db = new sqlite('database.sqlite');
+
+
 exports.updateUserStatus = function (email, status) {
     let update = db.prepare('UPDATE users SET status=? WHERE email=?');
     let result = update.run([status, email]);

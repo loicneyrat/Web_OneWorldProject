@@ -32,6 +32,10 @@ exports.deleteProject = function(projectId) {
  *          FOR THE PROJECT MEMBERS
  * 
  */
+var sqlite = require('better-sqlite3');
+var db = new sqlite('database.sqlite');
+
+
 
 exports.addMember = function(projectId, user, status) {
     let insert = db.prepare('INSERT INTO projectMembers VALUES (?, ?, ?)');

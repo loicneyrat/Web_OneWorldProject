@@ -1,3 +1,6 @@
+var sqlite = require('better-sqlite3');
+var db = new sqlite('database.sqlite');
+
 
 exports.addKeyword = function(projectId, keyword) {
 
