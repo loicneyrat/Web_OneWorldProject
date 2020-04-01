@@ -39,6 +39,12 @@ exports.getUserId = function(username) {
     return result === undefined ? result : result.email;
 }
 
+exports.getUsername = function(userId) {
+    let query = db.prepare('SELECT username FROM users WHERE email=?');
+    let result = query.get([userId]);
+    return result === undefined ? result : result.username;
+}
+
 
 //TODO modifier la function pour associer un tableau de catégories au résultat. 
 exports.getProjects = function(username) {

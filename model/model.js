@@ -53,8 +53,13 @@ exports.getUserStatus = function(userEmail) {
 }
 
 exports.getUserId = function(userUsername) {
-    if(!sqlCheck(users, username, userUsername)) return null;
+    if(!sqlCheck("users", "username", userUsername)) return null;
     return usersHandler.getUserId(username);
+}
+
+exports.getUsername = function(userId) {
+    if (!sqlCheck("users", "email", userId)) return null;
+    return usersHandler.getUsername(userId);
 }
 
 
@@ -217,5 +222,6 @@ exports.resetDatabase = function() {
 var sqlCheck = function(table, field, content) {
     content = String(content);
     let check = db.prepare(`SELECT ${field} FROM ${table} WHERE ${field}=?`).get([content]);
+    console.log(check);
     return check !== undefined;
 }
