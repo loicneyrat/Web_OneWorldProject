@@ -20,15 +20,18 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="#navbarSupportedContent">
+          {{#authenticated}}
           <div class="navbar-nav">
-            <a class="nav-item nav-link active" href="#" alt="Projects">Projects</a>
+            <a class="nav-item nav-link active">{{username}}</a>
           </div>
+          {{/authenticated}}
           <form class="form-inline mx-auto"  action="" method="GET">
-            <div class="form-group mr-2">
-              <!-- Ajouter logo loupe avec <i class="fas fa-search"></i> -->
-              <input type="text" class="form-control" id="searchNav" style="width: 35vw;" placeholder="Search" value="">
+            <div class="input-group mr-2">
+              <input type="text" class="form-control" id="searchNav" style="width: 35vw;" placeholder="Recherche" value="">
+              <div class="input-group-append">
+                <button class="input-group-text btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+              </div>
             </div>
-            <button class="btn btn-primary" type="search">Search!</button>
           </form>
           <div class="pl-5">
             {{^authenticated}}

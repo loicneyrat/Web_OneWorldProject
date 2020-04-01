@@ -72,6 +72,7 @@ app.post('/login', (req, res) => {
     let password = req.body.password;
     if (model.isTheRightPassword(email, password)) {
         req.session.user = email;
+        req.session.userStatus = model.getUserStatus(email);
         res.redirect('/home');
     }
     else {
@@ -89,8 +90,11 @@ app.get('/home', (req, res) => {
     if (!res.locals.authenticated) {
         res.locals.wrongCredentials = true;
         res.render('login-form');
-    } 
-    else res.render('home');
+    } else {
+    let isAdmin = req.session.userStatus === "administrator";
+    let username = model.getUsername(req.session.user);
+    res.render('home', {"isAdmin": isAdmin, "username": username});
+    }
 });
 
 app.get('/#', (req, res) => {
@@ -191,13 +195,12 @@ app.post('/update-username', (req, res) => {
 
 app.get('/usersList', (req, res) => {
     let userStatus = model.getUserStatus(req.session.user);
-    console.log(userStatus);
-    if ( userStatus !== "administrator" && userStatus !== "supervisor") {
+    if (userStatus !== "administrator" && userStatus !== "supervisor") {
         res.render('unauthorized-action', {referer: req.headers.referer});
         //setTimeout(res.redirect('/'), 5000); Ne fonctionne pas (cause une erreur d'exécution) Ajout d'un bouton qui renvoie vers la page précédente.
     } else {
         let usersList = model.getUsersList();
-        res.render('users-list', {isAdmin: true, "usersList" : usersList});
+        res.render('users-list', {"usersList": usersList});
     }
 });
 
