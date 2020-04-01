@@ -1,10 +1,10 @@
 var sqlite = require('better-sqlite3');
-var usersHandler = require('usersHandler.js');
-var projectsHandler = require('projectsHandler.js');
-var administratorsTools = require('administratorsTools.js');
-var categoriesHandler = require('categoriesHandler.js');
-var eventsHandler = require('eventsHandler.js');
-var keywordsHandler = require('keywordsHandler.js');
+var usersHandler = require('./usersHandler.js');
+var projectsHandler = require('./projectsHandler.js');
+var administratorsTools = require('./administratorsTools.js');
+var categoriesHandler = require('./categoriesHandler.js');
+var eventsHandler = require('./eventsHandler.js');
+var keywordsHandler = require('./keywordsHandler.js');
 var db = new sqlite('database.sqlite');
 
 
