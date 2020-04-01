@@ -21,6 +21,8 @@ db.prepare('CREATE TABLE IF NOT EXISTS projectCategories (projectId INTEGER REFE
 db.prepare('CREATE TABLE IF NOT EXISTS projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE, event VARCHAR2(500), date DATE, PRIMARY KEY(projectId, event))').run();
 
 
+//usersHandler.createUser('admin@admin.fr', 'Administrator', 'AZERTY', 'administrator');
+
 /***
  * 
  *          FOR A USER
@@ -29,6 +31,8 @@ db.prepare('CREATE TABLE IF NOT EXISTS projectEvents(projectId INTEGER REFERENCE
 exports.createUser = function(email, username, password, status) {
     return usersHandler.createUser(email, username, password, status);
 }
+
+
 
 exports.updateUserPassword = function(email, password) {
     return usersHandler.updateUserPassword(email, password);
@@ -44,7 +48,7 @@ exports.deleteUser = function(email) {
 }
 
 exports.getUserStatus = function(userEmail) {
-    if (! sqlCheck("users", "email", userEmail)) return null;
+    if (!sqlCheck("users", "email", userEmail)) return null;
     return usersHandler.getUserStatus(userEmail);
 }
 
@@ -210,14 +214,8 @@ exports.resetDatabase = function() {
 }
 
 
-
-/***
- * 
- *          INTERNAL FUNCTIONS
- * 
- */
-
 var sqlCheck = function(table, field, content) {
-    let check = db.prepare(`SELECT ? FROM ${table} WHERE ?=?`).get([field, field, content]);
+    content = String(content);
+    let check = db.prepare(`SELECT ${field} FROM ${table} WHERE ${field}=?`).get([content]);
     return check !== undefined;
 }
