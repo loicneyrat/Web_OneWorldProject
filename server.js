@@ -70,7 +70,7 @@ app.get('/login-form', (req, res) => {
 app.post('/login', (req, res) => {
     let email = req.body.mail;
     let password = req.body.password;
-    if (model.login(email, password)) {
+    if (model.isTheRightPassword(email, password)) {
         req.session.user = email;
         res.redirect('/home');
     }
@@ -114,6 +114,7 @@ app.get('/confirm-user-delete', (req, res) => {
     if(word === "SUPPRIMER") {
         let userEmail = model.getUserId(req.params.username);
         if(model.deleteUser(userEmail)){
+            req.session.user=null;
             res.render('delete-confirmation');
             setTimeout(5000, res.redirect('/'));
         }
@@ -139,7 +140,7 @@ app.post('/update-password', (res, req) => {
     let userEmail = req.session.email;
     
 
-    if(!model.login(userEmail, oldPassword)) {
+    if(!model.isTheRightPassword(userEmail, oldPassword)) {
         res.locals.wrongPassword = true;
         res.render('change-password-form')
     }

@@ -1,4 +1,10 @@
 var sqlite = require('better-sqlite3');
+var usersHandler = require('usersHandler.js');
+var projectsHandler = require('projectsHandler.js');
+var administratorsTools = require('administratorsTools.js');
+var categoriesHandler = require('categoriesHandler.js');
+var eventshandler = require('eventsHandler.js');
+var keywordsHandler = require('keywordsHandler.js');
 var db = new sqlite('database.sqlite');
 
 
@@ -21,80 +27,36 @@ db.prepare('CREATE TABLE IF NOT EXISTS projectEvents(projectId INTEGER REFERENCE
  * 
  */
 function createUser(email, username, password, status) {
-    let check = db.prepare('SELECT email, username FROM users WHERE email=? OR username=?').get([email, username]);
-    if (check === undefined) {
-        let insert = db.prepare('INSERT INTO users VALUES(?, ?, ?, ?)');
-        let result = insert.run([email, username, password, status]).changes;
-        return result == 1;
-    }
-    return false;
+    return usersHandler.createUser(email, username, password, status);
 }
 
 exports.updateUserPassword = function(email, password) {
-    let check = sqlCheck(email, users);
-    if (check == false) return false;
-
-    let update = db.prepare('UPDATE users SET password=? WHERE email=?');
-    let result = update.run([password, email]).changes;
-    return result == 1;
+    return usersHandler.updateUserPassword(email, password);
 }
 
 exports.updateUserUsername = function(email, username) {
-    let check = sqlCheck(email, users);
-    if (check == false) return false;
-
-    let update = db.prepare('UPDATE users SET username=? WHERE email=?');
-    let result = update.run([username, email]).changes;
-    return result == 1;
+    return usersHandler.updateUserUsername(email, username);
 }
 
 
 exports.deleteUser = function(email) {
-    let check = sqlCheck(email, users);
-    if (check == false) return false;
-
-    let query = db.prepare('DELETE FROM users WHERE email=?');
-    let result = query.run([email]).changes;
-    return result == 1;
+    return usersHandler.deleteUser(email);
 }
 
-exports.getUserStatus = function(email) {
-    let check = sqlCheck(email, users);
-    if (check == false) return null;
-
-    let query = db.prepare('SELECT status FROM users WHERE email=?');
-    return db.get([email]).status;
+exports.getUserStatus = function(userEmail) {
+    if (! sqlCheck(users, email, userEmail)) return null;
+    return usersHandler.getUserStatus(email);
 }
 
-exports.getUserId = function(username) {
-    let query = db.prepare('SELECT email FROM users WHERE username=?');
-    let result = query.get([username]).email;
-    return result;
-}
-
-exports.getUserPassword = function(email) {
-    let query = db.prepare('SELECT password FROM Users WHERE email=?');
-    return query.get([email]).password;
+exports.getUserId = function(userUsername) {
+    if(!sqlCheck(users, username, userUsername)) return null;
+    return usersHandler.getUserId(username);
 }
 
 
 //TODO modifier la function pour associer un tableau de catégories au résultat. 
 exports.getProjects = function(username) {
-    let query = db.prepare('SELECT P.title, P.creator FROM Projects P, Users U WHERE P.creator=U.email AND U.username=?');
-    let projectsList = query.all([username]);
-
-    for (let i = 0; i < projectsList.length ; i++) {
-        projectsList[i][status] = creator;
-    }
-
-    query = db.prepare('SELECT P.title, P.creator, P.category, M.status FROM Projects P, ProjectMembers M, Users U WHERE P.projectId = M.projectId AND U.email = M.user AND U.username=?');
-    let projectsFollowed = query.all([username]);
-
-    for (let i = 0; i < projectsFollowed.length ; i++) {
-        projectsList.push(projectsFollowed[i]);
-    }
-
-    return projectsList;
+    return usersHandler.getProjects(username);
 }
 
 
@@ -104,18 +66,12 @@ exports.getProjects = function(username) {
  * 
  */
 
- exports.login = function(email, userpassword) {
-     let query = db.prepare('SELECT password FROM users WHERE email=?');
-     let result = query.get([email]);
-     return result !== undefined && result.password === userpassword;
+ exports.isTheRightPassword = function(email, userPassword) {
+     return usersHandler.isTheRightPassword(email, userPassword);
  }
 
  exports.credentialsAreFree = function(email, username) {
-     let query = db.prepare('SELECT email FROM Users WHERE email=?');
-     if (query.get([email]) !== undefined) return -1;
-     query = db.prepare('SELECT username FROM Users WHERE username=?');
-     if (query.get([username]) !== undefined) return -2;
-     return 1;
+     return usersHandler.credentialsAreFree(email, username);
  }
 
 
@@ -125,18 +81,12 @@ exports.getProjects = function(username) {
  * 
  */
 
-exports.updateUserStatus = function (email, status) {
-    let check = sqlCheck(email, users);
-    if (check == false) return false;
-
-    let update = db.prepare('UPDATE users SET status=? WHERE email=?');
-    let result = update.run([status, email]).changes;
-    return result == 1;
+exports.updateUserStatus = function (userEmail, newStatus) {
+    return administratorsTools.updateUserStatus(userEmail, newStatus);
 }
 
 exports.getUsersList = function() {
-    let query = db.prepare('SELECT username, status FROM Users ORDER BY username');
-    return query.all();
+    return administratorsTools.getUsersList();
 }
 
 
@@ -148,30 +98,11 @@ exports.getUsersList = function() {
 
 
 exports.createProject = function(title, description, categories, creator, date, keywords) {
-    let insert = db.prepare('INSERT INTO projects VALUES (?, ?, ?, ?)');
-    let projectId = insert.run([title, description, creator, date]).lastInsertRowId;
-
-    //remove all duplicates from the array.
-    keywords.filter((item, index) => keywords.indexOf(item) === index);
-    for(let i = 0 ; i < keywords.length ; i++) {
-        addKeyword(projectId, keywords[i]);
-    }
-
-    categories.filter((item, index) => categories.indexOf(item) === index);
-    for(let i = 0 ; i < categories.length ; i++) {
-        addCategory(projectId, categories[i]);
-    }
-
-    return projectId;
+    return projectsHandler.createProject(title, description, categories, creator, date, keywords);
 }
 
 exports.updateProject = function(projectId, title, description, creator) {
-    let check = sqlCheck(projectId, projects);
-    if (check === false) return false;
-
-    let update = db.prepare('UPDATE projects SET title=?, description=?, creator=? WHERE projectId=?');
-    let result = update.run([title, description, creator, projectId]).changes;
-    return result === 1;
+    return projectsHandler.updateProject(projectId, title, description, creator);
 }
 
 exports.deleteProject = function(projectId) {
@@ -355,7 +286,7 @@ exports.resetDatabase = function() {
  * 
  */
 
-var sqlCheck = function(parameter, table) {
-    let check = db.prepare(`SELECT ? FROM ${table} WHERE ?=?`).get([parameter, parameter, parameter]);
+var sqlCheck = function(table, field, content) {
+    let check = db.prepare(`SELECT ? FROM ${table} WHERE ?=?`).get([field, field, content]);
     return check !== undefined;
 }

@@ -1,59 +1,64 @@
-exports.createUser = function(email, username, password, status) {
-    let check = db.prepare('SELECT email, username FROM users WHERE email=? OR username=?').get([email, username]);
-    if (check === undefined) {
-        let insert = db.prepare('INSERT INTO users VALUES(?, ?, ?, ?)');
-        let result = insert.run([email, username, password, status]).changes;
-        return result == 1;
-    }
-    return false;
+function createUser(email, username, password, status) {
+    let insert = db.prepare('INSERT INTO users VALUES(?, ?, ?, ?)');
+    let result = insert.run([email, username, password, status]);
+    return result.changes == 1;
 }
 
 exports.updateUserPassword = function(email, password) {
     let update = db.prepare('UPDATE users SET password=? WHERE email=?');
-    let result = update.run([password, email]).changes;
-    return result == 1;
+    let result = update.run([password, email]);
+    return result.changes == 1;
 }
 
 exports.updateUserUsername = function(email, username) {
-
     let update = db.prepare('UPDATE users SET username=? WHERE email=?');
-    let result = update.run([username, email]).changes;
-    return result == 1;
+    let result = update.run([username, email]);
+    return result.changes == 1;
 }
 
 
 exports.deleteUser = function(email) {
-    let check = sqlCheck(email, users);
-    if (check == false) return false;
-
     let query = db.prepare('DELETE FROM users WHERE email=?');
-    let result = query.run([email]).changes;
-    return result == 1;
+    let result = query.run([email]);
+    return result.changes == 1;
 }
 
 exports.getUserStatus = function(email) {
-    let check = sqlCheck(email, users);
-    if (check == false) return null;
-
     let query = db.prepare('SELECT status FROM users WHERE email=?');
     return db.get([email]).status;
 }
 
 exports.getUserId = function(username) {
     let query = db.prepare('SELECT email FROM users WHERE username=?');
-    let result = query.get([username]).email;
-    return result;
+    let result = query.get([username]);
+    return result.email;
 }
 
-exports.getUserPassword = function(email) {
-    let query = db.prepare('SELECT password FROM Users WHERE email=?');
-    return query.get([email]).password;
+
+//TODO modifier la function pour associer un tableau de catégories au résultat. 
+exports.getProjects = function(username) {
+    let query = db.prepare('SELECT P.title, P.creator FROM Projects P, Users U WHERE P.creator=U.email AND U.username=?');
+    let projectsList = query.all([username]);
+
+    for (let i = 0; i < projectsList.length ; i++) {
+        projectsList[i][status] = creator;
+    }
+
+    query = db.prepare('SELECT P.title, P.creator, P.category, M.status FROM Projects P, ProjectMembers M, Users U WHERE P.projectId = M.projectId AND U.email = M.user AND U.username=?');
+    let projectsFollowed = query.all([username]);
+
+    for (let i = 0; i < projectsFollowed.length ; i++) {
+        projectsList.push(projectsFollowed[i]);
+    }
+
+    return projectsList;
 }
 
-exports.login = function(email, userpassword) {
+
+exports.isTheRightPassword = function(email, userPassword) {
     let query = db.prepare('SELECT password FROM users WHERE email=?');
     let result = query.get([email]);
-    return result !== undefined && result.password === userpassword;
+    return result !== undefined && result.password === userPassword;
 }
 
 exports.credentialsAreFree = function(email, username) {
