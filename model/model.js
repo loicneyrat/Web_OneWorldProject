@@ -222,6 +222,5 @@ exports.resetDatabase = function() {
 var sqlCheck = function(table, field, content) {
     content = String(content);
     let check = db.prepare(`SELECT ${field} FROM ${table} WHERE ${field}=?`).get([content]);
-    console.log(check);
     return check !== undefined;
 }
