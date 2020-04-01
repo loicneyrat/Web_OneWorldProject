@@ -1,4 +1,8 @@
+var sqlite = require('better-sqlite3');
+var db = new sqlite('database.sqlite');
+
 exports.createProject = function(title, description, categories, creator, date, keywords) {
+    //Check qu'il n'existe pas de lignes dans la base comportant tout ces champs identiques sauf la date
     let insert = db.prepare('INSERT INTO projects VALUES (?, ?, ?, ?)');
     let projectId = insert.run([title, description, creator, date]).lastInsertRowId;
 
@@ -46,10 +50,9 @@ exports.addMember = function(projectId, user, status) {
 exports.updateMemberStatus = function(projectId, user, status) {
     let check = db.prepare('SELECT projectId, user FROM projectMembers WHERE projectId=? AND user=?').get([projectId, user]);
     if(check === undefined) return false;
-
     let update = db.prepare('UPDATE projectMembers SET status=? WHERE projectId=?');
-    let result = update.run([status, projectId]).changes;
-    return result === 1;
+    let result = update.run([status, projectId]);
+    return result.changes === 1;
 }
 
 exports.removeMember = function(projectId, user) {

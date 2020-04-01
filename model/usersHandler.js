@@ -29,13 +29,14 @@ exports.deleteUser = function(email) {
 
 exports.getUserStatus = function(email) {
     let query = db.prepare('SELECT status FROM users WHERE email=?');
-    return db.get([email]).status;
+    let result = query.get([email]);
+    return result === undefined ? result : result.status;
 }
 
 exports.getUserId = function(username) {
     let query = db.prepare('SELECT email FROM users WHERE username=?');
     let result = query.get([username]);
-    return result.email;
+    return result === undefined ? result : result.email;
 }
 
 
@@ -54,7 +55,6 @@ exports.getProjects = function(username) {
     for (let i = 0; i < projectsFollowed.length ; i++) {
         projectsList.push(projectsFollowed[i]);
     }
-
     return projectsList;
 }
 
