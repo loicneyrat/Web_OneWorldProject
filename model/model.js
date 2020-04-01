@@ -44,8 +44,8 @@ exports.deleteUser = function(email) {
 }
 
 exports.getUserStatus = function(userEmail) {
-    if (! sqlCheck(users, email, userEmail)) return null;
-    return usersHandler.getUserStatus(email);
+    if (! sqlCheck("users", "email", userEmail)) return null;
+    return usersHandler.getUserStatus(userEmail);
 }
 
 exports.getUserId = function(userUsername) {
