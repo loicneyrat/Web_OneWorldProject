@@ -20,6 +20,12 @@ exports.updateEvent = function(projectId, previousEvent, newEvent) {
     return result.changes === 1;
 }
 
+exports.changeEventDate = function(projectIdConcerned, eventToChange, newDate) {
+    let query = db.prepare('UPDATE projectEvents SET date=? WHERE projectId=? AND event=?');
+    let result = udpate.run([newDate, projectIdConcerned, eventToChange]);
+    return result.changes === 1;
+}
+
 
 exports.removeEvent = function(projectId, event) {
     
