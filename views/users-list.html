@@ -1,5 +1,14 @@
 {{>header}}
 
-<p>Coucou !</p>
+    <table>
+        <thead>
+            <th>Username</th><th>Status</th>
+        </thead>
+
+        {{#usersList}}
+            <tr><td>{{username}}</td><td>{{status}}</td></tr> <a href="/confirm-user-delete/{{username}}">Delete user</a>
+        {{/usersList}} 
+
+    </table>
 
 {{>footer}}
