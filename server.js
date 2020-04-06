@@ -115,12 +115,9 @@ app.get('/confirm-user-delete/:username', (req, res) => {
 
 app.get('/confirm-user-delete', (req, res) => {
     let word = req.query.delete.toUpperCase();
-    console.log(word);
     if(word === "SUPPRIMER") {
         let userEmail = model.getUserId(req.query.username);
         if(model.deleteUser(userEmail)){
-            console.log("passed");
-            req.session = null;
             res.render('delete-confirmation');
             //setTimeout(() => res.redirect('/'), 5000);
         }
