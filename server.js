@@ -105,7 +105,7 @@ app.get('/confirm-user-delete/:username', (req, res) => {
     let userEmail = model.getUserId(req.params.username);
     if (req.session.user === userEmail)
         res.render('delete-user-form', {"username" : req.params.username});
-    else if (getUserStatus(userEmail) === 'administrator' || 'supervisor')
+    else if (model.getUserStatus(userEmail) === 'administrator' || 'supervisor')
         res.render('delete-user-form', {"username" : req.params.username});
     else {
         res.render('unauthorized-action');
