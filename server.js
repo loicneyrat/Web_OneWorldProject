@@ -109,27 +109,29 @@ app.get('/confirm-user-delete/:username', (req, res) => {
         res.render('delete-user-form', {"username" : req.params.username});
     else {
         res.render('unauthorized-action');
-        setTimeout(5000, res.redirect('/'));
+        //setTimeout(() => res.redirect('/'), 5000);
     }
 });
 
 app.get('/confirm-user-delete', (req, res) => {
-    let word = req.params.delete.toUpperCase;
+    let word = req.query.delete.toUpperCase();
+    console.log(word);
     if(word === "SUPPRIMER") {
-        let userEmail = model.getUserId(req.params.username);
+        let userEmail = model.getUserId(req.query.username);
         if(model.deleteUser(userEmail)){
-            req.session.user=null;
+            console.log("passed");
+            req.session = null;
             res.render('delete-confirmation');
-            setTimeout(5000, res.redirect('/'));
+            //setTimeout(() => res.redirect('/'), 5000);
         }
         else {
             res.locals.deleteFailure = true;
-            res.render('delete-user-form', {"username" : req.params.username});
+            res.render('delete-user-form', {"username" : req.query.username});
         }
     }
-    else{
+    else {
         res.locals.wrongWord = true;
-        res.render('delete-user-form', {"username": req.params.username});
+        res.render('delete-user-form', {"username": req.query.username});
     }
 });
 
@@ -142,8 +144,6 @@ app.post('/update-password', (res, req) => {
     let newPassword = req.body.newPwd;
     let confirmedPassword = req.body.verifpwd;
     let userEmail = req.session.email;
-    
-
     if(!model.isTheRightPassword(userEmail, oldPassword)) {
         res.locals.wrongPassword = true;
         res.render('change-password-form')
@@ -155,7 +155,7 @@ app.post('/update-password', (res, req) => {
     else {
         if(model.updateUserPassword(req.session.user, newPassword)) {
             res.render('update-confirmation');
-            setTimeout(5000, res.redirect('/home'));
+            //setTimeout(5000, res.redirect('/home'));
         }
         else {
             res.locals.updateFailure = true;
@@ -184,7 +184,7 @@ app.post('/update-username', (req, res) => {
     else {
         if (model.updateUserUsername(req.session.user, username)) {
             res.render('update-confirmation');
-            setTimeout(5000, res.redirect('/home'));
+            //setTimeout(5000, res.redirect('/home'));
         }
         else {
             res.locals.updateFailure = true;
