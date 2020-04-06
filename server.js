@@ -93,8 +93,7 @@ app.get('/home', (req, res) => {
     } else {
     let isAdmin = req.session.userStatus === "administrator";
     let username = model.getUsername(req.session.user);
-    //let projects = model.getProjects(req.session.user);
-    //console.log(projects);
+    let projects = model.getProjects(req.session.user);
     res.render('home', {"isAdmin": isAdmin, "username": username, "projects": projects});
     }
 });

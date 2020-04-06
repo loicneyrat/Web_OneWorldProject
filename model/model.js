@@ -7,6 +7,7 @@ var eventsHandler = require('./eventsHandler.js');
 var keywordsHandler = require('./keywordsHandler.js');
 var db = new sqlite('database.sqlite');
 
+db.prepare('DROP TABLE projects').run();
 
 db.prepare('CREATE TABLE IF NOT EXISTS users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE, password VARCHAR2(50), status VARCHAR2(20))').run();
 
