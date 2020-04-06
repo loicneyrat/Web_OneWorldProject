@@ -1,14 +1,28 @@
 {{>header}}
 
-    <table>
-        <thead>
-            <th>Username</th><th>Status</th>
+<div class="container" style="margin-top: 10vh;">
+    <h1>Liste des utilisateurs du site</h1><br>
+    <table class="table table-hover" style="text-align: center;">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Username</th>
+                <th scope="col">Status</th>
+                <!--<th scope="col">Date of subscription</th>-->
+                <th scope="col">Change status</th>
+                <th scope="col">Delete user</th>
+            </tr>
         </thead>
-
-        {{#usersList}}
-            <tr><td>{{username}}</td><td>{{status}}</td></tr> <a href="/confirm-user-delete/{{username}}">Delete user</a>
-        {{/usersList}} 
-
+        <tbody class="table-light">
+            {{#usersList}}
+            <tr>
+                <th>{{username}}</th>
+                <td>{{status}}</td>
+                <td><a href="#">Change status</a></td>
+                <td><a href="/confirm-user-delete/{{username}}">Delete user</a></td>
+            </tr>
+            {{/usersList}}
+        </tbody>
     </table>
+</div>
 
 {{>footer}}
