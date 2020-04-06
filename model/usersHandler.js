@@ -45,10 +45,10 @@ exports.getUsername = function(userId) {
     return result === undefined ? result : result.username;
 }
 
-
+/*
 //TODO modifier la function pour associer un tableau de catégories au résultat. 
 exports.getProjects = function(username) {
-    let query = db.prepare('SELECT P.title, P.creator FROM Projects P, Users U WHERE P.creator=U.email AND U.username=?');
+    let query = db.prepare('SELECT P.title, P.creator, P.date FROM Projects P, Users U WHERE P.creator=U.email AND U.username=?');
     let projectsList = query.all([username]);
 
     for (let i = 0; i < projectsList.length ; i++) {
@@ -63,7 +63,15 @@ exports.getProjects = function(username) {
     }
     return projectsList;
 }
+*/
 
+exports.getProjects = function(email) {
+    let projects = {};
+    projects.created = db.prepare('SELECT title, description, creator, date FROM projects WHERE creator=?').all([email]);
+    projects.supported = db.prepare('SELECT P.title, P.description, P.creator, P.date FROM projects P WHERE P.projectId IN (SELECT projectId FROM projectMembers WHERE user=? AND status=?)').all([email, "members"]);
+    projects.followed = db.prepare('SELECT P.title, P.description, P.creator, P.date FROM projects P WHERE P.projectId IN (SELECT projectId FROM projectMembers WHERE user=? AND status=?)').all([email, "followers"]);
+    return projects;
+}
 
 exports.isTheRightPassword = function(email, userPassword) {
     let query = db.prepare('SELECT password FROM users WHERE email=?');
