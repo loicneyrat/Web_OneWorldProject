@@ -70,8 +70,8 @@ exports.getUsername = function(userId) {
 
 
 //TODO modifier la function pour associer un tableau de catégories au résultat. 
-exports.getProjects = function(username) {
-    return usersHandler.getProjects(username);
+exports.getProjects = function(email) {
+    return usersHandler.getProjects(email);
 }
 
 
