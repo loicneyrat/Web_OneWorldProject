@@ -3,18 +3,24 @@
 
 <div class="row">
   <div class="col-lg-3 col-md-3 col-sm-12">
-    <div class="card" style="width: 18rem; margin-top: 30px; margin-left: 3vw">
+    <div class="card" style="width: 18rem; margin-top: 30px; margin-left: 1vw"> <!--- margin-left: 3vw; width: 18rem-->
       <div class="card-header">
         <h3>Bienvenue à la maison, {{username}}!</h3>
       </div>
-      <div class="list-group list-group-flush">
-        <a class="list-group-item" href="/profile/{{username}}">Mes informations</a>
+      <div class="list-group list-group-flush" id="submenu">
+        <a class="list-group-item item" href="#" id="droplink" data-toggle="collapse" data-target="#param-menu">Mes informations<i class="ml-2 fas fa-angle-down"></i></a>
+        <div class="collapse" id="param-menu" data-parent="submenu">
+          <div class="list-group list-group-flush">
+            <a class="list-group-item param-link" href="#">Changer le nom d'utilisateur</a>
+            <a class="list-group-item param-link" href="#">Changer le mot de passe</a>
+          </div>
+        </div>
         {{#isAdmin}}
         <a class="list-group-item" href="/usersList">Liste des utilisateurs du site</a>
         {{/isAdmin}}
-        <a class="list-group-item" href="#">Projets créés</a>
-        <a class="list-group-item" href="#">Projets auxquels j'adhère</a>
-        <a class="list-group-item" href="#">Projets que je suis</a>
+        <a class="list-group-item item" href="#">Projets créés</a>
+        <a class="list-group-item item" href="#">Projets auxquels j'adhère</a>
+        <a class="list-group-item item" href="#">Projets que je suis</a>
         <a href="/logout" class="list-group-item" id="logout-item"><b>Log out</b></a>
       </div>
     </div>

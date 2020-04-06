@@ -14,6 +14,20 @@
     transition-duration: 200ms;
 }
 
+.param-link {
+    background-color: #A4A4A4;
+    border-radius: 0px;
+}
+
+.param-link:hover {
+    background-color: orange;
+    color: white;
+    border-radius: 0px;
+}
+
+#param-menu {
+    border-style: none;
+}
 
 #logout-item {
     text-align: center;
