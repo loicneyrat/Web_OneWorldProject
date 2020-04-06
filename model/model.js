@@ -82,7 +82,7 @@ exports.getProjects = function(username) {
  */
 
  exports.isTheRightPassword = function(email, userPassword) {
-    if(! exists(userEmail, "email", "users")) return null;
+    if(!exists(email, "email", "users")) return null;
     return usersHandler.isTheRightPassword(email, userPassword);
  }
 
@@ -254,7 +254,7 @@ var exists = function(content, field, table) {
     return check !== undefined;
 }
 
-var exists = function(content1, content2, field1, field2, table) {
+var exists2 = function(content1, content2, field1, field2, table) {
     content1 = String(content1);
     content2 = String(content2);
     let check = db.prepare(`SELECT ${field1}, ${field2} FROM ${table} WHERE ${field1}=? AND ${field2}=?`).get([content1, content2]);
