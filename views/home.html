@@ -7,7 +7,7 @@
       <div class="card-header">
         <h3>Bienvenue à la maison, {{username}} !</h3>
       </div>
-      <div class="list-group list-group-flush" id="submenu">
+      <div class="list-group list-group-flush" id="submenu" role="tablist">
         <a class="list-group-item item" href="#" id="droplink" data-toggle="collapse" data-target="#param-menu">Mes informations<i class="ml-2 fas fa-angle-down"></i></a>
         <div class="collapse" id="param-menu" data-parent="submenu">
           <div class="list-group list-group-flush">
@@ -18,13 +18,55 @@
         {{#isAdmin}}
         <a class="list-group-item" href="/usersList">Liste des utilisateurs du site</a>
         {{/isAdmin}}
-        <a class="list-group-item item" href="#">Projets créés</a>
-        <a class="list-group-item item" href="#">Projets auxquels j'adhère</a>
-        <a class="list-group-item item" href="#">Projets que je suis</a>
+        <a class="list-group-item list-group-item-action" id="list-home-list" data-toggle="list" href="#list-home" role="tab" aria-controls="home">Projets créés</a>
+        <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="profile">Projets auxquels j'adhère</a>
+        <a class="list-group-item list-group-item-action"id="list-messages-list" data-toggle="list" href="#list-messages" role="tab" aria-controls="messages">Projets que je suis</a>
         <a href="/logout" class="list-group-item" id="logout-item"><b>Log out</b></a>
       </div>
     </div>
   </div>
+  <div class="col-6">
+    <div class="tab-content" id="nav-tabContent">
+      <div class="tab-pane fade show" id="list-home" role="tabpanel" aria-labelledby="list-home-list">
+        Velit aute mollit ipsum ad dolor consectetur nulla officia culpa adipisicing exercitation fugiat tempor. Voluptate deserunt sit sunt nisi aliqua fugiat proident ea ut. Mollit voluptate reprehenderit occaecat nisi ad non minim tempor sunt voluptate consectetur exercitation id ut nulla. Ea et fugiat aliquip nostrud sunt incididunt consectetur culpa aliquip eiusmod dolor. Anim ad Lorem aliqua in cupidatat nisi enim eu nostrud do aliquip veniam minim.
+        <!-- Générer la liste des projets créés avec des cartes ici -->
+      </div>
+      <div class="tab-pane fade" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list">
+        Cupidatat quis ad sint excepteur laborum in esse qui. Et excepteur consectetur ex nisi eu do cillum ad laborum. Mollit et eu officia dolore sunt Lorem culpa qui commodo velit ex amet id ex. Officia anim incididunt laboris deserunt anim aute dolor incididunt veniam aute dolore do exercitation. Dolor nisi culpa ex ad irure in elit eu dolore. Ad laboris ipsum reprehenderit irure non commodo enim culpa commodo veniam incididunt veniam ad.
+        <!-- Générer la liste des projets auxquels l'utilisateur a adhéré avec des cartes ici -->
+      </div>
+      <div class="tab-pane fade" id="list-messages" role="tabpanel" aria-labelledby="list-messages-list">
+        Ut ut do pariatur aliquip aliqua aliquip exercitation do nostrud commodo reprehenderit aute ipsum voluptate. Irure Lorem et laboris nostrud amet cupidatat cupidatat anim do ut velit mollit consequat enim tempor. Consectetur est minim nostrud nostrud consectetur irure labore voluptate irure. Ipsum id Lorem sit sint voluptate est pariatur eu ad cupidatat et deserunt culpa sit eiusmod deserunt. Consectetur et fugiat anim do eiusmod aliquip nulla laborum elit adipisicing pariatur cillum.
+        <!-- Générer la liste des projets suivis avec des cartes ici -->
+      </div>
+    </div>
+  
+  </div>
+  
+
+
+
+
+
+
+
+
+
+  <!--
+    AFFICHER LISTE ARTICLES
+  -->
+
+
+
+
+
+
+
+
+
+
+
+
 </div>
 
 {{> footer}}
