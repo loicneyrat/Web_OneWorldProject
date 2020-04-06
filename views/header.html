@@ -28,8 +28,8 @@
           {{/authenticated}}
           -->
           <form class="form-inline mx-auto"  action="" method="GET">
-            <div class="input-group mr-2">
-              <input type="text" class="form-control" id="searchNav" style="width: 35vw;" placeholder="Recherche" value="">
+            <div class="input-group">
+              <input type="text" class="form-control" id="searchNav" style="width: 40vw;" placeholder="Recherche" value="">
               <div class="input-group-append">
                 <button class="input-group-text btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
               </div>
@@ -41,8 +41,9 @@
             <a class="btn btn-primary mr-2 float-right" type="button" href="/login-form">Login!</a>
             {{/authenticated}}
             {{#authenticated}}
-            <a class="btn btn-primary mr-2 float-right" href="/home" type="button"><i class="fas fa-home"></i></a>
-            <a class="btn btn-primary mr-2 float-right" type="button" href="/create-project-form">Create project</a>
+            <a class="btn btn-primary mr-2 float-right" type="button" href="/logout" alt="Log out"><i class="fas fa-power-off"></i></a>
+            <a class="btn btn-primary mr-2 float-right" href="/home" type="button" alt="Home"><i class="fas fa-home"></i></a>
+            <a class="btn btn-primary mr-2 float-right" type="button" href="/create-project-form" alt="Create project"><i class="fas fa-plus-square"></i></a>
             {{/authenticated}}
           </div>            
         </div>
