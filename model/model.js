@@ -131,6 +131,11 @@ exports.deleteProject = function(projectId) {
     return projectsHandler.deleteProject(projectId);
 }
 
+exports.getProjectDetails(projectId) {
+    if(! exists(projectId, "projectId", "projects")) return null;
+    return projectsHandler.getProjectDetails(projectId);
+}
+
 /***
  * 
  *          FOR THE PROJECT MEMBERS
