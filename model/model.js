@@ -5,17 +5,17 @@ var administratorsTools = require('./administratorsTools.js');
 var categoriesHandler = require('./categoriesHandler.js');
 var eventsHandler = require('./eventsHandler.js');
 var keywordsHandler = require('./keywordsHandler.js');
-var projectMembersHandler = require('./projectMembersHandler.js');
+var projectLinkedUsersHandler = require('./projectLinkedUsersHandler.js');
 var db = new sqlite('database.sqlite');
 
 db.prepare('DROP TABLE projects').run();
+db.prepare('DROP TABLE projectMembers').run();
 
 db.prepare('CREATE TABLE IF NOT EXISTS users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE, password VARCHAR2(50), status VARCHAR2(20))').run();
 
-// PROBLEME !!! => throws "SqliteError: table projects has no column named title". I tried debugging from the sqlite command line and here.... =(
 db.prepare('CREATE TABLE IF NOT EXISTS projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR2(60), description VARCHAR2(1000), creator VARCHAR2(30) REFERENCES users, date DATE)').run();
 
-db.prepare('CREATE TABLE IF NOT EXISTS projectMembers(projectId INTEGER REFERENCES projects ON DELETE CASCADE, user VARCHAR2(30) REFERENCES users ON DELETE CASCADE, status VARCHAR2(15), PRIMARY KEY(projectId, user))').run();
+db.prepare('CREATE TABLE IF NOT EXISTS projectLinkedUsers(projectId INTEGER REFERENCES projects ON DELETE CASCADE, user VARCHAR2(30) REFERENCES users ON DELETE CASCADE, status VARCHAR2(15), affiliation VARCHAR2(20), PRIMARY KEY(projectId, user))').run();
 
 db.prepare('CREATE TABLE IF NOT EXISTS projectKeyWords(projectId INTEGER REFERENCES projects ON DELETE CASCADE, keyword VARCHAR2(15), PRIMARY KEY(projectId, keyword))').run();
 
@@ -139,29 +139,29 @@ exports.getProjectDetails = function(projectId) {
 
 /***
  * 
- *          FOR THE PROJECT MEMBERS
+ *          FOR THE PROJECT LINKED USERS
  * 
  */
 
 
-exports.addMember = function(projectIdConcerned, userToAdd, status) {
-    if(exists2(projectIdConcerned, userToAdd, "projectId", "user", "projectMembers")) {return null};
-    return projectMembersHandler.addMember(projectIdConcerned, userToAdd, status);
+exports.addMember = function(projectIdConcerned, userToAdd, affiliation) {
+    if(exists2(projectIdConcerned, userToAdd, "projectId", "user", "projectLinkedUsers")) return null;
+    return projectLinkedUsersHandler.addMember(projectIdConcerned, userToAdd, affiliation);
 }
 
 exports.updateMemberStatus = function(projectIdConcerned, userConcerned, newStatus) {
-    if(! exists2(projectIdConcerned, userConcerned, "projectId", "user", "projectMembers")) return null;
-    return projectMembersHandler.updateMemberStatus(projectIdConcered, userConcerned, newStatus);
+    if(! exists2(projectIdConcerned, userConcerned, "projectId", "user", "projectLinkedUsers")) return null;
+    return projectLinkedUsersHandler.updateMemberStatus(projectIdConcered, userConcerned, newStatus);
 }
 
 exports.removeMember = function(projectId, userToRemove) {
-    if(! exists2(projectId, userToRemove, "projectId", "user", "projectMembers")) return null;
-    return projectMembersHandler.removeMember(projectId, userToRemove);
+    if(! exists2(projectId, userToRemove, "projectId", "user", "projectLinkedUsers")) return null;
+    return projectLinkedUsersHandler.removeMember(projectId, userToRemove);
 }
 
 exports.getMembers = function(projectId) {
-    if(! exists(projectId, "projectId", "projectMembers")) return null;
-    return projectMembersHandler.getMembers(projectId);
+    if(! exists(projectId, "projectId", "projectLinkedUsers")) return null;
+    return projectLinkedUsersHandler.getMembers(projectId);
 }
 
 /***
@@ -234,7 +234,7 @@ exports.removeEvent = function(projectId, eventToRemove) {
 exports.resetDatabase = function() {
     db.prepare('DROP TABLE projectEvents').run();
     db.prepare('DROP TABLE projectKeywords').run();
-    db.prepare('DROP TABLE projectMembers').run();
+    db.prepare('DROP TABLE projectLinkedUsers').run();
     db.prepare('DROP TABLE projectCategories').run();
     db.prepare('DROP TABLE projects').run();
     db.prepare('DROP TABLE users').run();
@@ -245,7 +245,7 @@ exports.resetDatabase = function() {
 
     db.prepare('CREATE TABLE projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR2(60), description VARCHAR2(1000), creator VARCHAR2(30) REFERENCES users), date DATE').run();
 
-    db.prepare('CREATE TABLE projectMembers (projectId INTEGER REFERENCES projects ON DELETE CASCADE, user VARCHAR2(30) REFERENCES users ON DELETE CASCADE, status VARCHAR2(15), PRIMARY KEY(projectId, user))').run();
+    db.prepare('CREATE TABLE IF NOT EXISTS projectLinkedUsers(projectId INTEGER REFERENCES projects ON DELETE CASCADE, user VARCHAR2(30) REFERENCES users ON DELETE CASCADE, status VARCHAR2(15), affiliation VARCHAR2(20), PRIMARY KEY(projectId, user))').run();
 
     db.prepare('CREATE TABLE projectKeyWords (projectId INTEGER REFERENCES projects ON DELETE CASCADE, keyword VARCHAR2(15), PRIMARY KEY(projectId, keyword))').run();
 
