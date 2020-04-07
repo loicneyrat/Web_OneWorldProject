@@ -5,6 +5,7 @@ var administratorsTools = require('./administratorsTools.js');
 var categoriesHandler = require('./categoriesHandler.js');
 var eventsHandler = require('./eventsHandler.js');
 var keywordsHandler = require('./keywordsHandler.js');
+var projectMembersHandler = require('./projectMembersHandler.js');
 var db = new sqlite('database.sqlite');
 
 db.prepare('DROP TABLE projects').run();
@@ -131,7 +132,7 @@ exports.deleteProject = function(projectId) {
     return projectsHandler.deleteProject(projectId);
 }
 
-exports.getProjectDetails(projectId) {
+exports.getProjectDetails = function(projectId) {
     if(! exists(projectId, "projectId", "projects")) return null;
     return projectsHandler.getProjectDetails(projectId);
 }
@@ -142,24 +143,25 @@ exports.getProjectDetails(projectId) {
  * 
  */
 
+
 exports.addMember = function(projectIdConcerned, userToAdd, status) {
-    if(exists(projectIdConcerned, userToAdd, "projectId", "user", "projectMembers")) return null;
-    return projectsHandler.addMember(projectIdConcerned, userToAdd, status);
+    if(exists(projectIdConcerned, userToAdd, "projectId", "user", "projectMembers")) {return null};
+    return projectMembersHandler.addMember(projectIdConcerned, userToAdd, status);
 }
 
 exports.updateMemberStatus = function(projectIdConcerned, userConcerned, newStatus) {
     if(! exists(projectIdConcerned, userConcerned, "projectId", "user", "projectMembers")) return null;
-    return projectsHandler.updateMemberStatus(projectIdConcered, userConcerned, newStatus);
+    return projectMembersHandler.updateMemberStatus(projectIdConcered, userConcerned, newStatus);
 }
 
 exports.removeMember = function(projectId, userToRemove) {
     if(! exists(projectId, userToRemove, "projectId", "user", "projectMembers")) return null;
-    return projectsHandler.removeMember(projectId, userToRemove);
+    return projectMembersHandler.removeMember(projectId, userToRemove);
 }
 
 exports.getMembers = function(projectId) {
     if(! exists(projectId, "projectId", "projectMembers")) return null;
-    return projectsHandler.getMembers(projectId);
+    return projectMembersHandler.getMembers(projectId);
 }
 
 /***
