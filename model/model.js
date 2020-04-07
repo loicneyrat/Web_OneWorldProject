@@ -26,6 +26,8 @@ db.prepare('CREATE TABLE IF NOT EXISTS projectEvents(projectId INTEGER REFERENCE
 
 //usersHandler.createUser('admin@admin.fr', 'Administrator', 'AZERTY', 'administrator');
 
+
+
 /***
  * 
  *          FOR A USER
@@ -38,8 +40,6 @@ exports.createUser = function(email, username, password, status) {
     return usersHandler.createUser(email, username, password, status);
 }
 
-
-
 exports.updateUserPassword = function(email, password) {
     if (!exists(email, "email", "users")) return null;
     return usersHandler.updateUserPassword(email, password);
@@ -49,7 +49,6 @@ exports.updateUserUsername = function(email, username) {
     if (!exists(email, "email", "users")) return null;
     return usersHandler.updateUserUsername(email, username);
 }
-
 
 exports.deleteUser = function(email) {
     if (!exists(email, "email", "users")) return null;
@@ -71,11 +70,11 @@ exports.getUsername = function(userId) {
     return usersHandler.getUsername(userId);
 }
 
-
 //TODO modifier la function pour associer un tableau de catégories au résultat. 
 exports.getProjects = function(email) {
     return usersHandler.getProjects(email);
 }
+
 
 
 /***
@@ -94,6 +93,7 @@ exports.getProjects = function(email) {
  }
 
 
+
 /***
  * 
  *          FOR THE ADMINISTRATORS
@@ -108,6 +108,7 @@ exports.updateUserStatus = function (userEmail, newStatus) {
 exports.getUsersList = function() {
     return administratorsTools.getUsersList();
 }
+
 
 
 /***
@@ -137,6 +138,8 @@ exports.getProjectDetails = function(projectId) {
     return projectsHandler.getProjectDetails(projectId);
 }
 
+
+
 /***
  * 
  *          FOR THE PROJECT LINKED USERS
@@ -164,6 +167,9 @@ exports.getMembers = function(projectId) {
     return projectLinkedUsersHandler.getMembers(projectId);
 }
 
+
+
+
 /***
  * 
  *          FOR THE KEYWORDS
@@ -179,6 +185,8 @@ exports.removeKeyword = function(projectId, keywordToRemove) {
     if(! exists2(projectId, keywordToRemove, "projectId", "keyword", "projectKeywords")) return null;
     return keywordsHandler.removeKeyword(projectId, keywordToRemove);
 }
+
+
 
 /***
  * 
@@ -207,6 +215,7 @@ exports.removeEvent = function(projectId, eventToRemove) {
 }
 
 
+
 /***
  * 
  *          FOR THE CATEGORIES
@@ -223,6 +232,7 @@ exports.removeEvent = function(projectId, eventToRemove) {
 
     return categoriesHandler.removeCategory(projectId, categoryToRemove);
  }
+
 
 
 /***
@@ -256,6 +266,13 @@ exports.resetDatabase = function() {
     createUser('admin@admin.fr', 'Administrator', 'AZERTY', 'administrator');
 }
 
+
+
+/***
+ * 
+ *          INTERNAL FUNCTIONS
+ * 
+ */
 
 var exists = function(content, field, table) {
     content = String(content);
