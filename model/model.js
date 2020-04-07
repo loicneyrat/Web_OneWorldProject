@@ -145,17 +145,17 @@ exports.getProjectDetails = function(projectId) {
 
 
 exports.addMember = function(projectIdConcerned, userToAdd, status) {
-    if(exists(projectIdConcerned, userToAdd, "projectId", "user", "projectMembers")) {return null};
+    if(exists2(projectIdConcerned, userToAdd, "projectId", "user", "projectMembers")) {return null};
     return projectMembersHandler.addMember(projectIdConcerned, userToAdd, status);
 }
 
 exports.updateMemberStatus = function(projectIdConcerned, userConcerned, newStatus) {
-    if(! exists(projectIdConcerned, userConcerned, "projectId", "user", "projectMembers")) return null;
+    if(! exists2(projectIdConcerned, userConcerned, "projectId", "user", "projectMembers")) return null;
     return projectMembersHandler.updateMemberStatus(projectIdConcered, userConcerned, newStatus);
 }
 
 exports.removeMember = function(projectId, userToRemove) {
-    if(! exists(projectId, userToRemove, "projectId", "user", "projectMembers")) return null;
+    if(! exists2(projectId, userToRemove, "projectId", "user", "projectMembers")) return null;
     return projectMembersHandler.removeMember(projectId, userToRemove);
 }
 
@@ -171,12 +171,12 @@ exports.getMembers = function(projectId) {
  */
 
 exports.addKeyword = function(projectId, keywordToAdd) {
-    if(exists(projectId, keywordToAdd, "projectId", "keyword", "projectKeywords")) return null;
+    if(exists2(projectId, keywordToAdd, "projectId", "keyword", "projectKeywords")) return null;
     return keywordsHandler.addKeyword(projectId, keywordToAdd);
 }
 
 exports.removeKeyword = function(projectId, keywordToRemove) {
-    if(! exists(projectId, keywordToRemove, "projectId", "keyword", "projectKeywords")) return null;
+    if(! exists2(projectId, keywordToRemove, "projectId", "keyword", "projectKeywords")) return null;
     return keywordsHandler.removeKeyword(projectId, keywordToRemove);
 }
 
@@ -187,22 +187,22 @@ exports.removeKeyword = function(projectId, keywordToRemove) {
  */
 
 exports.addEvent = function(projectId, eventToAdd, dateOfEvent) {
-    if(exists(projectId, eventToAdd, "projectId", "event", "projectEvents")) return null;
+    if(exists2(projectId, eventToAdd, "projectId", "event", "projectEvents")) return null;
     return eventsHandler.addEvent(projectId, eventToAdd, dateOfEvent);
 }
 
 exports.updateEvent = function(projectId, previousEvent, newEvent) {
-    if(! exists(projectId, eventToRemove, "projectId", "event", "projectEvents")) return null;
+    if(! exists2(projectId, eventToRemove, "projectId", "event", "projectEvents")) return null;
     return eventsHandler.updateEvent(projectId, previousEvent, newEvent);
 }
 
 exports.changeEventDate = function(projectId, eventToChange, newDate) {
-    if(! exists(projectId, eventToChange, "projectId", "event", "projectEvents")) return null;
+    if(! exists2(projectId, eventToChange, "projectId", "event", "projectEvents")) return null;
     return eventsHandler.changeEventDate(projectId, eventToChange, newDate);
 }
 
 exports.removeEvent = function(projectId, eventToRemove) {
-    if(! exists(projectId, eventToRemove, "projectId", "event", "projectEvents")) return null;
+    if(! exists2(projectId, eventToRemove, "projectId", "event", "projectEvents")) return null;
     return eventsHandler.removeEvent(projectId, event);
 }
 
@@ -214,12 +214,12 @@ exports.removeEvent = function(projectId, eventToRemove) {
  */
 
  exports.addCategory = function(projectId, categoryToAdd) {
-    if(exists(projectId, categoryToAdd, "projectId", "category", "projectCategories")) return null;
+    if(exists2(projectId, categoryToAdd, "projectId", "category", "projectCategories")) return null;
     return categoriesHandler.addCategory(projectId, categoryToAdd);
  }
 
  exports.removeCategory = function(projectId, categoryToRemove) {
-    if(! exists(projectId, categoryToRemove, "projectId", "category", "projectCategories")) return null;
+    if(! exists2(projectId, categoryToRemove, "projectId", "category", "projectCategories")) return null;
 
     return categoriesHandler.removeCategory(projectId, categoryToRemove);
  }
