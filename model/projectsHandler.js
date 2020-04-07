@@ -35,8 +35,8 @@ exports.getProjectDetails = function(projectId) {
     let query = db.prepare('SELECT * FROM Projects WHERE projectId=?');
     let result = query.get([projectId]);
 
-    result["categories"] = getCategoriesInArray;
-    result["keywords"] = getKeywordsInArray;
+    result["categories"] = getCategoriesInArray(projectId);
+    result["keywords"] = getKeywordsInArray(projectId);
 
     return result;
 }
