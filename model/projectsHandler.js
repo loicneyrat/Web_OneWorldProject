@@ -41,13 +41,6 @@ exports.getProjectDetails = function(projectId) {
     return result;
 }
 
-/***
- * 
- *          FOR THE PROJECT MEMBERS
- * 
- */
-
-
 
 function getCategoriesInArray(projectId) {
     query = db.prepare('SELECT category FROM ProjectCategories WHERE projectId=?');
