@@ -13,7 +13,7 @@ db.prepare('DROP TABLE projectMembers').run();
 
 db.prepare('CREATE TABLE IF NOT EXISTS users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE, password VARCHAR2(50), status VARCHAR2(20))').run();
 
-db.prepare('CREATE TABLE IF NOT EXISTS projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR2(60), description VARCHAR2(1000), creator VARCHAR2(30) REFERENCES users, date DATE)').run();
+db.prepare('CREATE TABLE IF NOT EXISTS projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR2(100), description VARCHAR2(1000), creator VARCHAR2(30) REFERENCES users, date DATE)').run();
 
 db.prepare('CREATE TABLE IF NOT EXISTS projectLinkedUsers(projectId INTEGER REFERENCES projects ON DELETE CASCADE, user VARCHAR2(30) REFERENCES users ON DELETE CASCADE, status VARCHAR2(15), affiliation VARCHAR2(20), PRIMARY KEY(projectId, user))').run();
 
@@ -253,7 +253,7 @@ exports.resetDatabase = function() {
 
     db.prepare('CREATE TABLE users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE, password VARCHAR2(50)), status VARCHAR2(20)').run();
 
-    db.prepare('CREATE TABLE projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR2(60), description VARCHAR2(1000), creator VARCHAR2(30) REFERENCES users), date DATE').run();
+    db.prepare('CREATE TABLE projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR2(100), description VARCHAR2(1000), creator VARCHAR2(30) REFERENCES users), date DATE').run();
 
     db.prepare('CREATE TABLE IF NOT EXISTS projectLinkedUsers(projectId INTEGER REFERENCES projects ON DELETE CASCADE, user VARCHAR2(30) REFERENCES users ON DELETE CASCADE, status VARCHAR2(15), affiliation VARCHAR2(20), PRIMARY KEY(projectId, user))').run();
 
