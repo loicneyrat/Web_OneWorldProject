@@ -7,9 +7,6 @@ const model = require('./model/model.js');
 
 app.listen(3000, () => console.log("Server running on port 3000"));
 
-//let model = require('./model/model.js');
-
-
 app.engine('html', mustache());
 app.set('view engine', 'html');
 app.set('views', './views');
@@ -207,14 +204,10 @@ app.get('/create-project-form', (req, res) => {
 });
 
 app.post('/creating-project', (req, res) => {
-    let recyclage = req.body.recyclage === "on" ? "recyclage" : "";
-    let lobbying = req.body.lobbying === "on" ? "lobbying" : "";
-    let nettoyage = req.body.cleaning === "on" ? "nettoyage" : "";
-    let aide = req.body.person === "on" ? "aide" : "";
-    let sensibilisation = req.body.sensibilisation === "on" ? "sensib" : "";
-    let categories = recyclage + ", " + lobbying + ", " + nettoyage + ", " + aide + ", " + sensibilisation;
-    let result = model.createProject(req.body.title, req.body.description, "Category", req.session.user, String(new Date()), req.body.keywords);
-    res.redirect('/create-project-form');
+    let categories = getCategoriesArray(req.body);
+    let keywords = req.body.keywords.split(', ');
+    let result = model.createProject(req.body.title, req.body.description, categories, req.session.user, String(new Date()), keywords);
+    res.redirect('/home');
 });
 
 app.use((req, res, next) => {
@@ -222,3 +215,13 @@ app.use((req, res, next) => {
     next();
 });
 
+function getCategoriesArray(body) {
+    let AllCategories = ["recycling", "lobbying", "cleaning", "person", "sensibilisation"];
+    let categories = []; let index = 0;
+    for (cat of AllCategories) {
+        if (body[cat] === undefined) continue;
+        categories[index] = cat; 
+        index++;
+    }
+    return categories;
+}
