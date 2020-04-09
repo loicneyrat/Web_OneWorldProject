@@ -8,8 +8,13 @@ var keywordsHandler = require('./keywordsHandler.js');
 var projectLinkedUsersHandler = require('./projectLinkedUsersHandler.js');
 var db = new sqlite('database.sqlite');
 
-db.prepare('DROP TABLE projects').run();
-db.prepare('DROP TABLE projectLinkedUsers').run();
+//db.prepare('DROP TABLE projectEvents').run();
+//db.prepare('DROP TABLE projectCategories').run();
+//db.prepare('DROP TABLE projectLinkedUsers').run();
+//db.prepare('DROP TABLE projectKeyWords').run();
+//db.prepare('DROP TABLE projects').run();
+
+
 
 db.prepare('CREATE TABLE IF NOT EXISTS users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE, password VARCHAR2(50), status VARCHAR2(20))').run();
 
