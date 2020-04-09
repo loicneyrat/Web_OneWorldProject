@@ -116,9 +116,9 @@ app.get('/confirm-user-delete/:username', (req, res) => {
 
 app.get('/confirm-user-delete', (req, res) => {
     let word = req.query.delete.toUpperCase();
-    if(word === "SUPPRIMER") {
+    if (word === "SUPPRIMER") {
         let userEmail = model.getUserId(req.query.username);
-        if(model.deleteUser(userEmail)){
+        if (model.deleteUser(userEmail)){
             res.render('delete-confirmation');
             //setTimeout(() => res.redirect('/'), 5000);
         }
@@ -200,6 +200,21 @@ app.get('/usersList', (req, res) => {
         let usersList = model.getUsersList();
         res.render('users-list', {"usersList": usersList});
     }
+});
+
+app.get('/create-project-form', (req, res) => {
+    res.render('create-project-form');
+});
+
+app.post('/creating-project', (req, res) => {
+    let recyclage = req.body.recyclage === "on" ? "recyclage" : "";
+    let lobbying = req.body.lobbying === "on" ? "lobbying" : "";
+    let nettoyage = req.body.cleaning === "on" ? "nettoyage" : "";
+    let aide = req.body.person === "on" ? "aide" : "";
+    let sensibilisation = req.body.sensibilisation === "on" ? "sensib" : "";
+    let categories = recyclage + ", " + lobbying + ", " + nettoyage + ", " + aide + ", " + sensibilisation;
+    let result = model.createProject(req.body.title, req.body.description, "Category", req.session.user, String(new Date()), req.body.keywords);
+    res.redirect('/create-project-form');
 });
 
 app.use((req, res, next) => {
