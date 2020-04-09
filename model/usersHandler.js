@@ -68,8 +68,8 @@ exports.getProjects = function(username) {
 exports.getProjects = function(email) {
     let projects = {};
     projects.created = db.prepare('SELECT title, description, creator, date FROM projects WHERE creator=?').all([email]);
-    projects.supported = db.prepare('SELECT P.title, P.description, P.creator, P.date FROM projects P WHERE P.projectId IN (SELECT projectId FROM projectMembers WHERE user=? AND status=?)').all([email, "members"]);
-    projects.followed = db.prepare('SELECT P.title, P.description, P.creator, P.date FROM projects P WHERE P.projectId IN (SELECT projectId FROM projectMembers WHERE user=? AND status=?)').all([email, "followers"]);
+    projects.supported = db.prepare('SELECT P.title, P.description, P.creator, P.date FROM projects P WHERE P.projectId IN (SELECT projectId FROM projectLinkedUsers WHERE user=? AND status=?)').all([email, "members"]);
+    projects.followed = db.prepare('SELECT P.title, P.description, P.creator, P.date FROM projects P WHERE P.projectId IN (SELECT projectId FROM projectLinkedUsers WHERE user=? AND status=?)').all([email, "followers"]);
     return projects;
 }
 
