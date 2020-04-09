@@ -4,13 +4,13 @@
   <div class="row">
     <div class="col-md-8 mx-auto">
       <h1 class="text-white">Pour un monde plus humain...</h1>
-        <h3 class="text-white">Créez votre projet</h3>
+        <h3 class="text-white">{{objective}} votre projet</h3>
     </div>
   </div>
   
   <div class="card mx-auto mt-4" style="width:60vw; border: 1px solid black;">
     <div class="card-body">
-      <form action="/creating-project" method="post">
+      <form action="{{linkToRout}}" method="post">
         <div class="form-group">
           <label for="title">Titre : </label>
           <div class="input-group">
@@ -19,7 +19,7 @@
                 <i class="fas fa-angle-double-right"></i>
               </span>
             </div>
-            <textarea class="form-control" type="text" placeholder="100 caractères maximum" name="title" maxlength="100" rows="1" required></textarea>
+            <textarea class="form-control" type="text" placeholder="100 caractères maximum" name="title" value={{title}} maxlength="100" rows="1" required></textarea>
           </div>
         </div>
         <div class="form-group">
@@ -28,7 +28,7 @@
             <div class="input-group-prepend">
               <span class="input-group-text"><i class="fas fa-align-justify"></i></span>
             </div>
-            <textarea class="form-control" type="text" placeholder="1000 caractères maximum" name="description" maxlength="1000" rows="4" required></textarea>
+            <textarea class="form-control" type="text" placeholder="1000 caractères maximum" name="description" value={{description}} maxlength="1000" rows="4" required></textarea>
           </div>
         </div>
         <div class="form-group">
@@ -40,38 +40,38 @@
             <div class="input-group-prepend">
               <span class="input-group-text"><i class="fas fa-key"></i></span>
             </div>
-            <input class="form-control" type="text" placeholder="15 caractères maximum par mot-clef" name="keywords" maxlength="100" required>
+            <input class="form-control" type="text" placeholder="15 caractères maximum par mot-clef" name="keywords" value={{keywords}} maxlength="100" required>
           </div>
-          <small id="emailHelp" class="form-text text-muted"> Merci de les séparer par des virgules.</small>
+          <small id="keywordsFormat" class="form-text text-muted"> Merci de les séparer par des virgules.</small>
         </div>
         <div class="form-group">
           <label for="categories">Categories : </label>
           <div class="input-group">
             <div class="custom-control custom-checkbox ml-4">
-              <input type="checkbox" class="custom-control-input" name="recycling" id="recycling">
+              <input type="checkbox" class="custom-control-input" name="recycling" id="recycling" {{recycling}}>
               <label class="custom-control-label" for="recycling">Recyclage</label>
             </div>
             <div class="custom-control custom-checkbox ml-4">
-              <input type="checkbox" class="custom-control-input" name="lobbying" id="lobbying">
+              <input type="checkbox" class="custom-control-input" name="lobbying" id="lobbying" {{lobbying}}>
               <label class="custom-control-label" for="lobbying">Lobbying</label>
             </div>
             <div class="custom-control custom-checkbox ml-4">
-              <input type="checkbox" class="custom-control-input" name="cleaning" id="cleaning">
+              <input type="checkbox" class="custom-control-input" name="cleaning" id="cleaning" {{cleaning}}>
               <label class="custom-control-label" for="cleaning">Nettoyage</label>
             </div>
             <div class="custom-control custom-checkbox ml-4">
-              <input type="checkbox" class="custom-control-input" name="person" id="person">
+              <input type="checkbox" class="custom-control-input" name="person" id="person" {{person}}>
               <label class="custom-control-label" for="person">Aide à la personne</label>
             </div>
             <div class="custom-control custom-checkbox ml-4">
-              <input type="checkbox" class="custom-control-input" name="sensibilisation" id="sensibilisation">
-              <label class="custom-control-label" for="sensibilisation">Sensibilisation</label>
+              <input type="checkbox" class="custom-control-input" name="awareness" id="awareness" {{awareness}}>
+              <label class="custom-control-label" for="awareness">Sensibilisation</label>
             </div>
           </div>
         </div>
         <div class="row ml-2 mr-2">
           <div class="col-sm-6">
-            <button class="btn btn-primary float-right" type="submit">Créer le projet</button>
+            <button class="btn btn-primary float-right" type="submit">{{objective}} le projet</button>
           </div>
         </div>
       </form> 

@@ -9,9 +9,10 @@ exports.addKeyword = function(projectId, keyword) {
     return result.changes === 1;
 }
 
-exports.removeKeyword = function(projectId, keyword) {
-    let result = db.prepare('DELETE FROM projectKeywords WHERE projectId=? AND keyword=?').run([projectId, keyword]);
-    return result.changes === 1;
+exports.removeAllKeywords = function(projectId) {
+    let numberOfKeywords = db.prepare('SELECT count(keyword) FROM projectKeywords WHERE projectId=?').get([projectId]);
+    let result = db.prepare('DELETE FROM projectKeywords WHERE projectID=?').run({projectId});
+    return result.changes === numberOfKeywords;
 }
 
 function isAlreadyPresent(projectId, keyword) {

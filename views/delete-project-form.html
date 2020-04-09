@@ -10,8 +10,8 @@
             <h5 class="card-title">
                 Vous vous apprêtez à supprimer votre projet. Cette action est <strong>irréversible</strong>.
             </h5>
-            <form class="form-inline" method="GET" action="/confirm-user-delete">
-                    <input type="hidden" name="username" value="{{username}}">
+            <form class="form-inline" method="GET" action="/confirm-project-delete">
+                    <input type="hidden" name="projectId" value="{{projectId}}">
                     <label for="delete"><p class="card-body">Pour confirmer la supression, tapez "SUPPRIMER" dans la barre ci-contre</p></label>
                     {{#wrongWord}}Le champ n'a pas été correctement rempli. Merci de réessayer.{{/wrongWord}}
                     <div class="mx-auto">

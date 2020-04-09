@@ -88,7 +88,7 @@ app.get('/home', (req, res) => {
         res.locals.wrongCredentials = true;
         res.render('login-form');
     } else {
-    let isAdmin = req.session.userStatus === "administrator";
+    let isAdmin = isAdmin(req.session.user);
     let username = model.getUsername(req.session.user);
     let projects = model.getProjects(req.session.user);
     res.render('home', {"isAdmin": isAdmin, "username": username, "projects": projects});
@@ -101,20 +101,25 @@ app.get('/#', (req, res) => {
 
 app.get('/confirm-user-delete/:username', (req, res) => {
     let userEmail = model.getUserId(req.params.username);
+    
     if (req.session.user === userEmail)
         res.render('delete-user-form', {"username" : req.params.username});
-    else if (model.getUserStatus(userEmail) === 'administrator' || 'supervisor')
+    else if (isAdmin(req.session.user) || isSupervisor(req.session.user))
         res.render('delete-user-form', {"username" : req.params.username});
     else {
-        res.render('unauthorized-action');
+        res.render('unauthorized-action', {"referer": req.headers.referer});
         //setTimeout(() => res.redirect('/'), 5000);
     }
 });
 
 app.get('/confirm-user-delete', (req, res) => {
+    let userEmail = model.getUserId(req.params.username);
     let word = req.query.delete.toUpperCase();
-    if (word === "SUPPRIMER") {
-        let userEmail = model.getUserId(req.query.username);
+
+    if(!isAdmin(userEmail) || !isSupervisor(userEmail) || req.session.user !== userEmail) {
+        res.render('unauthorized-action', {"referer": req.headers.referer});
+    }
+    else if(word === "SUPPRIMER") {
         if (model.deleteUser(userEmail)){
             res.render('delete-confirmation');
             //setTimeout(() => res.redirect('/'), 5000);
@@ -122,8 +127,8 @@ app.get('/confirm-user-delete', (req, res) => {
         else {
             res.locals.deleteFailure = true;
             res.render('delete-user-form', {"username" : req.query.username});
+            }
         }
-    }
     else {
         res.locals.wrongWord = true;
         res.render('delete-user-form', {"username": req.query.username});
@@ -189,18 +194,22 @@ app.post('/update-username', (req, res) => {
 });
 
 app.get('/usersList', (req, res) => {
-    let userStatus = model.getUserStatus(req.session.user);
-    if (userStatus !== "administrator" && userStatus !== "supervisor") {
-        res.render('unauthorized-action', {referer: req.headers.referer});
+    
+    if (!isAdmin(req.session.user) && !isSupervisor(req.session.user)) {
+        res.render('unauthorized-action', {"referer": req.headers.referer});
         //setTimeout(res.redirect('/'), 5000); Ne fonctionne pas (cause une erreur d'exécution) Ajout d'un bouton qui renvoie vers la page précédente.
     } else {
         let usersList = model.getUsersList();
-        res.render('users-list', {"usersList": usersList});
+        let dictionnary = {};
+        dictionnary["usersList"] = usersList;
+        dictionnary["linkToDelete"] = "/confirm-user-delete/";
+        res.render('users-list', dictionnary);
     }
 });
 
 app.get('/create-project-form', (req, res) => {
-    res.render('create-project-form');
+    let fields = {"objective" : "Créer", "linkToRout" : "/creating-project"};
+    res.render('create-project-form', fields);
 });
 
 app.post('/creating-project', (req, res) => {
@@ -210,13 +219,68 @@ app.post('/creating-project', (req, res) => {
     res.redirect('/home');
 });
 
+app.get('/update-project-form/:projectId', (req, res) => {
+    let fields = model.getProjectDetails(req.params.projectId);
+    if(fields === null) res.render("unexpectedError", {"referer": req.headers.referer});
+    fields["objective"] = "Mettre à jour";
+    fields["linkToRout"] = "/updating-project/" + req.params.projectId;
+    addCheckedToCategories(fields.categories, fields);
+    res.render('create-project-form', fields);
+});
+
+app.post('/updating-project/:projectId', (req, res) => {
+    let categories = getCategoriesArray(req.body);
+    let keywords = req.body.keywords.split(', ');
+    let result = model.updateProject(req.params.projectId, req.body.title, req.body.description, categories, keywords);
+    if(result === null) res.render('unexpectedError', {"referer": req.headers.referer});
+    res.redirect('/projects/:projectId');
+});
+
+app.get('/delete-project/:projectId', (req, res) => {
+    let user = req.session.user;
+    if(creator === null) res.render('unexpectedError', {"referer": req.headers.referer});
+    if(isAdmin(user) || isSupervisor(user) || isCreator(user, req.params.user)){
+        res.render("unauthorized-action", {"referer": req.headers.referer});
+    }
+    else {
+        res.render("delete-project-form", {"projectId": req.params.projectId});
+    }
+});
+
+app.get('/confirm-project-delete', (req, res) => {
+    let userEmail = model.getUserId(req.params.username);
+    let word = req.query.delete.toUpperCase();
+    let projectId = req.query.projectId;
+
+    if(!isAdmin(userEmail) || !isSupervisor(userEmail) || isCreator(userEmail, projectId)) {
+        res.render('unauthorized-action', {"referer": req.headers.referer});
+    }
+    else if(word === "SUPPRIMER") {
+        if (model.deleteProject(projectId)){
+            res.render('delete-confirmation');
+            //setTimeout(() => res.redirect('/'), 5000);
+        }
+        else {
+            res.locals.deleteFailure = true;
+            res.render('delete-project-form', {"projectId" : prrojectId});
+            }
+        }
+    else {
+        res.locals.wrongWord = true;
+        res.render('delete-project-form', {"projectId" : prrojectId});
+    }
+});
+
+
 app.use((req, res, next) => {
     res.send("404 Not Found URL : " + req.url);
     next();
 });
 
+
+
 function getCategoriesArray(body) {
-    let AllCategories = ["recycling", "lobbying", "cleaning", "person", "sensibilisation"];
+    let AllCategories = ["recycling", "lobbying", "cleaning", "person", "awareness"];
     let categories = []; let index = 0;
     for (cat of AllCategories) {
         if (body[cat] === undefined) continue;
@@ -224,4 +288,38 @@ function getCategoriesArray(body) {
         index++;
     }
     return categories;
+}
+
+function addCheckedToCategories(categoriesToString, target) {
+    if(categoriesToString.includes('recycling')) {
+        target["recycling"] = "checked";
+    }
+    if(categoriesToString.includes('lobbying')) {
+        target['lobbying'] = "checked";
+    }
+    if(categoriesToString.includes('cleaning')) {
+        target['cleaning'] = "checked";
+    }
+    if(categoriesToString.includes('person')) {
+        target['person'] = "checked";
+    }
+    if(categoriesToString.includes('awareness')) {
+        target['awareness'] = "checked";
+    }
+}
+
+function isAdmin(userEmail) {
+    return req.session.userStatus === "administrator";
+}
+
+function isSupervisor(userEmail) {
+    return req.session.userStatus) === "supervisor";
+}
+
+function isCreator(userEmail, projectId) {
+    return model.getCreator(projectId) === userEmail;
+}
+
+function isModerator(userEmail, projectId) {
+    return model.getMemberStatus(userEmail, projectId) === "moderator";
 }

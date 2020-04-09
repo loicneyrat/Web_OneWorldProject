@@ -128,9 +128,11 @@ exports.createProject = function(title, description, categories, creator, date, 
     return projectsHandler.createProject(title, description, categories, creator, date, keywords);
 }
 
-exports.updateProject = function(projectId, title, description, creator) {
+exports.updateProject = function(projectId, title, description, categories, keywords) {
     if(! exists(projectId, "projectId", "projects")) return null;
-    return projectsHandler.updateProject(projectId, title, description, creator);
+    if(! exists(projectId, "projectId", "projectCategories")) return null;
+    if(! exists(projectId, "projectId", "projectKeywords")) return null;
+    return projectsHandler.updateProject(projectId, title, description, categories, keywords);
 }
 
 exports.deleteProject = function(projectId) {
@@ -141,6 +143,11 @@ exports.deleteProject = function(projectId) {
 exports.getProjectDetails = function(projectId) {
     if(! exists(projectId, "projectId", "projects")) return null;
     return projectsHandler.getProjectDetails(projectId);
+}
+
+exports.getCreator = function(projectId) {
+    if(! exists(projectId, "projectId", "projects")) return null;
+    return projectsHandler.getCreator(projectId);
 }
 
 
@@ -172,6 +179,11 @@ exports.getMembers = function(projectId) {
     return projectLinkedUsersHandler.getMembers(projectId);
 }
 
+exports.getMemberStatus = function(userEmail, projectId) {
+    if(! exists2(projectId, userEmail, "projectId", "user", "projectLinkedUsers")) return null;
+    return projectLinkedUsersHandler.getMemberStatus(userEmail, projectId);
+}
+
 
 
 
@@ -186,9 +198,9 @@ exports.addKeyword = function(projectId, keywordToAdd) {
     return keywordsHandler.addKeyword(projectId, keywordToAdd);
 }
 
-exports.removeKeyword = function(projectId, keywordToRemove) {
-    if(! exists2(projectId, keywordToRemove, "projectId", "keyword", "projectKeywords")) return null;
-    return keywordsHandler.removeKeyword(projectId, keywordToRemove);
+exports.removeAllKeywords = function(projectId) {
+    if(!exists(projectId, "projectId", "projectKeyword")) return null;
+    return keywordsHandler.removeAllKeywords(projectId);
 }
 
 
@@ -232,10 +244,9 @@ exports.removeEvent = function(projectId, eventToRemove) {
     return categoriesHandler.addCategory(projectId, categoryToAdd);
  }
 
- exports.removeCategory = function(projectId, categoryToRemove) {
-    if(! exists2(projectId, categoryToRemove, "projectId", "category", "projectCategories")) return null;
-
-    return categoriesHandler.removeCategory(projectId, categoryToRemove);
+ exports.removeAllCategories = function(projectId) {
+    if(!exists(projectId, "projectId", "projectCategories")) return null;
+    return categoriesHandler.removeAllCategories(projectId);
  }
 
 
@@ -256,19 +267,20 @@ exports.resetDatabase = function() {
 
     //creation of the clean tables.
 
-    db.prepare('CREATE TABLE users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE, password VARCHAR2(50)), status VARCHAR2(20)').run();
+    db.prepare('CREATE TABLE IF NOT EXISTS users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE, password VARCHAR2(50), status VARCHAR2(20))').run();
 
-    db.prepare('CREATE TABLE projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR2(100), description VARCHAR2(1000), creator VARCHAR2(30) REFERENCES users), date DATE').run();
+    db.prepare('CREATE TABLE IF NOT EXISTS projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR2(100), description VARCHAR2(1000), creator VARCHAR2(30) REFERENCES users, date DATE)').run();
 
     db.prepare('CREATE TABLE IF NOT EXISTS projectLinkedUsers(projectId INTEGER REFERENCES projects ON DELETE CASCADE, user VARCHAR2(30) REFERENCES users ON DELETE CASCADE, status VARCHAR2(15), affiliation VARCHAR2(20), PRIMARY KEY(projectId, user))').run();
 
-    db.prepare('CREATE TABLE projectKeyWords (projectId INTEGER REFERENCES projects ON DELETE CASCADE, keyword VARCHAR2(15), PRIMARY KEY(projectId, keyword))').run();
+    db.prepare('CREATE TABLE IF NOT EXISTS projectKeyWords(projectId INTEGER REFERENCES projects ON DELETE CASCADE, keyword VARCHAR2(15), PRIMARY KEY(projectId, keyword))').run();
 
-    db;prepare('CREATE TABLE projectCategories (projectId INTEGER REFERENCES projects, category VARCHAR(20), PRIMARY KEY(projectId, category)').run();
+    db.prepare('CREATE TABLE IF NOT EXISTS projectCategories (projectId INTEGER REFERENCES projects, category VARCHAR(20), PRIMARY KEY(projectId, category))').run();
 
-    db.prepare('CREATE TABLE projectEvents (projectId INTEGER REFERENCES projects ON DELETE CASCADE, event VARCHAR2(500), date DATE, PRIMARY KEY(projectId, event))').run();
+    db.prepare('CREATE TABLE IF NOT EXISTS projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE, event VARCHAR2(500), date DATE, PRIMARY KEY(projectId, event))').run();
 
-    createUser('admin@admin.fr', 'Administrator', 'AZERTY', 'administrator');
+
+    usersHandler.createUser('admin@admin.fr', 'Administrator', 'AZERTY', 'administrator');
 }
 
 

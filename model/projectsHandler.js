@@ -20,9 +20,21 @@ exports.createProject = function(title, description, categories, creator, date, 
     return projectId;
 }
 
-exports.updateProject = function(projectId, title, description, creator) {
-    let update = db.prepare('UPDATE projects SET title=?, description=?, creator=? WHERE projectId=?');
-    let result = update.run([title, description, creator, projectId]);
+exports.updateProject = function(projectId, title, description, categories, keywords) {
+
+    keywordsHandler.removeAllKeywords(projectId);
+    for(let i = 0; i < keywords.length; i++){
+        keywordsHandler.addKeyword(projectId, keywords[i]);
+    }
+
+    categoriesHandler.removeAllCategories(projectId);
+    for(let i = 0; i < categories.length; i++){
+        categoriesHandler.addCategory(projectId, categories[i]);
+    }
+
+    let update = db.prepare('UPDATE projects SET title=?, description=?, date=? creator=? WHERE projectId=?');
+    let result = update.run([title, description, projectId]);
+
     return result.changes === 1;
 }
 
@@ -35,35 +47,40 @@ exports.getProjectDetails = function(projectId) {
     let query = db.prepare('SELECT * FROM Projects WHERE projectId=?');
     let result = query.get([projectId]);
 
-    result["categories"] = getCategoriesInArray(projectId);
-    result["keywords"] = getKeywordsInArray(projectId);
+    result["categories"] = getCategoriesInString(projectId);
+    result["keywords"] = getKeywordsInString(projectId);
 
     return result;
 }
 
+exports.getCreator = function(projectId) {
+    let query = db.prepare('SELECT creator FROM projects WHERE projectId=?');
+    return query.get([projectId]);
+}
 
-function getCategoriesInArray(projectId) {
+
+function getCategoriesInString(projectId) {
     query = db.prepare('SELECT category FROM ProjectCategories WHERE projectId=?');
     let categoriesInDic = query.all([projectId]);
 
-    let categoriesInArray = [];
+    let categoriesInString = "";
 
     for (let i = 0 ; i < categoriesInDic.length ; i++) {
-        categoriesInDic[i] = categoriesInDic[i].category;
+        categoriesInString += categoriesInDic[i].category + ", ";
     }
 
-    return categoriesInArray;
+    return categoriesInString !== "" ? categoriesInString.substring(0, categoriesInString.length - 2) : "";
 }
 
-function getKeywordsInArray(projectId) {
+function getKeywordsInString(projectId) {
     query = db.prepare('SELECT keyword FROM ProjectKeywordss WHERE projectId=?');
     let keywordsInDic = query.all([projectId]);
 
-    let keywordsInArray = [];
+    let keywordsInString = "";
 
     for (let i = 0 ; i < keywordsInDic.length ; i++) {
-        keywordsInDic[i] = keywordsInDic[i].keyword;
+        keywordsInString += keywordsInDic[i].keyword + ", ";
     }
 
-    return keywordsInArray;
+    return keywordsInString !== "" ? keywordsInString.substring(0, keywordsInString.length - 2) : "";
 }
