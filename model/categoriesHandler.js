@@ -20,6 +20,6 @@ exports.removeCtategory = function(projectId, category) {
 
 
 function isAlreadyPresent(projectId, category) {
-   let check = db.prepare('SELECT * FROM projectCategories WHERE projectID=? AND category=?').get([projectId, category]);
+   let check = db.prepare('SELECT * FROM projectCategories WHERE projectId=? AND category=?').get([projectId, category]);
    return check !== undefined;
  }
