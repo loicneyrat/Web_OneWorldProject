@@ -9,7 +9,7 @@ var projectLinkedUsersHandler = require('./projectLinkedUsersHandler.js');
 var db = new sqlite('database.sqlite');
 
 db.prepare('DROP TABLE projects').run();
-db.prepare('DROP TABLE projectMembers').run();
+db.prepare('DROP TABLE projectLinkedUsers').run();
 
 db.prepare('CREATE TABLE IF NOT EXISTS users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE, password VARCHAR2(50), status VARCHAR2(20))').run();
 
@@ -119,7 +119,7 @@ exports.getUsersList = function() {
 
 
 exports.createProject = function(title, description, categories, creator, date, keywords) {
-    if(exists(projectId, "projectId", "projects")) return null;
+    if(exists2(title, description, "title", "description", "projects")) return null;
     return projectsHandler.createProject(title, description, categories, creator, date, keywords);
 }
 
