@@ -1,12 +1,12 @@
 var sqlite = require('better-sqlite3');
 var keywordsHandler = require('./keywordsHandler.js');
-var categorieshandler = require('./categoriesHandler.js');
+var categoriesHandler = require('./categoriesHandler.js');
 var db = new sqlite('database.sqlite');
 
 exports.createProject = function(title, description, categories, creator, date, keywords) {
     let insert = db.prepare('INSERT INTO projects (title, description, creator, date) VALUES (?, ?, ?, ?)');
-    let projectId = insert.run([title, description, creator, date]).lastInsertRowId;
-
+    let projectId = insert.run([title, description, creator, date]).lastInsertRowid;
+    
     //remove all duplicates from the array.
     keywords.filter((item, index) => keywords.indexOf(item) === index);
     for(let i = 0 ; i < keywords.length ; i++) {
@@ -17,7 +17,6 @@ exports.createProject = function(title, description, categories, creator, date, 
     for(let i = 0 ; i < categories.length ; i++) {
         categoriesHandler.addCategory(projectId, categories[i]);
     }
-
     return projectId;
 }
 
