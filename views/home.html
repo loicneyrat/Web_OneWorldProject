@@ -28,19 +28,23 @@
   <div class="col-6">
     <div class="tab-content" id="nav-tabContent">
       {{#projects}}
-      <div class="tab-pane fade show" id="list-home" role="tabpanel" aria-labelledby="list-home-list">
+      <div class="tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list">
         {{#created}}
         Titre : {{title}} <br>
-        Description : {{description}}
+        Description : {{description}}<br>
         {{/created}}
       </div>
       <div class="tab-pane fade" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list">
-        Cupidatat quis ad sint excepteur laborum in esse qui. Et excepteur consectetur ex nisi eu do cillum ad laborum. Mollit et eu officia dolore sunt Lorem culpa qui commodo velit ex amet id ex. Officia anim incididunt laboris deserunt anim aute dolor incididunt veniam aute dolore do exercitation. Dolor nisi culpa ex ad irure in elit eu dolore. Ad laboris ipsum reprehenderit irure non commodo enim culpa commodo veniam incididunt veniam ad.
-        <!-- Générer la liste des projets auxquels l'utilisateur a adhéré avec des cartes ici -->
+        {{#supported}}
+        Titre : {{title}} <br>
+        Description : {{description}}<br>
+        {{/supported}}
       </div>
       <div class="tab-pane fade" id="list-messages" role="tabpanel" aria-labelledby="list-messages-list">
-        Ut ut do pariatur aliquip aliqua aliquip exercitation do nostrud commodo reprehenderit aute ipsum voluptate. Irure Lorem et laboris nostrud amet cupidatat cupidatat anim do ut velit mollit consequat enim tempor. Consectetur est minim nostrud nostrud consectetur irure labore voluptate irure. Ipsum id Lorem sit sint voluptate est pariatur eu ad cupidatat et deserunt culpa sit eiusmod deserunt. Consectetur et fugiat anim do eiusmod aliquip nulla laborum elit adipisicing pariatur cillum.
-        <!-- Générer la liste des projets suivis avec des cartes ici -->
+        {{#followed}}
+        Titre : {{title}} <br>
+        Description : {{description}}<br>
+        {{/followed}}
       </div>
       {{/projects}}
     </div>
