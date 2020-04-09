@@ -313,7 +313,7 @@ function isAdmin(userEmail) {
 }
 
 function isSupervisor(userEmail) {
-    return req.session.userStatus) === "supervisor";
+    return req.session.userStatus === "supervisor";
 }
 
 function isCreator(userEmail, projectId) {
