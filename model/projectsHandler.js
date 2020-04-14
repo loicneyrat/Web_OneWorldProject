@@ -5,7 +5,7 @@ var db = new sqlite('database.sqlite');
 
 exports.createProject = function(title, description, categories, creator, date, keywords) {
     let insert = db.prepare('INSERT INTO projects (title, description, creator, date) VALUES (?, ?, ?, ?)');
-    let projectId = insert.run([title, description, creator, date]).lastInsertRowid;
+    let projectId = insert.run([title, description, creator, String(date)]).lastInsertRowid;
     
     //remove all duplicates from the array.
     keywords.filter((item, index) => keywords.indexOf(item) === index);
@@ -74,7 +74,7 @@ function getCategoriesInString(projectId) {
 }
 
 function getKeywordsInString(projectId) {
-    let query = db.prepare('SELECT keyword FROM ProjectKeywordss WHERE projectId=?');
+    let query = db.prepare('SELECT keyword FROM ProjectKeywords WHERE projectId=?');
     let keywordsInDic = query.all([projectId]);
 
     let keywordsInString = "";
@@ -87,9 +87,5 @@ function getKeywordsInString(projectId) {
 }
 
 function getProjectEvents(projectId) {
-    let check = db.prepare(`SELECT projectId FROM projectEvents WHERE ${field}=?`).get([content]);
-    if (check !== undefined) return [];
-
-    let query = db.prepare('SELECT * FROM projectEvents WHERE projectId=?');
-    return query.all([projectId]);
+    return db.prepare('SELECT * FROM projectEvents WHERE projectId=?').all([projectId]);
 }
