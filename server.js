@@ -267,11 +267,11 @@ app.post('/creating-project', isAuthenticated, (req, res) => {
     let categories = getCategoriesArray(req.body);
     let keywords = req.body.keywords.split(',');
 
-    for(let i = 0; i < keywords.length(); i++) {
+    for(let i = 0; i < keywords.length; i++) {
         keywords[i] = keywords[i].trim();
     }
-
-    let result = model.createProject(req.body.title, req.body.description, categories, req.session.user, String(new Date()), keywords);
+    let date = new Date().toISOString();
+    let result = model.createProject(req.body.title, req.body.description, categories, req.session.user, date, keywords);
     if (result === null) //res.render('unexpectedError', {"referer": req.headers.referer});
         renderError(req, res);
     else {
@@ -434,7 +434,6 @@ app.use((req, res, next) => {
     res.send("404 Not Found URL : " + req.url);
     next();
 });
-
 
 
 function getCategoriesArray(body) {
