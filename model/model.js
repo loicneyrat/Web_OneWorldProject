@@ -179,9 +179,9 @@ exports.getMembers = function(projectId) {
     return projectLinkedUsersHandler.getMembers(projectId);
 }
 
-exports.getMemberStatus = function(userEmail, projectId) {
+exports.getUserProjectStatus = function(userEmail, projectId) {
     if(! exists2(projectId, userEmail, "projectId", "user", "projectLinkedUsers")) return null;
-    return projectLinkedUsersHandler.getMemberStatus(userEmail, projectId);
+    return projectLinkedUsersHandler.getUserProjectStatus(userEmail, projectId);
 }
 
 

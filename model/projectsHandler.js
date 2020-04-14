@@ -49,6 +49,7 @@ exports.getProjectDetails = function(projectId) {
 
     result["categories"] = getCategoriesInString(projectId);
     result["keywords"] = getKeywordsInString(projectId);
+    result["events"] = getProjectEvents(projectId);
 
     return result;
 }
@@ -73,7 +74,7 @@ function getCategoriesInString(projectId) {
 }
 
 function getKeywordsInString(projectId) {
-    query = db.prepare('SELECT keyword FROM ProjectKeywordss WHERE projectId=?');
+    let query = db.prepare('SELECT keyword FROM ProjectKeywordss WHERE projectId=?');
     let keywordsInDic = query.all([projectId]);
 
     let keywordsInString = "";
@@ -83,4 +84,12 @@ function getKeywordsInString(projectId) {
     }
 
     return keywordsInString !== "" ? keywordsInString.substring(0, keywordsInString.length - 2) : "";
+}
+
+function getProjectEvents(projectId) {
+    let check = db.prepare(`SELECT projectId FROM projectEvents WHERE ${field}=?`).get([content]);
+    if (check !== undefined) return [];
+
+    let query = db.prepare('SELECT * FROM projectEvents WHERE projectId=?');
+    return query.all([projectId]);
 }

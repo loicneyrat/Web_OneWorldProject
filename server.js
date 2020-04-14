@@ -366,5 +366,5 @@ function isCreator(userEmail, projectId) {
 }
 
 function isModerator(userEmail, projectId) {
-    return model.getMemberStatus(userEmail, projectId) === "moderator";
+    return model.getUserProjectStatus(userEmail, projectId) === "moderator";
 }

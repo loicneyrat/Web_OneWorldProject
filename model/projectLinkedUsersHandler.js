@@ -28,7 +28,7 @@ exports.getMembers = function(projectId) {
     return query.all([projectId]);
 }
 
-exports.getMemberStatus = function(userEmail, projectId) {
+exports.getUserProjectStatus = function(userEmail, projectId) {
     let query = db.prepare('SELECT status FROM projectLinkedUsers WHERE user=? AND projectId=?');
     return query.get([userEmail, projectId]).status;
 }
