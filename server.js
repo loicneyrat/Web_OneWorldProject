@@ -12,7 +12,6 @@ app.set('view engine', 'html');
 app.set('views', './views');
 
 app.use(cookieSession({secret: 'WeLoveBeingConfined'}));
-app.use(isAuthenticated);
 app.use(bodyParser.urlencoded({extended : false}));
 
 app.use('/styles', express.static(__dirname + '/styles'));
@@ -20,8 +19,11 @@ app.use('/resources', express.static(__dirname + '/resources'));
 
 
 function isAuthenticated(req, res, next) {
-    res.locals.authenticated = req.session.user !== undefined;
-    next();
+    if (req.session.user == undefined) {
+        res.render("login-form");
+    } else {
+        next();
+    }
 }
 
 app.get('/', (req, res) => {
@@ -96,7 +98,7 @@ app.get('/logout', (req, res) => {
     res.redirect('/');
 });
 
-app.get('/home', (req, res) => {
+app.get('/home', isAuthenticated, (req, res) => {
     if (!res.locals.authenticated) {
         res.locals.wrongCredentials = true;
         res.render('login-form');
@@ -115,7 +117,7 @@ app.get('/#', (req, res) => {
     res.redirect('/');
 });
 
-app.get('/confirm-user-delete/:username', (req, res) => {
+app.get('/confirm-user-delete/:username', isAuthenticated, (req, res) => {
     let userEmail = model.getUserId(req.params.username);
     if (userEmail === null) res.render('unexpectedError', {"referer": req.headers.referer});
     
@@ -129,7 +131,7 @@ app.get('/confirm-user-delete/:username', (req, res) => {
     }
 });
 
-app.get('/confirm-user-delete', (req, res) => {
+app.get('/confirm-user-delete', isAuthenticated, (req, res) => {
     let userEmail = model.getUserId(req.params.username);
     let word = req.query.delete.toUpperCase();
 
@@ -154,11 +156,11 @@ app.get('/confirm-user-delete', (req, res) => {
     }
 });
 
-app.get('/change-password-form', (req, res) => {
+app.get('/change-password-form', isAuthenticated, (req, res) => {
     res.render('change-password-form');
 });
 
-app.post('/update-password', (res, req) => {
+app.post('/update-password', isAuthenticated, (res, req) => {
     let oldPassword = req.body.oldPwd;
     let newPassword = req.body.newPwd;
     let confirmedPassword = req.body.verifpwd;
@@ -186,11 +188,11 @@ app.post('/update-password', (res, req) => {
     }
 });
 
-app.get('/update-username-form', (req, res) => {
+app.get('/update-username-form', isAuthenticated, (req, res) => {
     res.render('change-username-form');
 });
 
-app.post('/update-username', (req, res) => {
+app.post('/update-username', isAuthenticated, (req, res) => {
     let username = req.body.username;
     let password = req.body.pwd;
     let checkResult = model.credentialsAreFree(req.session.user, username);
@@ -218,7 +220,7 @@ app.post('/update-username', (req, res) => {
     }
 });
 
-app.get('/usersList', (req, res) => {
+app.get('/usersList', isAuthenticated, (req, res) => {
     
     if (!isAdmin(req.session.user) && !isSupervisor(req.session.user)) {
         res.render('unauthorized-action', {"referer": req.headers.referer});
@@ -236,12 +238,12 @@ app.get('/usersList', (req, res) => {
     }
 });
 
-app.get('/create-project-form', (req, res) => {
+app.get('/create-project-form', isAuthenticated, (req, res) => {
     let fields = {"objective" : "Créer", "linkToRout" : "/creating-project"};
     res.render('create-project-form', fields);
 });
 
-app.post('/creating-project', (req, res) => {
+app.post('/creating-project', isAuthenticated, (req, res) => {
     let categories = getCategoriesArray(req.body);
     let keywords = req.body.keywords.split(',');
 
@@ -256,7 +258,7 @@ app.post('/creating-project', (req, res) => {
     }
 });
 
-app.get('/update-project-form/:projectId', (req, res) => {
+app.get('/update-project-form/:projectId', isAuthenticated, (req, res) => {
     let fields = model.getProjectDetails(req.params.projectId);
     if(fields === null) res.render("unexpectedError", {"referer": req.headers.referer});
     else {
@@ -267,7 +269,7 @@ app.get('/update-project-form/:projectId', (req, res) => {
     }
 });
 
-app.post('/updating-project/:projectId', (req, res) => {
+app.post('/updating-project/:projectId', isAuthenticated, (req, res) => {
     let categories = getCategoriesArray(req.body);
     let keywords = req.body.keywords.split(', ');
     let result = model.updateProject(req.params.projectId, req.body.title, req.body.description, categories, keywords);
@@ -277,7 +279,7 @@ app.post('/updating-project/:projectId', (req, res) => {
     }
 });
 
-app.get('/delete-project/:projectId', (req, res) => {
+app.get('/delete-project/:projectId', isAuthenticated, (req, res) => {
     let user = req.session.user;
     if(creator === null) res.render('unexpectedError', {"referer": req.headers.referer});
     if(isAdmin(user) || isSupervisor(user) || isCreator(user, req.params.user)){
@@ -288,7 +290,7 @@ app.get('/delete-project/:projectId', (req, res) => {
     }
 });
 
-app.get('/confirm-project-delete', (req, res) => {
+app.get('/confirm-project-delete', isAuthenticated, (req, res) => {
     let userEmail = model.getUserId(req.params.username);
     let word = req.query.delete.toUpperCase();
     let projectId = req.query.projectId;
