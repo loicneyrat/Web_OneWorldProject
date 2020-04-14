@@ -18,6 +18,12 @@ app.use('/styles', express.static(__dirname + '/styles'));
 app.use('/resources', express.static(__dirname + '/resources'));
 
 
+app.use ((req, res, next) => {
+    res.locals.authenticated = req.session.user !== undefined;
+    next();
+});
+
+
 function isAuthenticated(req, res, next) {
     if (req.session.user == undefined) {
         res.render("login-form");
@@ -269,8 +275,13 @@ app.post('/creating-project', isAuthenticated, (req, res) => {
     if (result === null) //res.render('unexpectedError', {"referer": req.headers.referer});
         renderError(req, res);
     else {
-        res.redirect('//projectDetails/' + result);
+        res.redirect('/project-details/' + result);
     }
+});
+
+app.get('/project-details/:projectId', (req, res) => {
+    let details = model.getProjectDetails(req.params.projectId);
+    res.render('project-details', details);
 });
 
 app.get('/update-project-form/:projectId', isAuthenticated, (req, res) => {
