@@ -39,22 +39,26 @@ app.post('/signup', (req, res) => {
     let username = req.body.username;
     let password = req.body.pwd;
     let confirmedPassword = req.body.verifpwd;
+    let content = {};
+        content["email"] = email;
+        content["username"] = username;
 
     if (password !== confirmedPassword) {
         res.locals.pwdNotConfirmed;
-        res.render('signup-form');
+        res.render('signup-form', content);
     }
 
     let checkResult = model.credentialsAreFree(email, username);
+    
     if (checkResult === null) res.render('unexpectedError', {"referer": req.headers.referer});
 
     else if (checkResult === -1) {
         res.locals.emailTaken = true;
-        res.render('signup-form');
+        res.render('signup-form', content);
     }
     else if (checkResult === -2) {
         res.locals.usernameTaken = true;
-        res.render('signup-form');
+        res.render('signup-form', content);
     }
     else {
         let regular = "regular";
@@ -78,6 +82,7 @@ app.post('/login', (req, res) => {
     let password = req.body.password;
     let isRightPassword = model.isTheRightPassword(email, password);
     if (isRightPassword === null) res.render('unexpectedError', {"referer": req.headers.referer});
+
     else if (model.isTheRightPassword(email, password)) {
         req.session.user = email;
         let userStatus = model.getUserStatus(email);
@@ -89,7 +94,7 @@ app.post('/login', (req, res) => {
     }
     else {
         res.locals.wrongCredentials = true;
-        res.render('login-form');
+        res.render('login-form', {"email" : email});
     }
 });
 
@@ -99,18 +104,15 @@ app.get('/logout', (req, res) => {
 });
 
 app.get('/home', isAuthenticated, (req, res) => {
-    if (!res.locals.authenticated) {
-        res.locals.wrongCredentials = true;
-        res.render('login-form');
-    } else {
-        let isAdmin = isAdmin(req.session.user);
-        let username = model.getUsername(req.session.user);
-        let projects = model.getProjects(req.session.user);
-        if (username === null || projects === null) res.render('unexpectedError', {"referer": req.headers.referer});
-        else {
-            res.render('home', {"isAdmin": isAdmin, "username": username, "projects": projects});
-        }
+
+    let isAdmin = isAdmin(req.session.user);
+    let username = model.getUsername(req.session.user);
+    let projects = model.getProjects(req.session.user);
+    if (username === null || projects === null) res.render('unexpectedError', {"referer": req.headers.referer});
+    else {
+        res.render('home', {"isAdmin": isAdmin, "username": username, "projects": projects});
     }
+
 });
 
 app.get('/#', (req, res) => {
@@ -206,7 +208,7 @@ app.post('/update-username', isAuthenticated, (req, res) => {
     }
     else if (checkResult === -2) {
         res.locals.usernameTaken = true;
-        res.render('update-username-form');
+        res.render('update-username-form', {"username" : username});
     }
     else {
         if (model.updateUserUsername(req.session.user, username)) {
@@ -254,7 +256,7 @@ app.post('/creating-project', isAuthenticated, (req, res) => {
     let result = model.createProject(req.body.title, req.body.description, categories, req.session.user, String(new Date()), keywords);
     if (result === null) res.render('unexpectedError', {"referer": req.headers.referer});
     else {
-        res.redirect('/home');
+        res.redirect('//projectDetails/' + result);
     }
 });
 
@@ -272,6 +274,11 @@ app.get('/update-project-form/:projectId', isAuthenticated, (req, res) => {
 app.post('/updating-project/:projectId', isAuthenticated, (req, res) => {
     let categories = getCategoriesArray(req.body);
     let keywords = req.body.keywords.split(', ');
+
+    for (let i = 0 ; i < keywords.length() ; i++) {
+        keywords[i] = keywords[i].trim();
+    }
+
     let result = model.updateProject(req.params.projectId, req.body.title, req.body.description, categories, keywords);
     if(result === null) res.render('unexpectedError', {"referer": req.headers.referer});
     else {
