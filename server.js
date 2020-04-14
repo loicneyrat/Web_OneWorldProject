@@ -50,7 +50,9 @@ app.post('/signup', (req, res) => {
 
     let checkResult = model.credentialsAreFree(email, username);
     
-    if (checkResult === null) res.render('unexpectedError', {"referer": req.headers.referer});
+    if (checkResult === null) 
+        renderError(req, res);
+    //res.render('unexpectedError', {"referer": req.headers.referer});
 
     else if (checkResult === -1) {
         res.locals.emailTaken = true;
@@ -63,7 +65,8 @@ app.post('/signup', (req, res) => {
     else {
         let regular = "regular";
         if (model.createUser(email, username, password, regular)) {
-            res.render('unexpectedError', {"referer": req.headers.referer});
+            renderError(req, res);
+            //res.render('unexpectedError', {"referer": req.headers.referer});
         }
         else {
             req.session.user = email;
@@ -81,12 +84,15 @@ app.post('/login', (req, res) => {
     let email = req.body.mail;
     let password = req.body.password;
     let isRightPassword = model.isTheRightPassword(email, password);
-    if (isRightPassword === null) res.render('unexpectedError', {"referer": req.headers.referer});
-
+    if (isRightPassword === null) 
+        renderError(req, res);
+        //res.render('unexpectedError', {"referer": req.headers.referer});
     else if (model.isTheRightPassword(email, password)) {
         req.session.user = email;
         let userStatus = model.getUserStatus(email);
-        if (userStatus === null) res.render('unexpectedError', {"referer": req.headers.referer});
+        if (userStatus === null) 
+            renderError(req, res);
+            //res.render('unexpectedError', {"referer": req.headers.referer});
         else {
             req.session.userStatus = userStatus;
             res.redirect('/home');
@@ -104,15 +110,14 @@ app.get('/logout', (req, res) => {
 });
 
 app.get('/home', isAuthenticated, (req, res) => {
-
-    let isAdmin = isAdmin(req.session.user);
+    let isAdministrator = isAdmin(req.session.userStatus);
     let username = model.getUsername(req.session.user);
     let projects = model.getProjects(req.session.user);
-    if (username === null || projects === null) res.render('unexpectedError', {"referer": req.headers.referer});
-    else {
-        res.render('home', {"isAdmin": isAdmin, "username": username, "projects": projects});
-    }
-
+    if (username === null || projects === null) 
+        renderError(req, res);
+        //res.render('unexpectedError', {"referer": req.headers.referer});
+    else
+        res.render('home', {"isAdmin": isAdministrator, "username": username, "projects": projects});
 });
 
 app.get('/#', (req, res) => {
@@ -121,12 +126,16 @@ app.get('/#', (req, res) => {
 
 app.get('/confirm-user-delete/:username', isAuthenticated, (req, res) => {
     let userEmail = model.getUserId(req.params.username);
-    if (userEmail === null) res.render('unexpectedError', {"referer": req.headers.referer});
+    let userStatus = req.session.userStatus;
+    if (userEmail === null) 
+        renderError(req, res);
+    //res.render('unexpectedError', {"referer": req.headers.referer});
     
-    else if (isAdmin(req.session.user) || isSupervisor(req.session.user) || userEmail === req.session.user)
+    else if (isAdmin(userStatus) || isSupervisor(userStatus) || userEmail === req.session.user)
         res.render('delete-user-form', {"username" : req.params.username});
     else {
-        res.render('unauthorized-action', {"referer": req.headers.referer});
+        renderUnexpectedAction(req, res);
+        //res.render('unauthorized-action', {"referer": req.headers.referer});
         //setTimeout(() => res.redirect('/'), 5000);
     }
 });
@@ -134,11 +143,12 @@ app.get('/confirm-user-delete/:username', isAuthenticated, (req, res) => {
 app.get('/confirm-user-delete', isAuthenticated, (req, res) => {
     let userTodelete = model.getUserId(req.query.username);
     let word = req.query.delete.toUpperCase();
-
-    if (userToDelete === null) res.render('unexpectedError', {"referer": req.headers.referer});
-
-    else if(!isAdmin(req.session.user) && !isSupervisor(req.session.userEmail) && req.session.user !== userToDelete) {
-        res.render('unauthorized-action', {"referer": req.headers.referer});
+    let userStatus = req.session.userStatus;
+    if (userToDelete === null) 
+        renderError(req, res);//res.render('unexpectedError', {"referer": req.headers.referer});
+    else if(!isAdmin(userStatus) && !isSupervisor(userStatus) && req.session.user !== userToDelete) {
+        renderUnexpectedAction(req, res);
+        //res.render('unauthorized-action', {"referer": req.headers.referer});
     }
     else if(word === "SUPPRIMER") {
         if (model.deleteUser(userTodelete)){
@@ -166,7 +176,8 @@ app.post('/update-password', isAuthenticated, (res, req) => {
     let confirmedPassword = req.body.verifpwd;
     let userEmail = req.session.email;
     let isRightPassword = model.isTheRightPassword(userEmail, oldPassword);
-    if (isRightPassword === null) res.render('unexpectedError', {"referer": req.headers.referer});
+    if (isRightPassword === null) 
+        renderError(req, res);//res.render('unexpectedError', {"referer": req.headers.referer});
     
     else if(!isRightPassword) {
         res.locals.wrongPassword = true;
@@ -198,7 +209,8 @@ app.post('/update-username', isAuthenticated, (req, res) => {
     let checkResult = model.credentialsAreFree(req.session.user, username);
     let expectedPassword = model.getUserPassword(req.session.user);
 
-    if (expectedPassword === null || checkResult === null) res.render('unexpectedError', {"referer": req.headers.referer});
+    if (expectedPassword === null || checkResult === null) 
+        renderError(req, res); //res.render('unexpectedError', {"referer": req.headers.referer});
 
     else if (password !== expectedPassword) {
         res.locals.wrongPassword = true;
@@ -221,9 +233,10 @@ app.post('/update-username', isAuthenticated, (req, res) => {
 });
 
 app.get('/usersList', isAuthenticated, (req, res) => {
-    
-    if (!isAdmin(req.session.user) && !isSupervisor(req.session.user)) {
-        res.render('unauthorized-action', {"referer": req.headers.referer});
+    let userStatus = req.session.userStatus;
+    if (!isAdmin(userStatus) && !isSupervisor(userStatus)) {
+        renderUnexpectedAction(req, res);
+        //res.render('unauthorized-action', {"referer": req.headers.referer});
         //setTimeout(res.redirect('/'), 5000); Ne fonctionne pas (cause une erreur d'exécution) Ajout d'un bouton qui renvoie vers la page précédente.
     } else {
         let usersList = model.getUsersList();
@@ -253,7 +266,8 @@ app.post('/creating-project', isAuthenticated, (req, res) => {
     }
 
     let result = model.createProject(req.body.title, req.body.description, categories, req.session.user, String(new Date()), keywords);
-    if (result === null) res.render('unexpectedError', {"referer": req.headers.referer});
+    if (result === null) //res.render('unexpectedError', {"referer": req.headers.referer});
+        renderError(req, res);
     else {
         res.redirect('//projectDetails/' + result);
     }
@@ -261,7 +275,8 @@ app.post('/creating-project', isAuthenticated, (req, res) => {
 
 app.get('/update-project-form/:projectId', isAuthenticated, (req, res) => {
     let fields = model.getProjectDetails(req.params.projectId);
-    if(fields === null) res.render("unexpectedError", {"referer": req.headers.referer});
+    if(fields === null) //res.render("unexpectedError", {"referer": req.headers.referer});
+        renderError(req, res);
     else {
         fields["objective"] = "Mettre à jour";
         fields["linkToRout"] = "/updating-project/" + req.params.projectId;
@@ -279,7 +294,7 @@ app.post('/updating-project/:projectId', isAuthenticated, (req, res) => {
     }
 
     let result = model.updateProject(req.params.projectId, req.body.title, req.body.description, categories, keywords);
-    if(result === null) res.render('unexpectedError', {"referer": req.headers.referer});
+    if(result === null) renderError(req, res);//res.render('unexpectedError', {"referer": req.headers.referer});
     else {
         res.redirect('/projects/:projectId');
     }
@@ -287,12 +302,13 @@ app.post('/updating-project/:projectId', isAuthenticated, (req, res) => {
 
 app.get('/delete-project/:projectId', isAuthenticated, (req, res) => {
     let user = req.session.user;
-    if(creator === null) res.render('unexpectedError', {"referer": req.headers.referer});
-    if(isAdmin(user) || isSupervisor(user) || isCreator(user, req.params.user)){
+    if(creator === null) renderError(req, res); //res.render('unexpectedError', {"referer": req.headers.referer});
+    if(isAdmin(req.session.userStatus) || isSupervisor(user) || isCreator(user, req.params.user)){
         res.render("delete-project-form", {"projectId": req.params.projectId});
     }
     else {
-        res.render("unauthorized-action", {"referer": req.headers.referer});
+        renderUnexpectedAction(req, res);
+        //res.render("unauthorized-action", {"referer": req.headers.referer});
     }
 });
 
@@ -303,8 +319,9 @@ app.get('/confirm-project-delete', isAuthenticated, (req, res) => {
 
     if (userEmail === null) res.render('unexpectedError', {"referer": req.headers.referer});
 
-    else if(!isAdmin(userEmail) && !isSupervisor(userEmail) && !isCreator(userEmail, projectId)) {
-        res.render('unauthorized-action', {"referer": req.headers.referer});
+    else if(!isAdmin(req.session.userStatus) && !isSupervisor(req.session.userStatus) && !isCreator(userEmail, projectId)) {
+        renderUnexpectedAction(req, res);
+        //res.render('unauthorized-action', {"referer": req.headers.referer});
     }
     else if(word === "SUPPRIMER") {
         if (model.deleteProject(projectId)){
@@ -324,38 +341,44 @@ app.get('/confirm-project-delete', isAuthenticated, (req, res) => {
 
 app.get('/membersList/:projectId', isAuthenticated, (req, res) => {
     let userId = req.session.user;
+    let userStatus = req.session.userStatus;
     
-    if (isAdmin(userId) || isSupervisor(userId) || isCreator(userId) || isModerator(userId)) {
+    if (isAdmin(userStatus) || isSupervisor(userStatus) || isCreator(userId) || isModerator(userId)) {
         let membersList = model.getMembers(req.params.projectId);
-        if (usersList === null) res.render('unexpectedError', {"referer": req.headers.referer});
+        if (usersList === null) 
+            renderError(req, res);
+            //res.render('unexpectedError', {"referer": req.headers.referer});
 
         else {
             let dictionnary = {};
             dictionnary["usersList"] = membersList;
             dictionnary["linkToDelete"] = "/confirm-member-delete/";
             dictionnary["objective"] = "membres du projet";
-            dictionnary["projectId"] = "-" + req.params.projectId;
+            dictionnary["separator"] = "+and+";
+            dictionnary["projectId"] = req.params.projectId;
             res.render('users-list', dictionnary);
         }
 
     } else {
-        res.render('unauthorized-action', {"referer": req.headers.referer});
+        renderUnexpectedAction(req, res);
+        //res.render('unauthorized-action', {"referer": req.headers.referer});
         //setTimeout(res.redirect('/'), 5000); Ne fonctionne pas (cause une erreur d'exécution) Ajout d'un bouton qui renvoie vers la page précédente.
     }
 });
 
-app.get('/confirm-member-delete/:username-:projectId', (req, res) => {
+app.get('/confirm-member-delete/:username+and+:projectId', (req, res) => {
     let userEmail = model.getUserId(req.params.username);
     if (userEmail === null) res.render('unexpectedError', {"referer": req.headers.referer});
     
-    else if (isAdmin(req.session.user) || isSupervisor(req.session.user) || isCreator(req.session.user) || isModerator(req.session.user)) {
+    else if (isAdmin(req.session.userStatus) || isSupervisor(req.session.userStatus) || isCreator(req.session.user) || isModerator(req.session.user)) {
         let content = {};
         content["username"] = req.params.username;
         content["projectId"] = req.params.projectId;
         res.render('ban-member-form', content);
     }
     else {
-        res.render('unauthorized-action', {"referer": req.headers.referer});
+        renderUnexpectedAction(req, res);
+        //res.render('unauthorized-action', {"referer": req.headers.referer});
         //setTimeout(() => res.redirect('/'), 5000);
     }
 });
@@ -364,12 +387,14 @@ app.get('/confirm-member-ban', (req, res) => {
     let userToBan = model.getUserId(req.query.username);
     let projectId = req.query.projectId;
     let userWhoAsks = req.session.user;
+    let askingUserStatus = req.session.userStatus;
     let word = req.query.delete.toUpperCase();
 
     if (userToBan === null) res.render('unexpectedError', {"referer": req.headers.referer});
 
-    else if(!isAdmin(userWhoAsks) && !isSupervisor(userWhoAsks) && isCreator(userWhoAsks) && isModerator(userWhoAsks)) {
-        res.render('unauthorized-action', {"referer": req.headers.referer});
+    else if(!isAdmin(askingUserStatus) && !isSupervisor(askingUserStatus) && isCreator(userWhoAsks) && isModerator(userWhoAsks)) {
+        renderUnexpectedAction(req, res);
+        //res.render('unauthorized-action', {"referer": req.headers.referer});
     }
     else if(word !== "EXCLURE") {
         res.locals.wrongWord = true;
@@ -430,12 +455,12 @@ function addCheckedToCategories(categoriesToString, target) {
     }
 }
 
-function isAdmin(userEmail) {
-    return req.session.userStatus === "administrator";
+function isAdmin(userStatus) {
+    return userStatus === "administrator";
 }
 
-function isSupervisor(userEmail) {
-    return req.session.userStatus === "supervisor";
+function isSupervisor(userStatus) {
+    return userStatus === "supervisor";
 }
 
 function isCreator(userEmail, projectId) {
@@ -444,4 +469,12 @@ function isCreator(userEmail, projectId) {
 
 function isModerator(userEmail, projectId) {
     return model.getUserProjectStatus(userEmail, projectId) === "moderator";
+}
+
+function renderError(req, res) {
+    res.render('unexpectedError', {'referer': req.headers.referer});
+}
+
+function renderUnexpectedAction(req, res) {
+    res.render('unauthorized-action', {"referer": req.headers.referer});
 }
