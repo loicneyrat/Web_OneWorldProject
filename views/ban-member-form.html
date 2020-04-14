@@ -1,0 +1,34 @@
+{{> header}}
+
+
+<div class="container">
+    <div class="card" style="margin-top: 25vh; margin-left: 150px; margin-right: 150px;">
+        <div class="card-header">
+            EXCLUSION D'UN MEMBRE
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">
+                Vous vous apprêtez à exclure <i>{{username}}</i> du projet. Cette action est <strong>irréversible</strong>.
+            </h5>
+            <form class="form-inline" method="GET" action="/confirm-member-ban">
+                    <input type="hidden" name="username" value="{{username}}">
+                    <input type="hidden" name="projectId" value="{{projectId}}">
+                    <label for="delete"><p class="card-body">Pour confirmer la supression, tapez "EXCLURE" dans la barre ci-contre</p></label>
+                    {{#wrongWord}}Le champ n'a pas été correctement rempli. Merci de réessayer.{{/wrongWord}}
+                    <div class="mx-auto">
+                        <input class="form-control mr-2" style="width: 200px" type="text" name="delete" id="delete">
+                        <button class="btn btn-warning" type="submit">Exclure</button> 
+                    </div>
+                    
+                </div>
+            </form>
+            {{#deleteFailure}}
+            <p class="text-danger font-italic">L'exclusion a échoué. Merci de réessayer. Si l'erreur persiste, contactez un administrateur.</p>
+            {{/deleteFailure}}
+        </div>
+    </div>
+</div>
+
+
+
+{{> footer}}

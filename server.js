@@ -123,9 +123,7 @@ app.get('/confirm-user-delete/:username', isAuthenticated, (req, res) => {
     let userEmail = model.getUserId(req.params.username);
     if (userEmail === null) res.render('unexpectedError', {"referer": req.headers.referer});
     
-    else if (req.session.user === userEmail)
-        res.render('delete-user-form', {"username" : req.params.username});
-    else if (isAdmin(req.session.user) || isSupervisor(req.session.user))
+    else if (isAdmin(req.session.user) || isSupervisor(req.session.user) || userEmail === req.session.user)
         res.render('delete-user-form', {"username" : req.params.username});
     else {
         res.render('unauthorized-action', {"referer": req.headers.referer});
@@ -134,27 +132,27 @@ app.get('/confirm-user-delete/:username', isAuthenticated, (req, res) => {
 });
 
 app.get('/confirm-user-delete', isAuthenticated, (req, res) => {
-    let userEmail = model.getUserId(req.params.username);
+    let userTodelete = model.getUserId(req.query.username);
     let word = req.query.delete.toUpperCase();
 
-    if (userEmail === null) res.render('unexpectedError', {"referer": req.headers.referer});
+    if (userToDelete === null) res.render('unexpectedError', {"referer": req.headers.referer});
 
-    else if(!isAdmin(userEmail) || !isSupervisor(userEmail) || req.session.user !== userEmail) {
+    else if(!isAdmin(req.session.user) && !isSupervisor(req.session.userEmail) && req.session.user !== userToDelete) {
         res.render('unauthorized-action', {"referer": req.headers.referer});
     }
     else if(word === "SUPPRIMER") {
-        if (model.deleteUser(userEmail)){
+        if (model.deleteUser(userTodelete)){
             res.render('delete-confirmation');
             //setTimeout(() => res.redirect('/'), 5000);
         }
         else {
             res.locals.deleteFailure = true;
-            res.render('delete-user-form', {"username" : req.query.username});
+            res.render('delete-user-form', {"username" : req.params.username});
             }
         }
     else {
         res.locals.wrongWord = true;
-        res.render('delete-user-form', {"username": req.query.username});
+        res.render('delete-user-form', {"username" : req.params.username});
     }
 });
 
@@ -235,6 +233,7 @@ app.get('/usersList', isAuthenticated, (req, res) => {
             let dictionnary = {};
             dictionnary["usersList"] = usersList;
             dictionnary["linkToDelete"] = "/confirm-user-delete/";
+            dictionnary["objective"] = "utilisateurs du site"
             res.render('users-list', dictionnary);
         }
     }
@@ -320,6 +319,77 @@ app.get('/confirm-project-delete', isAuthenticated, (req, res) => {
     else {
         res.locals.wrongWord = true;
         res.render('delete-project-form', {"projectId" : prrojectId});
+    }
+});
+
+app.get('/membersList/:projectId', isAuthenticated, (req, res) => {
+    let userId = req.session.user;
+    
+    if (isAdmin(userId) || isSupervisor(userId) || isCreator(userId) || isModerator(userId)) {
+        let membersList = model.getMembers(req.params.projectId);
+        if (usersList === null) res.render('unexpectedError', {"referer": req.headers.referer});
+
+        else {
+            let dictionnary = {};
+            dictionnary["usersList"] = membersList;
+            dictionnary["linkToDelete"] = "/confirm-member-delete/";
+            dictionnary["objective"] = "membres du projet";
+            dictionnary["projectId"] = "-" + req.params.projectId;
+            res.render('users-list', dictionnary);
+        }
+
+    } else {
+        res.render('unauthorized-action', {"referer": req.headers.referer});
+        //setTimeout(res.redirect('/'), 5000); Ne fonctionne pas (cause une erreur d'exécution) Ajout d'un bouton qui renvoie vers la page précédente.
+    }
+});
+
+app.get('/confirm-member-delete/:username-:projectId', (req, res) => {
+    let userEmail = model.getUserId(req.params.username);
+    if (userEmail === null) res.render('unexpectedError', {"referer": req.headers.referer});
+    
+    else if (isAdmin(req.session.user) || isSupervisor(req.session.user) || isCreator(req.session.user) || isModerator(req.session.user)) {
+        let content = {};
+        content["username"] = req.params.username;
+        content["projectId"] = req.params.projectId;
+        res.render('ban-member-form', content);
+    }
+    else {
+        res.render('unauthorized-action', {"referer": req.headers.referer});
+        //setTimeout(() => res.redirect('/'), 5000);
+    }
+});
+
+app.get('/confirm-member-ban', (req, res) => {
+    let userToBan = model.getUserId(req.query.username);
+    let projectId = req.query.projectId;
+    let userWhoAsks = req.session.user;
+    let word = req.query.delete.toUpperCase();
+
+    if (userToBan === null) res.render('unexpectedError', {"referer": req.headers.referer});
+
+    else if(!isAdmin(userWhoAsks) && !isSupervisor(userWhoAsks) && isCreator(userWhoAsks) && isModerator(userWhoAsks)) {
+        res.render('unauthorized-action', {"referer": req.headers.referer});
+    }
+    else if(word !== "EXCLURE") {
+        res.locals.wrongWord = true;
+        let content = {};
+        content["username"] = req.params.username;
+        content["projectId"] = req.params.projectId;
+        res.render('ban-member-form', content);
+    }
+    else {
+        if (model.removeMember(projectId, userToBan)){
+            res.render('delete-confirmation');
+            //setTimeout(() => res.redirect('/'), 5000);
+        }
+        else {
+            res.locals.deleteFailure = true;
+            let content = {};
+            content["username"] = req.params.username;
+            content["projectId"] = req.params.projectId;
+            res.render('ban-member-form', content);
+        }
     }
 });
 
