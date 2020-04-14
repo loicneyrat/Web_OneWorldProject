@@ -44,7 +44,9 @@ app.post('/signup', (req, res) => {
     }
 
     let checkResult = model.credentialsAreFree(email, username);
-    if (checkResult === -1) {
+    if (checkResult === null) res.render('unexpectedError', {"referer": req.headers.referer});
+
+    else if (checkResult === -1) {
         res.locals.emailTaken = true;
         res.render('signup-form');
     }
@@ -53,10 +55,15 @@ app.post('/signup', (req, res) => {
         res.render('signup-form');
     }
     else {
-        let regular = "normal";
-        model.createUser(email, username, password, regular);
-        req.session.user = email;
-        res.redirect('/home');
+        let regular = "regular";
+        if (model.createUser(email, username, password, regular)) {
+            res.render('unexpectedError', {"referer": req.headers.referer});
+        }
+        else {
+            req.session.user = email;
+            req.session.userStatus = regular;
+            res.redirect('/home');
+        }
     }
 });
 
@@ -67,10 +74,16 @@ app.get('/login-form', (req, res) => {
 app.post('/login', (req, res) => {
     let email = req.body.mail;
     let password = req.body.password;
-    if (model.isTheRightPassword(email, password)) {
+    let isRightPassword = model.isTheRightPassword(email, password);
+    if (isRightPassword === null) res.render('unexpectedError', {"referer": req.headers.referer});
+    else if (model.isTheRightPassword(email, password)) {
         req.session.user = email;
-        req.session.userStatus = model.getUserStatus(email);
-        res.redirect('/home');
+        let userStatus = model.getUserStatus(email);
+        if (userStatus === null) res.render('unexpectedError', {"referer": req.headers.referer});
+        else {
+            req.session.userStatus = userStatus;
+            res.redirect('/home');
+        }
     }
     else {
         res.locals.wrongCredentials = true;
@@ -88,10 +101,13 @@ app.get('/home', (req, res) => {
         res.locals.wrongCredentials = true;
         res.render('login-form');
     } else {
-    let isAdmin = isAdmin(req.session.user);
-    let username = model.getUsername(req.session.user);
-    let projects = model.getProjects(req.session.user);
-    res.render('home', {"isAdmin": isAdmin, "username": username, "projects": projects});
+        let isAdmin = isAdmin(req.session.user);
+        let username = model.getUsername(req.session.user);
+        let projects = model.getProjects(req.session.user);
+        if (username === null || projects === null) res.render('unexpectedError', {"referer": req.headers.referer});
+        else {
+            res.render('home', {"isAdmin": isAdmin, "username": username, "projects": projects});
+        }
     }
 });
 
@@ -101,8 +117,9 @@ app.get('/#', (req, res) => {
 
 app.get('/confirm-user-delete/:username', (req, res) => {
     let userEmail = model.getUserId(req.params.username);
+    if (userEmail === null) res.render('unexpectedError', {"referer": req.headers.referer});
     
-    if (req.session.user === userEmail)
+    else if (req.session.user === userEmail)
         res.render('delete-user-form', {"username" : req.params.username});
     else if (isAdmin(req.session.user) || isSupervisor(req.session.user))
         res.render('delete-user-form', {"username" : req.params.username});
@@ -116,7 +133,9 @@ app.get('/confirm-user-delete', (req, res) => {
     let userEmail = model.getUserId(req.params.username);
     let word = req.query.delete.toUpperCase();
 
-    if(!isAdmin(userEmail) || !isSupervisor(userEmail) || req.session.user !== userEmail) {
+    if (userEmail === null) res.render('unexpectedError', {"referer": req.headers.referer});
+
+    else if(!isAdmin(userEmail) || !isSupervisor(userEmail) || req.session.user !== userEmail) {
         res.render('unauthorized-action', {"referer": req.headers.referer});
     }
     else if(word === "SUPPRIMER") {
@@ -144,7 +163,10 @@ app.post('/update-password', (res, req) => {
     let newPassword = req.body.newPwd;
     let confirmedPassword = req.body.verifpwd;
     let userEmail = req.session.email;
-    if(!model.isTheRightPassword(userEmail, oldPassword)) {
+    let isRightPassword = model.isTheRightPassword(userEmail, oldPassword);
+    if (isRightPassword === null) res.render('unexpectedError', {"referer": req.headers.referer});
+    
+    else if(!isRightPassword) {
         res.locals.wrongPassword = true;
         res.render('change-password-form')
     }
@@ -172,8 +194,11 @@ app.post('/update-username', (req, res) => {
     let username = req.body.username;
     let password = req.body.pwd;
     let checkResult = model.credentialsAreFree(req.session.user, username);
+    let expectedPassword = model.getUserPassword(req.session.user);
 
-    if (password !== model.getUserPassword(req.session.user)) {
+    if (expectedPassword === null || checkResult === null) res.render('unexpectedError', {"referer": req.headers.referer});
+
+    else if (password !== expectedPassword) {
         res.locals.wrongPassword = true;
         res.render('update-username-form', {"username" : username});
     }
@@ -200,10 +225,14 @@ app.get('/usersList', (req, res) => {
         //setTimeout(res.redirect('/'), 5000); Ne fonctionne pas (cause une erreur d'exécution) Ajout d'un bouton qui renvoie vers la page précédente.
     } else {
         let usersList = model.getUsersList();
-        let dictionnary = {};
-        dictionnary["usersList"] = usersList;
-        dictionnary["linkToDelete"] = "/confirm-user-delete/";
-        res.render('users-list', dictionnary);
+        if (usersList === null) res.render('unexpectedError', {"referer": req.headers.referer});
+
+        else {
+            let dictionnary = {};
+            dictionnary["usersList"] = usersList;
+            dictionnary["linkToDelete"] = "/confirm-user-delete/";
+            res.render('users-list', dictionnary);
+        }
     }
 });
 
@@ -214,18 +243,28 @@ app.get('/create-project-form', (req, res) => {
 
 app.post('/creating-project', (req, res) => {
     let categories = getCategoriesArray(req.body);
-    let keywords = req.body.keywords.split(', ');
+    let keywords = req.body.keywords.split(',');
+
+    for(let i = 0; i < keywords.length(); i++) {
+        keywords[i] = keywords[i].trim();
+    }
+
     let result = model.createProject(req.body.title, req.body.description, categories, req.session.user, String(new Date()), keywords);
-    res.redirect('/home');
+    if (result === null) res.render('unexpectedError', {"referer": req.headers.referer});
+    else {
+        res.redirect('/home');
+    }
 });
 
 app.get('/update-project-form/:projectId', (req, res) => {
     let fields = model.getProjectDetails(req.params.projectId);
     if(fields === null) res.render("unexpectedError", {"referer": req.headers.referer});
-    fields["objective"] = "Mettre à jour";
-    fields["linkToRout"] = "/updating-project/" + req.params.projectId;
-    addCheckedToCategories(fields.categories, fields);
-    res.render('create-project-form', fields);
+    else {
+        fields["objective"] = "Mettre à jour";
+        fields["linkToRout"] = "/updating-project/" + req.params.projectId;
+        addCheckedToCategories(fields.categories, fields);
+        res.render('create-project-form', fields);
+    }
 });
 
 app.post('/updating-project/:projectId', (req, res) => {
@@ -233,17 +272,19 @@ app.post('/updating-project/:projectId', (req, res) => {
     let keywords = req.body.keywords.split(', ');
     let result = model.updateProject(req.params.projectId, req.body.title, req.body.description, categories, keywords);
     if(result === null) res.render('unexpectedError', {"referer": req.headers.referer});
-    res.redirect('/projects/:projectId');
+    else {
+        res.redirect('/projects/:projectId');
+    }
 });
 
 app.get('/delete-project/:projectId', (req, res) => {
     let user = req.session.user;
     if(creator === null) res.render('unexpectedError', {"referer": req.headers.referer});
     if(isAdmin(user) || isSupervisor(user) || isCreator(user, req.params.user)){
-        res.render("unauthorized-action", {"referer": req.headers.referer});
+        res.render("delete-project-form", {"projectId": req.params.projectId});
     }
     else {
-        res.render("delete-project-form", {"projectId": req.params.projectId});
+        res.render("unauthorized-action", {"referer": req.headers.referer});
     }
 });
 
@@ -252,7 +293,9 @@ app.get('/confirm-project-delete', (req, res) => {
     let word = req.query.delete.toUpperCase();
     let projectId = req.query.projectId;
 
-    if(!isAdmin(userEmail) || !isSupervisor(userEmail) || isCreator(userEmail, projectId)) {
+    if (userEmail === null) res.render('unexpectedError', {"referer": req.headers.referer});
+
+    else if(!isAdmin(userEmail) && !isSupervisor(userEmail) && !isCreator(userEmail, projectId)) {
         res.render('unauthorized-action', {"referer": req.headers.referer});
     }
     else if(word === "SUPPRIMER") {
