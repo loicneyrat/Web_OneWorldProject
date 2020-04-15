@@ -8,12 +8,13 @@ var keywordsHandler = require('./keywordsHandler.js');
 var projectLinkedUsersHandler = require('./projectLinkedUsersHandler.js');
 var db = new sqlite('database.sqlite');
 
-//db.prepare('DROP TABLE projectEvents').run();
-//db.prepare('DROP TABLE projectCategories').run();
-//db.prepare('DROP TABLE projectLinkedUsers').run();
-//db.prepare('DROP TABLE projectKeyWords').run();
-//db.prepare('DROP TABLE projects').run();
-
+/*
+db.prepare('DROP TABLE projectEvents').run();
+db.prepare('DROP TABLE projectCategories').run();
+db.prepare('DROP TABLE projectLinkedUsers').run();
+db.prepare('DROP TABLE projectKeyWords').run();
+db.prepare('DROP TABLE projects').run();
+*/
 
 
 db.prepare('CREATE TABLE IF NOT EXISTS users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE, password VARCHAR2(50), status VARCHAR2(20))').run();
@@ -24,7 +25,7 @@ db.prepare('CREATE TABLE IF NOT EXISTS projectLinkedUsers(projectId INTEGER REFE
 
 db.prepare('CREATE TABLE IF NOT EXISTS projectKeyWords(projectId INTEGER REFERENCES projects ON DELETE CASCADE, keyword VARCHAR2(15), PRIMARY KEY(projectId, keyword))').run();
 
-db.prepare('CREATE TABLE IF NOT EXISTS projectCategories (projectId INTEGER REFERENCES projects, category VARCHAR(20), PRIMARY KEY(projectId, category))').run();
+db.prepare('CREATE TABLE IF NOT EXISTS projectCategories (projectId INTEGER REFERENCES projects ON DELETE CASCADE, category VARCHAR(20), PRIMARY KEY(projectId, category))').run();
 
 db.prepare('CREATE TABLE IF NOT EXISTS projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE, event VARCHAR2(500), date DATE, PRIMARY KEY(projectId, event))').run();
 
