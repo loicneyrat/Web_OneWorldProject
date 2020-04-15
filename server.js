@@ -366,8 +366,7 @@ app.get('/membersList/:projectId', isAuthenticated, (req, res) => {
             dictionnary["usersList"] = membersList;
             dictionnary["linkToDelete"] = "/confirm-member-delete/";
             dictionnary["objective"] = "membres du projet";
-            dictionnary["separator"] = "+and+";
-            dictionnary["projectId"] = req.params.projectId;
+            dictionnary["projectId"] = "+AND+" + req.params.projectId;
             res.render('users-list', dictionnary);
         }
 
@@ -378,7 +377,7 @@ app.get('/membersList/:projectId', isAuthenticated, (req, res) => {
     }
 });
 
-app.get('/confirm-member-delete/:username+and+:projectId', (req, res) => {
+app.get('/confirm-member-delete/:username+AND+:projectId', (req, res) => {
     let userEmail = model.getUserId(req.params.username);
     if (userEmail === null) res.render('unexpectedError', {"referer": req.headers.referer});
     
