@@ -50,13 +50,12 @@ exports.getProjectDetails = function(projectId) {
     result["categories"] = getCategoriesInString(projectId);
     result["keywords"] = getKeywordsInString(projectId);
     result["events"] = getProjectEvents(projectId);
-
     return result;
 }
 
 exports.getCreator = function(projectId) {
     let query = db.prepare('SELECT creator FROM projects WHERE projectId=?');
-    return query.get([projectId]);
+    return query.get([projectId]).creator;
 }
 
 
@@ -87,5 +86,5 @@ function getKeywordsInString(projectId) {
 }
 
 function getProjectEvents(projectId) {
-    return db.prepare('SELECT * FROM projectEvents WHERE projectId=?').all([projectId]);
+    return db.prepare('SELECT projectId, title, event, creator, date(date) date FROM projectEvents WHERE projectId=?').all([projectId]);
 }
