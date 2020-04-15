@@ -67,11 +67,53 @@ exports.getProjects = function(username) {
 
 exports.getProjects = function(email) {
     let projects = {};
-    projects.created = db.prepare('SELECT title, description, creator, date FROM projects WHERE creator=?').all([email]);
-    projects.supported = db.prepare('SELECT P.title, P.description, P.creator, P.date FROM projects P WHERE P.projectId IN (SELECT projectId FROM projectLinkedUsers WHERE user=? AND status=?)').all([email, "members"]);
-    projects.followed = db.prepare('SELECT P.title, P.description, P.creator, P.date FROM projects P WHERE P.projectId IN (SELECT projectId FROM projectLinkedUsers WHERE user=? AND status=?)').all([email, "followers"]);
+    projects.created = db.prepare('SELECT projectId, title, creator, date(date) date FROM projects WHERE creator=?').all([email]);
+    projects.supported = db.prepare('SELECT P.projectId, P.title, P.creator, date(P.date) date FROM projects P WHERE P.projectId IN (SELECT projectId FROM projectLinkedUsers WHERE user=? AND status=?)').all([email, "members"]);
+    projects.followed = db.prepare('SELECT P.projectId, P.title, P.creator, date(P.date) date FROM projects P WHERE P.projectId IN (SELECT projectId FROM projectLinkedUsers WHERE user=? AND status=?)').all([email, "followers"]);
+    
+    setCategories(projects.created);
+    setCategories(projects.supported);
+    setCategories(projects.followed);
+
+    setCreator(projects.created);
+    setCreator(projects.supported);
+    setCreator(projects.followed);
+
+    setKeywords(projects.created);
+    setKeywords(projects.supported);
+    setKeywords(projects.followed);
     return projects;
 }
+
+function setKeywords(projects) {
+    for (project of projects) {
+        project.keywords = getInfoString("projectKeyWords", "keyword", project.projectId);
+    }
+}
+
+function getInfoString(table, field, projectId) {
+    let array = db.prepare(`SELECT ${field} FROM ${table} WHERE projectId=?`).all([projectId]);
+    if (array.length == 0) return "";
+    let infos = array[0][field];
+    for (let i = 1; i < array.length; i++) {
+        infos += ", " + array[i][field];
+    }
+    return infos;
+}
+
+function setCreator(projects) {
+    let query = db.prepare('SELECT username FROM users WHERE email=?');
+    for (project of projects) {
+        project.creator = query.get([project.creator]).username;
+    }
+}
+
+function setCategories(projects) {
+    for (project of projects) {
+        project.categories = getInfoString("projectCategories", "category", project.projectId);
+    }
+}
+
 
 exports.isTheRightPassword = function(email, userPassword) {
     let query = db.prepare('SELECT password FROM users WHERE email=?');

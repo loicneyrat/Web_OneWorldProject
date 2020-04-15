@@ -44,9 +44,9 @@ exports.deleteProject = function(projectId) {
 }
 
 exports.getProjectDetails = function(projectId) {
-    let query = db.prepare('SELECT * FROM Projects WHERE projectId=?');
+    let query = db.prepare('SELECT projectId, title, description, creator, date(date) date FROM Projects WHERE projectId=?');
     let result = query.get([projectId]);
-
+    result['creator'] = db.prepare('SELECT username FROM users WHERE email=?').get([result.creator]).username;
     result["categories"] = getCategoriesInString(projectId);
     result["keywords"] = getKeywordsInString(projectId);
     result["events"] = getProjectEvents(projectId);
