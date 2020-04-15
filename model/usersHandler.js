@@ -45,26 +45,6 @@ exports.getUsername = function(userId) {
     return result === undefined ? result : result.username;
 }
 
-/*
-//TODO modifier la function pour associer un tableau de catégories au résultat. 
-exports.getProjects = function(username) {
-    let query = db.prepare('SELECT P.title, P.creator, P.date FROM Projects P, Users U WHERE P.creator=U.email AND U.username=?');
-    let projectsList = query.all([username]);
-
-    for (let i = 0; i < projectsList.length ; i++) {
-        projectsList[i][status] = creator;
-    }
-
-    query = db.prepare('SELECT P.title, P.creator, P.category, M.status FROM Projects P, ProjectMembers M, Users U WHERE P.projectId = M.projectId AND U.email = M.user AND U.username=?');
-    let projectsFollowed = query.all([username]);
-
-    for (let i = 0; i < projectsFollowed.length ; i++) {
-        projectsList.push(projectsFollowed[i]);
-    }
-    return projectsList;
-}
-*/
-
 exports.getProjects = function(email) {
     let projects = {};
     projects.created = db.prepare('SELECT projectId, title, creator, date(date) date FROM projects WHERE creator=?').all([email]);
