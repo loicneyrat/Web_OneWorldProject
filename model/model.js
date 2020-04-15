@@ -27,7 +27,7 @@ db.prepare('CREATE TABLE IF NOT EXISTS projectKeyWords(projectId INTEGER REFEREN
 
 db.prepare('CREATE TABLE IF NOT EXISTS projectCategories (projectId INTEGER REFERENCES projects ON DELETE CASCADE, category VARCHAR(20), PRIMARY KEY(projectId, category))').run();
 
-db.prepare('CREATE TABLE IF NOT EXISTS projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE, event VARCHAR2(500), date DATE, PRIMARY KEY(projectId, event))').run();
+db.prepare('CREATE TABLE IF NOT EXISTS projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE, title VARCHAR2(100) UNIQUE, event VARCHAR2(750), creator VARCHAR2(30) REFERENCES users, date DATE, PRIMARY KEY(projectId, event))').run();
 
 
 //usersHandler.createUser('admin@admin.fr', 'Administrator', 'AZERTY', 'administrator');
@@ -105,7 +105,6 @@ exports.getProjects = function(email) {
  *          FOR THE ADMINISTRATORS
  * 
  */
-
 exports.updateUserStatus = function (userEmail, newStatus) {
     if(! exists(userEmail, "email", "users")) return null;
     return administratorsTools.updateUserStatus(userEmail, newStatus);
@@ -185,8 +184,14 @@ exports.getUserProjectStatus = function(userEmail, projectId) {
     return projectLinkedUsersHandler.getUserProjectStatus(userEmail, projectId);
 }
 
+exports.isMember = function(user, projectId) {
+    if (!exists2(projectId, user, "projectId", "user", "projectLinkedUsers")) return null;//`SELECT ${field1}, ${field2} FROM ${table} WHERE ${field1}=? AND ${field2}=?`
+    return projectLinkedUsersHandler.isMember(user, projectId);
+}
 
-
+exports.isFollower = function(user, projectId) {
+    return projectLinkedUsersHandler.isFollower(user, projectId);
+}
 
 /***
  * 
@@ -212,9 +217,9 @@ exports.removeAllKeywords = function(projectId) {
  * 
  */
 
-exports.addEvent = function(projectId, eventToAdd, dateOfEvent) {
+exports.addEvent = function(projectId, title, eventToAdd, creator, dateOfEvent) {
     if(exists2(projectId, eventToAdd, "projectId", "event", "projectEvents")) return null;
-    return eventsHandler.addEvent(projectId, eventToAdd, dateOfEvent);
+    return eventsHandler.addEvent(projectId, title, eventToAdd, creator, dateOfEvent);
 }
 
 exports.updateEvent = function(projectId, previousEvent, newEvent) {
@@ -292,7 +297,7 @@ exports.resetDatabase = function() {
  * 
  */
 
-var exists = function(content, field, table) {
+var exists = function (content, field, table) {
     content = String(content);
     let check = db.prepare(`SELECT ${field} FROM ${table} WHERE ${field}=?`).get([content]);
     return check !== undefined;
