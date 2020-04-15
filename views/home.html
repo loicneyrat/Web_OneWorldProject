@@ -28,28 +28,31 @@
   <div class="col-6">
     <div class="tab-content" id="nav-tabContent">
       {{#projects}}
-      <div class="tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list"  style="margin-top: 20px; margin-bottom: 75px;">
-        <h1>Liste de mes projets</h1>
+      <div class="tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list" style="margin-top: 20px; margin-bottom: 75px;">
+        <h1>Mes projets</h1>
         {{#created}}
-        <div class="card" style="margin: 20px;"><!--width: 18rem; -->
+        <div class="card" style="margin-top: 20px; margin-bottom: 20px;"><!--width: 18rem; -->
           <div class="card-body">
             <h5 class="card-title">{{title}}</h5>
             <h6 class="card-subtitle mb-2 text-muted">Créé le {{date}}</h6>
             <p class="card-text">{{description}}</p>
             <p class="card-text text-muted">
-              Categories : {{categories}}<br>
+              Catégories : {{categories}}<br>
               Mots-clefs : {{keywords}}<br>
             </p>
             <a href="/project-details/{{projectId}}" class="card-link">Voir les détails</a>
             <a href="/update-project-form/{{projectId}}" class="card-link">Modifier</a>
+            <a href="/update-project-form/{{projectId}}" class="card-link">Gérer les évènements</a>
+            <a href="/update-project-form/{{projectId}}" class="card-link">Gérer les membres</a>
             <a href="/delete-project/{{projectId}}" class="card-link">Supprimer</a>
           </div>
         </div>
         {{/created}}
       </div>
-      <div class="tab-pane fade" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list">
+      <div class="tab-pane fade" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list" style="margin-top: 20px; margin-bottom: 75px;">
+        <h1>Projets auxquels je participe</h1>
         {{#supported}}
-        <div class="card" style="margin: 15px;"><!--width: 18rem; -->
+        <div class="card" style="margin-top: 20px; margin-bottom: 20px;"><!--width: 18rem; -->
           <div class="card-body">
             <h5 class="card-title">{{title}}</h5>
             <h6 class="card-subtitle mb-2 text-muted">Créé le {{date}} par {{creator}}</h6>
@@ -59,10 +62,10 @@
             <a href="#" class="card-link">Suivre</a>
           </div>
         </div>
-        
         {{/supported}}
       </div>
-      <div class="tab-pane fade" id="list-messages" role="tabpanel" aria-labelledby="list-messages-list">
+      <div class="tab-pane fade" id="list-messages" role="tabpanel" aria-labelledby="list-messages-list" style="margin-top: 20px; margin-bottom: 75px;">
+        <h1>Projets que je suis</h1>
         {{#followed}}
         Titre : {{title}} <br>
         Description : {{description}}<br>
