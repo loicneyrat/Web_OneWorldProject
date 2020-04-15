@@ -143,7 +143,7 @@ app.get('/confirm-user-delete/:username', isAuthenticated, (req, res) => {
 });
 
 app.get('/confirm-user-delete', isAuthenticated, (req, res) => {
-    let userTodelete = model.getUserId(req.query.username);
+    let userToDelete = model.getUserId(req.query.username);
     let word = req.query.delete.toUpperCase();
     let userStatus = req.session.userStatus;
     if (userToDelete === null) 
@@ -152,7 +152,7 @@ app.get('/confirm-user-delete', isAuthenticated, (req, res) => {
         renderUnexpectedAction(req, res);
     }
     else if(word === "SUPPRIMER") {
-        if (model.deleteUser(userTodelete)){
+        if (model.deleteUser(userToDelete)){
             res.render('delete-confirmation');
         }
         else {
@@ -270,22 +270,11 @@ app.post('/creating-project', isAuthenticated, (req, res) => {
 
 app.get('/project-details/:projectId', (req, res) => {
     let user = req.session.user;
+    let userStatus = req.session.userStatus;
     let projectId = req.params.projectId;
     let details = model.getProjectDetails(req.params.projectId);
-    if (isCreator(user, projectId)) {
-        res.render('project-details', details);
-    }
-    else if (isAdmin(req.session.userStatus) || isModerator(user, projectId) || isSupervisor(req.session.userStatus)) {
-        res.render('project-details', details);
-    }
-    //console.log("Passed");
-        
-    //Si l'utilisateur est créateur : afficher détails avec boutons (modifier, supprimer, ajouter un évènement, Gestion des membres, Voir les évènements).
-    //Si l'utilisateur est admin/superviseur/modérateur : (modifier, (ne plus) suivre, (ne plus) adhérer, Voir les évènements).
-    //Si l'utilisateur est membre : (ne plus adhérer, voir les évènements);
-    //Si l'utilisateur suit le projet : (ne plus suivre, adhérer, voir les évènements);
-    //Sinon : (suivre, adhérer);
-    //res.render('project-details', details);
+    setProjectStatus(user, userStatus, projectId, details);
+    res.render('project-details', details);
 });
 
 app.get('/update-project-form/:projectId', isAuthenticated, (req, res) => {
@@ -338,7 +327,6 @@ app.get('/confirm-project-delete', isAuthenticated, (req, res) => {
     else if (word === "SUPPRIMER") {
         if (model.deleteProject(projectId)) {
             res.render('delete-confirmation');
-            //setTimeout(() => res.redirect('/'), 5000);
         }
         else {
             res.locals.deleteFailure = true;
@@ -354,13 +342,10 @@ app.get('/confirm-project-delete', isAuthenticated, (req, res) => {
 app.get('/membersList/:projectId', isAuthenticated, (req, res) => {
     let userId = req.session.user;
     let userStatus = req.session.userStatus;
-    
     if (isAdmin(userStatus) || isSupervisor(userStatus) || isCreator(userId, req.params.projectId) || isModerator(userId)) {
         let membersList = model.getMembers(req.params.projectId);
         if (usersList === null) 
             renderError(req, res);
-            //res.render('unexpectedError', {"referer": req.headers.referer});
-
         else {
             let dictionnary = {};
             dictionnary["usersList"] = membersList;
@@ -369,11 +354,8 @@ app.get('/membersList/:projectId', isAuthenticated, (req, res) => {
             dictionnary["projectId"] = "+AND+" + req.params.projectId;
             res.render('users-list', dictionnary);
         }
-
     } else {
         renderUnexpectedAction(req, res);
-        //res.render('unauthorized-action', {"referer": req.headers.referer});
-        //setTimeout(res.redirect('/'), 5000); Ne fonctionne pas (cause une erreur d'exécution) Ajout d'un bouton qui renvoie vers la page précédente.
     }
 });
 
@@ -389,8 +371,6 @@ app.get('/confirm-member-delete/:username+AND+:projectId', (req, res) => {
     }
     else {
         renderUnexpectedAction(req, res);
-        //res.render('unauthorized-action', {"referer": req.headers.referer});
-        //setTimeout(() => res.redirect('/'), 5000);
     }
 });
 
@@ -405,7 +385,6 @@ app.get('/confirm-member-ban', (req, res) => {
 
     else if(!isAdmin(askingUserStatus) && !isSupervisor(askingUserStatus) && isCreator(userWhoAsks, projectId) && isModerator(userWhoAsks)) {
         renderUnexpectedAction(req, res);
-        //res.render('unauthorized-action', {"referer": req.headers.referer});
     }
     else if(word !== "EXCLURE") {
         res.locals.wrongWord = true;
@@ -417,7 +396,6 @@ app.get('/confirm-member-ban', (req, res) => {
     else {
         if (model.removeMember(projectId, userToBan)){
             res.render('delete-confirmation');
-            //setTimeout(() => res.redirect('/'), 5000);
         }
         else {
             res.locals.deleteFailure = true;
@@ -487,4 +465,19 @@ function renderError(req, res) {
 
 function renderUnexpectedAction(req, res) {
     res.render('unauthorized-action', {"referer": req.headers.referer});
+}
+
+function setProjectStatus(user, userStatus, projectId, details) {
+    let status = model.getUserStatus(user, projectId);
+    switch (status) {
+        case 'member' : details.isSupporting = true; break;
+        case 'follower' : details.isFollowing = true; break;
+        case 'moderator' : details.isModerator = true; break;
+        default : details.isRegular = true; break;
+    }
+    if (isCreator(user, projectId)) {
+        details.isCreator = true;
+    } else if (isAdmin(userStatus) || isSupervisor(userStatus)) {
+        details.isSupervisor = true;
+    } else details.isRegular = true;
 }
