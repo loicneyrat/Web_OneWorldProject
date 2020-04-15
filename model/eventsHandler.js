@@ -3,18 +3,15 @@ var db = new sqlite('database.sqlite');
 
 
 
-exports.addEvent = function(projectId, event, date) {
-    
-    if(eventAlreadyExist(projectId, event, date)) return false;
-
-    let insert = db.prepare('INSERT INTO projectEvents VALUES (?, ?, ?)');
-    let result = insert.run([projectId, event, date]);
+exports.addEvent = function(projectId, title, event, creator, date) {
+    if (eventAlreadyExist(projectId, event, date, creator)) return false;
+    let insert = db.prepare('INSERT INTO projectEvents (projectId, title, event, creator, date) VALUES (?, ?, ?, ?, ?)');
+    let result = insert.run([projectId, title, event, creator, date]);
     return result.changes === 1;
 }
 
 
 exports.updateEvent = function(projectId, previousEvent, newEvent) {
-    
     let update = db.prepare('UPDATE projectEvents SET event=? WHERE projectId=? AND event=?');
     let result = update.run([newEvent, projectId, previousEvent]);
     return result.changes === 1;
@@ -27,15 +24,14 @@ exports.changeEventDate = function(projectIdConcerned, eventToChange, newDate) {
 }
 
 
-exports.removeEvent = function(projectId, event) {
-    
-    let toDelete = db.prepare('DELETE FROM projectEvents WHERE projectId=? AND event=?');
-    let result = toDelete.run([projectId, event]);
+exports.removeEvent = function(projectId, event, creator) {
+    let toDelete = db.prepare('DELETE FROM projectEvents WHERE projectId=? AND event=? AND creator=?');
+    let result = toDelete.run([projectId, event, creator]);
     return result.changes === 1;
 }
 
 
-function eventAlreadyExist(projectId, event, date) {
-    let check = db.prepare('SELECT * FROM projectEvents WHERE projectID=? AND event=? AND date=?').get([projectId, event, date]);
+function eventAlreadyExist(projectId, event, date, creator) {
+    let check = db.prepare('SELECT * FROM projectEvents WHERE projectId=? AND event=? AND date=? AND creator=?').get([projectId, event, date, creator]);
     return check !== undefined;
 }
