@@ -28,16 +28,38 @@
   <div class="col-6">
     <div class="tab-content" id="nav-tabContent">
       {{#projects}}
-      <div class="tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list">
+      <div class="tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list"  style="margin-top: 20px; margin-bottom: 75px;">
+        <h1>Liste de mes projets</h1>
         {{#created}}
-        Titre : {{title}} <br>
-        Description : {{description}}<br>
+        <div class="card" style="margin: 20px;"><!--width: 18rem; -->
+          <div class="card-body">
+            <h5 class="card-title">{{title}}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">Créé le {{date}}</h6>
+            <p class="card-text">{{description}}</p>
+            <p class="card-text text-muted">
+              Categories : {{categories}}<br>
+              Mots-clefs : {{keywords}}<br>
+            </p>
+            <a href="/project-details/{{projectId}}" class="card-link">Voir les détails</a>
+            <a href="/update-project-form/{{projectId}}" class="card-link">Modifier</a>
+            <a href="/delete-project/{{projectId}}" class="card-link">Supprimer</a>
+          </div>
+        </div>
         {{/created}}
       </div>
       <div class="tab-pane fade" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list">
         {{#supported}}
-        Titre : {{title}} <br>
-        Description : {{description}}<br>
+        <div class="card" style="margin: 15px;"><!--width: 18rem; -->
+          <div class="card-body">
+            <h5 class="card-title">{{title}}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">Créé le {{date}} par {{creator}}</h6>
+            <p class="card-text">{{description}}</p>
+            <p class="card-text text-muted">{{category}}</p>
+            <a href="#" class="card-link">Voir les détails</a>
+            <a href="#" class="card-link">Suivre</a>
+          </div>
+        </div>
+        
         {{/supported}}
       </div>
       <div class="tab-pane fade" id="list-messages" role="tabpanel" aria-labelledby="list-messages-list">
@@ -50,31 +72,6 @@
     </div>
   
   </div>
-  
-
-
-
-
-
-
-
-
-
-  <!--
-    AFFICHER LISTE ARTICLES
-  -->
-
-
-
-
-
-
-
-
-
-
-
-
 </div>
 
 {{> footer}}
