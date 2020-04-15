@@ -28,6 +28,16 @@ exports.getMembers = function(projectId) {
     return query.all([projectId]);
 }
 
+exports.isMember = function(user, projectId){
+    let query = db.prepare('SELECT status FROM projectLinkedUsers WHERE projectId=? AND user=?').get([projectId, user]);
+    return query !== undefined && query.status === "member";
+}
+
+exports.isFollower= function(user, projectId) {
+    let query = db.prepare('SELECT status FROM projectLinkedUsers WHERE projectId=? AND user=?').get([projectId, user]);
+    return query !== undefined && query.status === "follower";
+}
+
 exports.getUserProjectStatus = function(userEmail, projectId) {
     let query = db.prepare('SELECT status FROM projectLinkedUsers WHERE user=? AND projectId=?');
     return query.get([userEmail, projectId]).status;
