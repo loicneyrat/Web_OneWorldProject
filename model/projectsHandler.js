@@ -86,5 +86,5 @@ function getKeywordsInString(projectId) {
 }
 
 function getProjectEvents(projectId) {
-    return db.prepare('SELECT projectId, title, event, creator, date(date) date FROM projectEvents WHERE projectId=?').all([projectId]);
+    return db.prepare('SELECT * FROM projectEvents WHERE projectId=?').all([projectId]);
 }
