@@ -3,16 +3,16 @@ var db = new sqlite('database.sqlite');
 
 
 
-exports.addEvent = function(projectId, title, event, creator, date) {
-    let insert = db.prepare('INSERT INTO projectEvents (projectId, title, event, creator, date) VALUES (?, ?, ?, ?, ?)');
-    let result = insert.run([projectId, title, event, creator, date]);
+exports.addEvent = function(projectId, title, description, creator, date) {
+    let insert = db.prepare('INSERT INTO projectEvents (projectId, title, description, creator, date) VALUES (?, ?, ?, ?, ?)');
+    let result = insert.run([projectId, title, description, creator, date]);
     return result.changes === 1;
 }
 
 
-exports.updateEvent = function(projectId, previousTitle, newTitle, event, dateOfEvent) {
-    let update = db.prepare('UPDATE projectEvents SET title= ?, event=?, date=? WHERE projectId=? AND title=?');
-    let result = update.run([newTitle, event, dateOfEvent, projectId, previousTitle]);
+exports.updateEvent = function(projectId, previousTitle, newTitle, description, dateOfEvent) {
+    let update = db.prepare('UPDATE projectEvents SET title= ?, description=?, date=? WHERE projectId=? AND title=?');
+    let result = update.run([newTitle, description, dateOfEvent, projectId, previousTitle]);
     return result.changes === 1;
 }
 

@@ -27,7 +27,7 @@ db.prepare('CREATE TABLE IF NOT EXISTS projectKeyWords(projectId INTEGER REFEREN
 
 db.prepare('CREATE TABLE IF NOT EXISTS projectCategories (projectId INTEGER REFERENCES projects ON DELETE CASCADE, category VARCHAR(20), PRIMARY KEY(projectId, category))').run();
 
-db.prepare('CREATE TABLE IF NOT EXISTS projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE, title VARCHAR2(100) UNIQUE, event VARCHAR2(750), creator VARCHAR2(30) REFERENCES users, date DATE, PRIMARY KEY(projectId, title))').run();
+db.prepare('CREATE TABLE IF NOT EXISTS projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE, title VARCHAR2(100), description VARCHAR2(750), creator VARCHAR2(30) REFERENCES users, date DATE, PRIMARY KEY(projectId, title))').run();
 
 
 //usersHandler.createUser('admin@admin.fr', 'Administrator', 'AZERTY', 'administrator');
@@ -217,16 +217,16 @@ exports.removeAllKeywords = function(projectId) {
  * 
  */
 
-exports.addEvent = function(projectId, title, eventToAdd, creator, dateOfEvent) {
+exports.addEvent = function(projectId, title, description, creator, dateOfEvent) {
     if(exists2(projectId, eventToAdd, "projectId", "title", "projectEvents")) return null;
-    return eventsHandler.addEvent(projectId, title, eventToAdd, creator, dateOfEvent);
+    return eventsHandler.addEvent(projectId, title, description, creator, dateOfEvent);
 }
 
-exports.updateEvent = function(projectId, previousTitle, newTitle, event, dateOfEvent) {
+exports.updateEvent = function(projectId, previousTitle, newTitle, description, dateOfEvent) {
     if(! exists2(projectId, previousTitle, "projectId", "title", "projectEvents")) return null;
     if(exists2(projectId, newTitle, "projectId", "title", "projectEvents")) return null;
 
-    return eventsHandler.updateEvent(projectId, previousTitle, newTitle, event, dateOfEvent);
+    return eventsHandler.updateEvent(projectId, previousTitle, newTitle, description, dateOfEvent);
 }
 
 exports.removeEvent = function(projectId, title) {
@@ -280,7 +280,7 @@ exports.resetDatabase = function() {
 
     db.prepare('CREATE TABLE IF NOT EXISTS projectCategories (projectId INTEGER REFERENCES projects, category VARCHAR(20), PRIMARY KEY(projectId, category))').run();
 
-    db.prepare('CREATE TABLE IF NOT EXISTS projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE, title VARCHAR2(100) UNIQUE, event VARCHAR2(750), creator VARCHAR2(30) REFERENCES users, date DATE, PRIMARY KEY(projectId, title))').run();
+    db.prepare('CREATE TABLE IF NOT EXISTS projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE, title VARCHAR2(100), description VARCHAR2(750), creator VARCHAR2(30) REFERENCES users, date DATE, PRIMARY KEY(projectId, title))').run();
 
 
     usersHandler.createUser('admin@admin.fr', 'Administrator', 'AZERTY', 'administrator');
