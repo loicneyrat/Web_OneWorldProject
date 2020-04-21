@@ -11,7 +11,8 @@ app.engine('html', mustache());
 app.set('view engine', 'html');
 app.set('views', './views');
 
-app.use(cookieSession({secret: 'WeLoveBeingConfined'}));
+app.use(cookieSession({secret: 'WeLoveBeingConfined',
+                        cookie: {maxAge="3*60*60*1000"}}));
 app.use(bodyParser.urlencoded({extended : false}));
 
 app.use('/styles', express.static(__dirname + '/styles'));
