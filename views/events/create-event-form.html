@@ -27,25 +27,21 @@
             <div class="input-group-prepend">
               <span class="input-group-text"><i class="fas fa-align-justify"></i></span>
             </div>
-            <textarea class="form-control" type="text" placeholder="1000 caractères maximum" name="description" value="{{description}}" maxlength="1000" rows="4" required></textarea>
+            <textarea class="form-control" type="text" placeholder="750 caractères maximum" name="description" value="{{description}}" maxlength="750" rows="4" required></textarea>
           </div>
         </div>
         <div class="form-group">
-        {{#keywordHasTooManyCharacters}}
-          <p class="text-danger font-italic">L'un de vos mots-clef contient plus de 15 caractères.</p>
-        {{/keywordHasTooManyCharacters}}
-          <label for="keywords">Mots-clef : </label>
+          <label for="keywords">Date de l'événement : </label>
           <div class="input-group">
             <div class="input-group-prepend">
               <span class="input-group-text"><i class="fas fa-key"></i></span>
             </div>
-            <input class="form-control" type="text" placeholder="15 caractères maximum par mot-clef" name="keywords" value="{{keywords}}" maxlength="100" required>
+            <input class="form-control" type="date" name="date" value="{{date}}" min="{{todaysDate}}" required>
           </div>
-          <small id="keywordsFormat" class="form-text text-muted"> Merci de les séparer par des virgules.</small>
         </div>
         <div class="row ml-2 mr-2">
           <div class="col-sm-6">
-            <button class="btn btn-primary float-right" type="submit">{{objective}} le projet</button>
+            <button class="btn btn-primary float-right" type="submit">{{objective}} l'événement.</button>
           </div>
         </div>
       </form> 
