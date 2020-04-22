@@ -150,7 +150,9 @@ app.get('/confirm-user-delete', isAuthenticated, (req, res) => {
     }
     else if(word === "SUPPRIMER") {
         if (model.deleteUser(userToDelete)){
-            res.render('moderationTools/delete-confirmation');
+            let data = {};
+            data["linkToNext"] = "/usersList"
+            res.render('multiUsage/delete-confirmation', data);
         }
         else {
             res.locals.deleteFailure = true;
@@ -303,7 +305,7 @@ app.post('/updating-project/:projectId', isAuthenticated, (req, res) => {
 
 app.get('/delete-project/:projectId', isAuthenticated, (req, res) => {
     let user = req.session.user;
-    if(isAdmin(req.session.userStatus) || isSupervisor(user) || isCreatorOfProjec(user, req.params.user)){
+    if(isAdmin(req.session.userStatus) || isSupervisor(user) || isCreatorOfProject(user, req.params.user)){
         res.render("moderationTools/delete-project-form", {"projectId": req.params.projectId});
         console.log("Passed 2");
     }
@@ -318,12 +320,14 @@ app.get('/confirm-project-delete', isAuthenticated, (req, res) => {
 
     if (userEmail === null) renderError(req, res);
 
-    else if(!isAdmin(req.session.userStatus) && !isSupervisor(req.session.userStatus) && !isCreatorOfProjec(userEmail, projectId)) {
+    else if(!isAdmin(req.session.userStatus) && !isSupervisor(req.session.userStatus) && !isCreatorOfProject(userEmail, projectId)) {
         renderUnauthorizedAction(req, res);
     }
     else if (word === "SUPPRIMER") {
         if (model.deleteProject(projectId)) {
-            res.render('moderationTools/delete-confirmation');
+            let data = {};
+            data["linkToNext"] = "/home";
+            res.render('multiUsage/delete-confirmation', data);
         }
         else {
             res.locals.deleteFailure = true;
@@ -339,7 +343,7 @@ app.get('/confirm-project-delete', isAuthenticated, (req, res) => {
 app.get('/membersList/:projectId', isAuthenticated, (req, res) => {
     let userId = req.session.user;
     let userStatus = req.session.userStatus;
-    if (isAdmin(userStatus) || isSupervisor(userStatus) || isCreatorOfProjec(userId, req.params.projectId) || isModerator(userId)) {
+    if (isAdmin(userStatus) || isSupervisor(userStatus) || isCreatorOfProject(userId, req.params.projectId) || isModerator(userId)) {
         let membersList = model.getMembers(req.params.projectId);
         if (usersList === null) 
             renderError(req, res);
@@ -360,7 +364,7 @@ app.get('/confirm-member-delete/:username+AND+:projectId', (req, res) => {
     let userEmail = model.getUserId(req.params.username);
     if (userEmail === null) renderError(req, res);
     
-    else if (isAdmin(req.session.userStatus) || isSupervisor(req.session.userStatus) || isCreatorOfProjec(req.session.user, req.params.projectId) || isModerator(req.session.user)) {
+    else if (isAdmin(req.session.userStatus) || isSupervisor(req.session.userStatus) || isCreatorOfProject(req.session.user, req.params.projectId) || isModerator(req.session.user)) {
         let content = {};
         content["username"] = req.params.username;
         content["projectId"] = req.params.projectId;
@@ -371,7 +375,7 @@ app.get('/confirm-member-delete/:username+AND+:projectId', (req, res) => {
     }
 });
 
-app.get('/confirm-member-ban', (req, res) => {
+app.get('/confirming-member-ban', (req, res) => {
     let userToBan = model.getUserId(req.query.username);
     let projectId = req.query.projectId;
     let userWhoAsks = req.session.user;
@@ -380,7 +384,7 @@ app.get('/confirm-member-ban', (req, res) => {
 
     if (userToBan === null) renderError(req, res);
 
-    else if(!isAdmin(askingUserStatus) && !isSupervisor(askingUserStatus) && !isCreatorOfProjec(userWhoAsks, projectId) && !isModerator(userWhoAsks)) {
+    else if(!isAdmin(askingUserStatus) && !isSupervisor(askingUserStatus) && !isCreatorOfProject(userWhoAsks, projectId) && !isModerator(userWhoAsks)) {
         renderUnauthorizedAction(req, res);
     }
     else if(word !== "EXCLURE") {
@@ -392,7 +396,9 @@ app.get('/confirm-member-ban', (req, res) => {
     }
     else {
         if (model.removeMember(projectId, userToBan)){
-            res.render('moderationTools/delete-confirmation');
+            let data = {};
+            data["linkToNext"] = "/membersList/" + projectId;
+            res.render('multiUsage/delete-confirmation');
         }
         else {
             res.locals.deleteFailure = true;
@@ -449,7 +455,7 @@ app.post("/project-details/:projectId/creating-event", (req, res) => {
     }
 });
 
-app.get("/project-details/:projectId/update-event/:title", (req, res) => {
+app.get("/project-details/:projectId/:title/update-event", (req, res) => {
     let requestingUserEmail = req.session.user;
     let requestingUserStatus = req.session.userStatus;
     let projectId = req.params.projectId;
@@ -501,6 +507,47 @@ app.post("/project-details/:projectId/:previousTitle/updating-event", (req, res)
     }
 });
 
+app.get("/project-details/:projectId/:title/delete-event", (req, res) => {
+    let requestingUserEmail = req.session.user;
+    let requestingUserStatus = req.session.userStatus;
+    let projectId = req.params.projectId;
+    let title = req.params.title;
+
+    if(!isAdmin(requestingUserStatus) && !isSupervisor(requestingUserStatus) && !isCreatorOfProject(requestingUserEmail, projectId) && !isCreatorOfEvent(requestingUserEmail, projectId, title)) {
+        renderUnauthorizedAction(req, res);
+    }
+    else {
+        data["linkToRout"] = "/project-details/:projectId/" + title + "/confirm-event-delete";
+        res.render("events/delete-event-form", data);
+    }
+});
+
+app.post("/project-details/:projectId/:title/confirm-event-delete", (req, res) => {
+    let requestingUserEmail = req.session.user;
+    let requestingUserStatus = req.session.userStatus;
+    let projectId = req.params.projectId;
+    let title = req.params.title;
+    let word = req.query.word.toUpperCase();
+
+    if(!isAdmin(requestingUserStatus) && !isSupervisor(requestingUserStatus) && !isCreatorOfProject(requestingUserEmail, projectId) && !isCreatorOfEvent(requestingUserEmail, projectId, title)) {
+        renderUnauthorizedAction(req, res);
+    }
+    else if (word === "SUPPRIMER") {
+        if (model.removeEvent(projectId, title)) {
+            let data = {};
+            data["linkToNext"] = "/project-details/" + projectId;
+            res.render("multiUsage/delete-confirmation", data);
+        }
+        else {
+            res.locals.deleteFailure = true;
+            res.render("events/delete-event-form");
+        }
+    }
+    else {
+        res.locals.wrongWord = true;
+        res.render("events/delete-event-form");
+    }
+});
 
 app.use((req, res, next) => {
     res.send("404 Not Found URL : " + req.url);

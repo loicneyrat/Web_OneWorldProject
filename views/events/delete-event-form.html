@@ -4,18 +4,17 @@
 <div class="container">
     <div class="card" style="margin-top: 25vh; margin-left: 150px; margin-right: 150px;">
         <div class="card-header">
-            SUPPRESSION D'UN PROJET
+            SUPPRESSION D'UN EVENEMENT
         </div>
         <div class="card-body">
             <h5 class="card-title">
-                Vous vous apprêtez à supprimer votre projet. Cette action est <strong>irréversible</strong>.
+                Vous vous apprêtez à supprimer cet événement. Cette action est <strong>irréversible</strong>.
             </h5>
-            <form class="form-inline" method="GET" action="/confirm-project-delete">
-                    <input type="hidden" name="projectId" value="{{projectId}}">
+            <form class="form-inline" method="GET" action="{{linkToRout}}">
                     <label for="delete"><p class="card-body">Pour confirmer la supression, tapez "SUPPRIMER" dans la barre ci-contre</p></label>
                     {{#wrongWord}}Le champ n'a pas été correctement rempli. Merci de réessayer.{{/wrongWord}}
                     <div class="mx-auto">
-                        <input class="form-control mr-2" style="width: 200px" type="text" name="delete" id="delete">
+                        <input class="form-control mr-2" style="width: 200px" type="text" name="word">
                         <button class="btn btn-warning" type="submit">Supprimer</button> 
                     </div>
                     
