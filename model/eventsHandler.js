@@ -21,3 +21,13 @@ exports.removeEvent = function(projectId, title) {
     let result = toDelete.run([projectId, title]);
     return result.changes === 1;
 }
+
+exports.getEventDetails = function(projectId, title) {
+    let query = db.prepare("SELECT * FROM projectEvents WHERE projectId=? AND title=?");
+    return query.get([projectId, title]);
+}
+
+exports.getCreator = function(projectId, title) {
+    let query = db.prepare("SELECT creator FROM projectEvents WHERE projectId=? AND title=?");
+    return query.get([projectId, title]);
+}

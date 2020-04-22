@@ -135,7 +135,7 @@ app.get('/confirm-user-delete/:username', isAuthenticated, (req, res) => {
     else if (isAdmin(userStatus) || isSupervisor(userStatus) || userEmail === req.session.user)
         res.render('moderationTools/delete-user-form', {"username" : req.params.username});
     else {
-        renderUnexpectedAction(req, res);
+        renderUnauthorizedAction(req, res);
     }
 });
 
@@ -146,7 +146,7 @@ app.get('/confirm-user-delete', isAuthenticated, (req, res) => {
     if (userToDelete === null) 
         renderError(req, res);
     else if(!isAdmin(userStatus) && !isSupervisor(userStatus) && req.session.user !== userToDelete) {
-        renderUnexpectedAction(req, res);
+        renderUnauthorizedAction(req, res);
     }
     else if(word === "SUPPRIMER") {
         if (model.deleteUser(userToDelete)){
@@ -229,7 +229,7 @@ app.post('/update-username', isAuthenticated, (req, res) => {
 app.get('/usersList', isAuthenticated, (req, res) => {
     let userStatus = req.session.userStatus;
     if (!isAdmin(userStatus) && !isSupervisor(userStatus)) {
-        renderUnexpectedAction(req, res);
+        renderUnauthorizedAction(req, res);
     } else {
         let usersList = model.getUsersList();
         if (usersList === null) renderError(req, res);
@@ -303,12 +303,12 @@ app.post('/updating-project/:projectId', isAuthenticated, (req, res) => {
 
 app.get('/delete-project/:projectId', isAuthenticated, (req, res) => {
     let user = req.session.user;
-    if(isAdmin(req.session.userStatus) || isSupervisor(user) || isCreator(user, req.params.user)){
+    if(isAdmin(req.session.userStatus) || isSupervisor(user) || isCreatorOfProjec(user, req.params.user)){
         res.render("moderationTools/delete-project-form", {"projectId": req.params.projectId});
         console.log("Passed 2");
     }
     else 
-        renderUnexpectedAction(req, res);
+        renderUnauthorizedAction(req, res);
 });
 
 app.get('/confirm-project-delete', isAuthenticated, (req, res) => {
@@ -318,8 +318,8 @@ app.get('/confirm-project-delete', isAuthenticated, (req, res) => {
 
     if (userEmail === null) renderError(req, res);
 
-    else if(!isAdmin(req.session.userStatus) && !isSupervisor(req.session.userStatus) && !isCreator(userEmail, projectId)) {
-        renderUnexpectedAction(req, res);
+    else if(!isAdmin(req.session.userStatus) && !isSupervisor(req.session.userStatus) && !isCreatorOfProjec(userEmail, projectId)) {
+        renderUnauthorizedAction(req, res);
     }
     else if (word === "SUPPRIMER") {
         if (model.deleteProject(projectId)) {
@@ -339,7 +339,7 @@ app.get('/confirm-project-delete', isAuthenticated, (req, res) => {
 app.get('/membersList/:projectId', isAuthenticated, (req, res) => {
     let userId = req.session.user;
     let userStatus = req.session.userStatus;
-    if (isAdmin(userStatus) || isSupervisor(userStatus) || isCreator(userId, req.params.projectId) || isModerator(userId)) {
+    if (isAdmin(userStatus) || isSupervisor(userStatus) || isCreatorOfProjec(userId, req.params.projectId) || isModerator(userId)) {
         let membersList = model.getMembers(req.params.projectId);
         if (usersList === null) 
             renderError(req, res);
@@ -352,7 +352,7 @@ app.get('/membersList/:projectId', isAuthenticated, (req, res) => {
             res.render('moderationTools/users-list', dictionnary);
         }
     } else {
-        renderUnexpectedAction(req, res);
+        renderUnauthorizedAction(req, res);
     }
 });
 
@@ -360,14 +360,14 @@ app.get('/confirm-member-delete/:username+AND+:projectId', (req, res) => {
     let userEmail = model.getUserId(req.params.username);
     if (userEmail === null) renderError(req, res);
     
-    else if (isAdmin(req.session.userStatus) || isSupervisor(req.session.userStatus) || isCreator(req.session.user, req.params.projectId) || isModerator(req.session.user)) {
+    else if (isAdmin(req.session.userStatus) || isSupervisor(req.session.userStatus) || isCreatorOfProjec(req.session.user, req.params.projectId) || isModerator(req.session.user)) {
         let content = {};
         content["username"] = req.params.username;
         content["projectId"] = req.params.projectId;
         res.render('moderationTools/ban-member-form', content);
     }
     else {
-        renderUnexpectedAction(req, res);
+        renderUnauthorizedAction(req, res);
     }
 });
 
@@ -380,8 +380,8 @@ app.get('/confirm-member-ban', (req, res) => {
 
     if (userToBan === null) renderError(req, res);
 
-    else if(!isAdmin(askingUserStatus) && !isSupervisor(askingUserStatus) && isCreator(userWhoAsks, projectId) && isModerator(userWhoAsks)) {
-        renderUnexpectedAction(req, res);
+    else if(!isAdmin(askingUserStatus) && !isSupervisor(askingUserStatus) && !isCreatorOfProjec(userWhoAsks, projectId) && !isModerator(userWhoAsks)) {
+        renderUnauthorizedAction(req, res);
     }
     else if(word !== "EXCLURE") {
         res.locals.wrongWord = true;
@@ -400,6 +400,103 @@ app.get('/confirm-member-ban', (req, res) => {
             content["username"] = req.params.username;
             content["projectId"] = req.params.projectId;
             res.render('moderationTools/ban-member-form', content);
+        }
+    }
+});
+
+app.get("/project-details/:projectId/create-event", (req, res) => {
+    let userEmail = req.session.user;
+    let projectId = req.params.projectId;
+
+    if(!isCreatorOfProject(userEmail, projectId) && !isModerator(userEmail, projectId)) {
+        renderUnauthorizedAction(req, res);
+    }
+    else {
+        let data = {};
+        data["linkToRout"] = "/project-details/:projectId/creating-event";
+        data["objective"] = "Créer";
+        res.render("events/create-event-form", data);
+    }
+});
+
+app.post("/project-details/:projectId/creating-event", (req, res) => {
+    let creatorOfEvent = req.session.user;
+    let projectId = req.params.projectId;
+    let title = req.body.title;
+    let description = req.body.description;
+    let date = req.body.date;
+
+    if(!isCreatorOfProject(creatorOfEvent, projectId) && !isModerator(creatorOfEvent, projectId)) {
+        renderUnauthorizedAction(req, res);
+    }
+    else if(model.titleIsTaken(projectId, title)) {
+        res.locals.titleIsTaken = true;
+        let data = {};
+        data["linkToRout"] = "/project-details/:projectId/creating-event";
+        data["objective"] = "Créer";
+        data["title"] = title;
+        data["description"] = description;
+        data["date"] = date;
+        res.render("events/create-event-form", data);
+    }
+    else{
+        if(model.addEvent(projectId, title, description, creatorOfEvent, date)) {
+            res.redirect("/project-details/" + projectId);
+        }
+        else{
+            renderError(req, res);
+        }
+    }
+});
+
+app.get("/project-details/:projectId/update-event/:title", (req, res) => {
+    let requestingUserEmail = req.session.user;
+    let requestingUserStatus = req.session.userStatus;
+    let projectId = req.params.projectId;
+    let title = req.params.title;
+
+    if(!isAdmin(requestingUserStatus) && !isSupervisor(requestingUserStatus) && !isCreatorOfProject(requestingUserEmail, projectId) && !isCreatorOfEvent(requestingUserEmail, projectId, title)) {
+        renderUnauthorizedAction(req, res);
+    }
+    else {
+        let data = model.getEventDetails(projectId, title);
+        if (data === null) renderError(req, res);
+        else{
+            data["linkToRout"] = "/project-details/:projectId/" + title + "/updating-event";
+            data["objective"] = "Mettre à jour";
+            res.render("events/create-event-form", data);
+        }
+    }
+});
+
+app.post("/project-details/:projectId/:previousTitle/updating-event", (req, res) => {
+    let requestingUserEmail = req.session.user;
+    let requestingUserStatus = req.session.userStatus;
+    let projectId = req.params.projectId;
+    let previousTitle = req.params.previousTitle;
+    let newTitle = req.body.title;
+    let description = req.body.description;
+    let date = req.body.date;
+
+    if(!isAdmin(requestingUserStatus) && !isSupervisor(requestingUserStatus) && !isCreatorOfProject(requestingUserEmail, projectId) && !isCreatorOfEvent(requestingUserEmail, projectId, title)) {
+        renderUnauthorizedAction(req, res);
+    }
+    else if(model.titleIsTaken(projectId, newTitle)) {
+        res.locals.titleIsTaken = true;
+        let data = {};
+        data["linkToRout"] = "/project-details/:projectId/" + previousTitle + "/updating-event";
+        data["objective"] = "Mettre à jour";
+        data["title"] = newTitle;
+        data["description"] = description;
+        data["date"] = date;
+        res.render("events/create-event-form", data);
+    }
+    else{
+        if(model.updateEvent(projectId, previousTitle, newTitle, description, date)) {
+            res.redirect("/project-details/" + projectId);
+        }
+        else{
+            renderError(req, res);
         }
     }
 });
@@ -448,19 +545,23 @@ function isSupervisor(userStatus) {
     return userStatus === "supervisor";
 }
 
-function isCreator(userEmail, projectId) {
-    return model.getCreator(projectId) === userEmail;
+function isCreatorOfProject(userEmail, projectId) {
+    return model.getCreatorOfProject(projectId) === userEmail;
 }
 
 function isModerator(userEmail, projectId) {
     return model.getUserProjectStatus(userEmail, projectId) === "moderator";
 }
 
+function isCreatorOfEvent(userEmail, projectId, title) {
+    return model.getCreatorOfEvent(projectId, title) === userEmail;
+}
+
 function renderError(req, res) {
     res.render('errors/unexpectedError', {'referer': req.headers.referer});
 }
 
-function renderUnexpectedAction(req, res) {
+function renderUnauthorizedAction(req, res) {
     res.render('errors/unauthorized-action', {"referer": req.headers.referer});
 }
 
@@ -472,8 +573,8 @@ function setProjectStatus(user, userStatus, projectId, details) {
         case 'moderator' : details.isModerator = true; break;
         default : details.isRegular = true; break;
     }
-    if (isCreator(user, projectId)) {
-        details.isCreator = true;
+    if (isCreatorOfProject(user, projectId)) {
+        details.isCreatorOfProject = true;
     } else if (isAdmin(userStatus) || isSupervisor(userStatus)) {
         details.isSupervisor = true;
     } else details.isRegular = true;

@@ -145,7 +145,7 @@ exports.getProjectDetails = function(projectId) {
     return projectsHandler.getProjectDetails(projectId);
 }
 
-exports.getCreator = function(projectId) {
+exports.getCreatorOfProject = function(projectId) {
     if(! exists(projectId, "projectId", "projects")) return null;
     return projectsHandler.getCreator(projectId);
 }
@@ -230,8 +230,25 @@ exports.updateEvent = function(projectId, previousTitle, newTitle, description, 
 }
 
 exports.removeEvent = function(projectId, title) {
-    if(! exists2(projectId, title, "projectId", "title", "projectEvents")) return null;
+    if(! exists2(projectId, title, "projectId", "title", "projectEvents"))
+        return null;
     return eventsHandler.removeEvent(projectId, title);
+}
+
+exports.titleIsTaken = function(projectId, title) {
+    return exists2(projectId, title, "projectId", "title", "projectEvents");
+}
+
+exports.getEventDetails = function(projectId, title) {
+    if(! exists2(projectId, title, "projectId", "title", "projectEvents"))
+        return null;
+    return eventsHandler.getEventDetails(projectId, title);
+}
+
+exports.getCreatorOfEvent = function(projectId, title) {
+    if(! exists2(projectId, title, "projectId", "title", "projectEvents"))
+        return null;
+    return eventsHandler.getCreator(projectId, title);
 }
 
 

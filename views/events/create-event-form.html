@@ -1,4 +1,4 @@
-{{>header}}
+{{> header}}
 
 <div class="container" style="margin-top: 10vh; margin-bottom: 10vh;">
   <div class="row">
@@ -10,6 +10,9 @@
   <div class="card mx-auto mt-4" style="width:60vw; border: 1px solid black;">
     <div class="card-body">
       <form action="{{linkToRout}}" method="post">
+        {{#titleIsTaken}}
+        <p class="text-danger font-italic">Un événement portant ce titre existe déjà dans ce projet. Merci d'en choisir un nouveau ou de mettre à jour cet autre événement.</p>
+        {{/titleIsTaken}}
         <div class="form-group">
           <label for="title">Titre : </label>
           <div class="input-group">
