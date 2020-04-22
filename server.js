@@ -360,7 +360,7 @@ app.get('/membersList/:projectId', isAuthenticated, (req, res) => {
     }
 });
 
-app.get('/confirm-member-delete/:username+AND+:projectId', (req, res) => {
+app.get('/confirm-member-delete/:username+AND+:projectId', isAuthenticated, (req, res) => {
     let userEmail = model.getUserId(req.params.username);
     if (userEmail === null) renderError(req, res);
     
@@ -375,7 +375,7 @@ app.get('/confirm-member-delete/:username+AND+:projectId', (req, res) => {
     }
 });
 
-app.get('/confirming-member-ban', (req, res) => {
+app.get('/confirming-member-ban', isAuthenticated, (req, res) => {
     let userToBan = model.getUserId(req.query.username);
     let projectId = req.query.projectId;
     let userWhoAsks = req.session.user;
@@ -410,7 +410,7 @@ app.get('/confirming-member-ban', (req, res) => {
     }
 });
 
-app.get("/project-details/:projectId/create-event", (req, res) => {
+app.get("/project-details/:projectId/create-event", isAuthenticated, (req, res) => {
     let userEmail = req.session.user;
     let projectId = req.params.projectId;
 
@@ -418,14 +418,17 @@ app.get("/project-details/:projectId/create-event", (req, res) => {
         renderUnauthorizedAction(req, res);
     }
     else {
+        let today = new Date();
+        let todaysDate = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
         let data = {};
         data["linkToRout"] = "/project-details/:projectId/creating-event";
         data["objective"] = "Créer";
+        data["todaysDate"] = todaysDate;
         res.render("events/create-event-form", data);
     }
 });
 
-app.post("/project-details/:projectId/creating-event", (req, res) => {
+app.post("/project-details/:projectId/creating-event", isAuthenticated, (req, res) => {
     let creatorOfEvent = req.session.user;
     let projectId = req.params.projectId;
     let title = req.body.title;
@@ -437,12 +440,17 @@ app.post("/project-details/:projectId/creating-event", (req, res) => {
     }
     else if(model.titleIsTaken(projectId, title)) {
         res.locals.titleIsTaken = true;
+
+        let today = new Date();
+        let todaysDate = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+
         let data = {};
         data["linkToRout"] = "/project-details/:projectId/creating-event";
         data["objective"] = "Créer";
         data["title"] = title;
         data["description"] = description;
         data["date"] = date;
+        data["todaysDate"] = todaysDate;
         res.render("events/create-event-form", data);
     }
     else{
@@ -455,7 +463,7 @@ app.post("/project-details/:projectId/creating-event", (req, res) => {
     }
 });
 
-app.get("/project-details/:projectId/:title/update-event", (req, res) => {
+app.get("/project-details/:projectId/:title/update-event", isAuthenticated, (req, res) => {
     let requestingUserEmail = req.session.user;
     let requestingUserStatus = req.session.userStatus;
     let projectId = req.params.projectId;
@@ -468,14 +476,19 @@ app.get("/project-details/:projectId/:title/update-event", (req, res) => {
         let data = model.getEventDetails(projectId, title);
         if (data === null) renderError(req, res);
         else{
+
+            let today = new Date();
+            let todaysDate = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+
             data["linkToRout"] = "/project-details/:projectId/" + title + "/updating-event";
             data["objective"] = "Mettre à jour";
+            data["todaysDate"] = todaysDate;
             res.render("events/create-event-form", data);
         }
     }
 });
 
-app.post("/project-details/:projectId/:previousTitle/updating-event", (req, res) => {
+app.post("/project-details/:projectId/:previousTitle/updating-event", isAuthenticated, (req, res) => {
     let requestingUserEmail = req.session.user;
     let requestingUserStatus = req.session.userStatus;
     let projectId = req.params.projectId;
@@ -489,12 +502,17 @@ app.post("/project-details/:projectId/:previousTitle/updating-event", (req, res)
     }
     else if(model.titleIsTaken(projectId, newTitle)) {
         res.locals.titleIsTaken = true;
+
+        let today = new Date();
+        let todaysDate = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+
         let data = {};
         data["linkToRout"] = "/project-details/:projectId/" + previousTitle + "/updating-event";
         data["objective"] = "Mettre à jour";
         data["title"] = newTitle;
         data["description"] = description;
         data["date"] = date;
+        data["todaysDate"] = todaysDate;
         res.render("events/create-event-form", data);
     }
     else{
@@ -507,7 +525,7 @@ app.post("/project-details/:projectId/:previousTitle/updating-event", (req, res)
     }
 });
 
-app.get("/project-details/:projectId/:title/delete-event", (req, res) => {
+app.get("/project-details/:projectId/:title/delete-event", isAuthenticated, (req, res) => {
     let requestingUserEmail = req.session.user;
     let requestingUserStatus = req.session.userStatus;
     let projectId = req.params.projectId;
@@ -522,7 +540,7 @@ app.get("/project-details/:projectId/:title/delete-event", (req, res) => {
     }
 });
 
-app.post("/project-details/:projectId/:title/confirm-event-delete", (req, res) => {
+app.post("/project-details/:projectId/:title/confirm-event-delete", isAuthenticated, (req, res) => {
     let requestingUserEmail = req.session.user;
     let requestingUserStatus = req.session.userStatus;
     let projectId = req.params.projectId;
