@@ -31,3 +31,7 @@ exports.getCreator = function(projectId, title) {
     let query = db.prepare("SELECT creator FROM projectEvents WHERE projectId=? AND title=?");
     return query.get([projectId, title]);
 }
+
+exports.getProjectEvents = function(projectId) {
+    return db.prepare('SELECT * FROM projectEvents WHERE projectId=?').all(projectId);
+}

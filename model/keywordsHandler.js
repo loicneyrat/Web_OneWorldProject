@@ -15,6 +15,26 @@ exports.removeAllKeywords = function(projectId) {
     return result.changes === numberOfKeywords;
 }
 
+exports.getKeywordsInString = function(projectId) {
+    let query = db.prepare('SELECT keyword FROM ProjectKeywords WHERE projectId=?');
+    let keywordsInDic = query.all([projectId]);
+
+    let keywordsInString = "";
+
+    for (let i = 0 ; i < keywordsInDic.length ; i++) {
+        keywordsInString += keywordsInDic[i].keyword + ", ";
+    }
+
+    return keywordsInString !== "" ? keywordsInString.substring(0, keywordsInString.length - 2) : "";
+}
+
+function buildRequestWithKeywords(keywords) {
+    let request = "SELECT projectId FROM projectKeywords WHERE ";
+    
+    return fillWithKeywordsAndFinalParameters(request, keywords);
+}
+
+
 function isAlreadyPresent(projectId, keyword) {
     let check = db.prepare('SELECT keyword FROM projectKeywords WHERE projectId=? AND keyword=?').get([projectId, keyword]);
     return check !== undefined;

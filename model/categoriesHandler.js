@@ -15,6 +15,24 @@ exports.addCategory = function(projectId, category) {
   return result.changes === numberOfCategories;
 }
 
+exports.getProjectsWithCategory = function(category) {
+  let query = db.prepare('SELECT projectId FROM projectCategories WHERE category=?');
+  return query.all([category]);
+}
+
+exports.getCategoriesInString = function(projectId) {
+  query = db.prepare('SELECT category FROM ProjectCategories WHERE projectId=?');
+  let categoriesInDic = query.all([projectId]);
+
+  let categoriesInString = "";
+
+  for (let i = 0 ; i < categoriesInDic.length ; i++) {
+      categoriesInString += categoriesInDic[i].category + ", ";
+  }
+
+  return categoriesInString !== "" ? categoriesInString.substring(0, categoriesInString.length - 2) : "";
+}
+
 function isAlreadyPresent(projectId, category) {
    let check = db.prepare('SELECT * FROM projectCategories WHERE projectId=? AND category=?').get([projectId, category]);
    return check !== undefined;

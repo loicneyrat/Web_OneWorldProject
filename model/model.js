@@ -150,6 +150,9 @@ exports.getCreatorOfProject = function(projectId) {
     return projectsHandler.getCreator(projectId);
 }
 
+exports.searchProjects = function(category, keywords) {
+    return projectsHandler.searchProjects(category, keywords);
+}
 
 
 /***

@@ -1,6 +1,7 @@
 var sqlite = require('better-sqlite3');
 var keywordsHandler = require('./keywordsHandler.js');
 var categoriesHandler = require('./categoriesHandler.js');
+var eventsHandler = require('./eventsHandler.js');
 var db = new sqlite('database.sqlite');
 
 exports.createProject = function(title, description, categories, creator, date, keywords) {
@@ -47,9 +48,9 @@ exports.getProjectDetails = function(projectId) {
     let query = db.prepare('SELECT projectId, title, description, creator, date(date) date FROM Projects WHERE projectId=?');
     let result = query.get([projectId]);
     result['creator'] = db.prepare('SELECT username FROM users WHERE email=?').get([result.creator]).username;
-    result["categories"] = getCategoriesInString(projectId);
-    result["keywords"] = getKeywordsInString(projectId);
-    result["events"] = getProjectEvents(projectId);
+    result["categories"] = categoriesHandler.getCategoriesInString(projectId);
+    result["keywords"] = keywordsHandler.getKeywordsInString(projectId);
+    result["events"] = eventsHandler.getProjectEvents(projectId);
     return result;
 }
 
@@ -59,32 +60,66 @@ exports.getCreator = function(projectId) {
 }
 
 
-function getCategoriesInString(projectId) {
-    query = db.prepare('SELECT category FROM ProjectCategories WHERE projectId=?');
-    let categoriesInDic = query.all([projectId]);
+exports.searchProjects = function(category, keywords) {
+    let resultOfQuery;
+    let request = "";
 
-    let categoriesInString = "";
-
-    for (let i = 0 ; i < categoriesInDic.length ; i++) {
-        categoriesInString += categoriesInDic[i].category + ", ";
+    if(keywords !== undefined) {
+        keywords = keywords.split(",");
+        trimStringsOfArray(keywords);
+        
+        if(category != "all") {
+            request = buildRequestWithKeywordsAndCategory(keywords);
+            resultOfQuery = db.prepare(request).all(category, keywords);
+        }
+        else {
+            request = buildRequestWithKeywords(keywords);
+            resultOfQuery = db.prepare(request.all(keywords));
+        }
+    }
+    else {
+        if (category == "all") {
+            let query = db.prepare('SELECT projectId FROM projects ORDER BY RANDOM() LIMIT 100');
+            resultOfQuery = query.all();
+        }
+        else {
+            resultOfQuery = categoriesHandler.getProjectsWithCategory(category);
+        }
     }
 
-    return categoriesInString !== "" ? categoriesInString.substring(0, categoriesInString.length - 2) : "";
-}
+    let validProjects = [];
 
-function getKeywordsInString(projectId) {
-    let query = db.prepare('SELECT keyword FROM ProjectKeywords WHERE projectId=?');
-    let keywordsInDic = query.all([projectId]);
-
-    let keywordsInString = "";
-
-    for (let i = 0 ; i < keywordsInDic.length ; i++) {
-        keywordsInString += keywordsInDic[i].keyword + ", ";
+    for (let i = 0 ; i < resultOfQuery.length() ; i++) {
+        let projectId = resultOfQuery[i].projectId;
+        validProjects[i] = getProjectDetails(projectId);
     }
 
-    return keywordsInString !== "" ? keywordsInString.substring(0, keywordsInString.length - 2) : "";
+    return validProjects;
 }
 
-function getProjectEvents(projectId) {
-    return db.prepare('SELECT * FROM projectEvents WHERE projectId=?').all([projectId]);
+
+function trimStringsOfArray(arrayOfString) {
+    for (let i = 0 ; i < arrayOfString.length() ; i++) {
+        arrayOfString[i] = arrayOfString[i].trim();
+    }
+}
+
+
+function buildRequestWithKeywordsAndCategory(keywords) {
+    let request = "SELECT projectID FROM projectKeywords K, projectCategories C WHERE K.projectId = C.projectId AND category=? AND ";
+
+    return fillWithKeywordsAndFinalParameters(request, keywords);
+}
+
+function fillWithKeywordsAndFinalParameters(request, keywords) {
+    for (let i = 0 ; i < keywords.length() ; i++) {
+        request += "keyword=? AND ";
+    }
+
+    request = removeFinalAND(request);
+    return request + " ORDER BY RANDOM() LIMIT 100";
+}
+
+function removeFinalAND(string) {
+    return string.substring(0, request.length() - 5);
 }
