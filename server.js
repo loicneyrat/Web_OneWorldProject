@@ -33,11 +33,6 @@ function isAuthenticated(req, res, next) {
     }
 }
 
-app.use((req, res, next) => {
-    req.url = decodeURI(req.url);
-    req.headers.referer = decodeURI(req.headers.referer);
-    next();
-});
 
 app.get('/', (req, res) => {
     res.render('index.html');
@@ -295,21 +290,20 @@ app.post('/updating-project/:projectId', isAuthenticated, (req, res) => {
     let categories = getCategoriesArray(req.body);
     let keywords = req.body.keywords.split(',');
 
-    for (let i = 0 ; i < keywords.length() ; i++) {
+    for (let i = 0 ; i < keywords.length ; i++) {
         keywords[i] = keywords[i].trim();
     }
-
     let result = model.updateProject(req.params.projectId, req.body.title, req.body.description, categories, keywords);
     if (result === null) renderError(req, res);
     else {
-        res.redirect('/projects/:projectId');
+        res.redirect(`/project-details/${req.params.projectId}`);
     }
 });
 
 app.get('/delete-project/:projectId', isAuthenticated, (req, res) => {
     let user = req.session.user;
-    if(isAdmin(req.session.userStatus) || isSupervisor(user) || isCreatorOfProject(user, req.params.user)){
-        res.render("moderationTools/delete-project-form", {"projectId": req.params.projectId});
+    if (isAdmin(req.session.userStatus) || isSupervisor(user) || isCreatorOfProject(user, req.params.user)){
+        res.render("projects/delete-project-form", {"projectId": req.params.projectId});
     }
     else 
         renderUnauthorizedAction(req, res);
