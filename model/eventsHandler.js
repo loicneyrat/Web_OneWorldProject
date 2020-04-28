@@ -1,6 +1,6 @@
 var sqlite = require('better-sqlite3');
 var db = new sqlite('database.sqlite');
-
+var usersHandler = require('./usersHandler');
 
 
 exports.addEvent = function(projectId, title, description, creator, date) {
@@ -33,5 +33,9 @@ exports.getCreator = function(projectId, title) {
 }
 
 exports.getProjectEvents = function(projectId) {
-    return db.prepare('SELECT * FROM projectEvents WHERE projectId=?').all(projectId);
+    let result = db.prepare('SELECT * FROM projectEvents WHERE projectId=?').all(projectId);
+    for (event of result) {
+        event.creator = usersHandler.getUsername(event.creator);
+    }
+    return result;
 }
