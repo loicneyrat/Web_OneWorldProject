@@ -574,6 +574,7 @@ app.post("/project-details/:projectId/:previousTitle/updating-event", isAuthenti
     let date = req.body.date;
 
     if (!isAdmin(requestingUserStatus) && !isSupervisor(requestingUserStatus) && !isCreatorOfProject(requestingUserEmail, projectId) && !isCreatorOfEvent(requestingUserEmail, projectId, title)) {
+        res.locals.details = true;
         renderUnauthorizedAction(req, res);
     }
     else if (previousTitle !== newTitle && model.titleIsTaken(projectId, newTitle)) {
