@@ -83,7 +83,7 @@ exports.getProjects = function(email) {
 
 
 
-/***
+/**
  * 
  *          TO LOGIN AND SIGNIN
  * 
@@ -100,7 +100,7 @@ exports.getProjects = function(email) {
 
 
 
-/***
+/**
  * 
  *          FOR THE ADMINISTRATORS
  * 
@@ -221,14 +221,13 @@ exports.removeAllKeywords = function(projectId) {
  */
 
 exports.addEvent = function(projectId, title, description, creator, dateOfEvent) {
-    if(exists2(projectId, eventToAdd, "projectId", "title", "projectEvents")) return null;
+    if(exists2(projectId, title, "projectId", "title", "projectEvents")) return null;
     return eventsHandler.addEvent(projectId, title, description, creator, dateOfEvent);
 }
 
 exports.updateEvent = function(projectId, previousTitle, newTitle, description, dateOfEvent) {
-    if(! exists2(projectId, previousTitle, "projectId", "title", "projectEvents")) return null;
-    if(exists2(projectId, newTitle, "projectId", "title", "projectEvents")) return null;
-
+    if (! exists2(projectId, previousTitle, "projectId", "title", "projectEvents")) return null;
+    if (previousTitle !== newTitle && exists2(projectId, newTitle, "projectId", "title", "projectEvents")) return null;
     return eventsHandler.updateEvent(projectId, previousTitle, newTitle, description, dateOfEvent);
 }
 
@@ -326,3 +325,4 @@ var exists2 = function(content1, content2, field1, field2, table) {
     let check = db.prepare(`SELECT ${field1}, ${field2} FROM ${table} WHERE ${field1}=? AND ${field2}=?`).get([content1, content2]);
     return check !== undefined;
 }
+
