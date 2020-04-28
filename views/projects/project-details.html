@@ -8,7 +8,6 @@
         <p>{{description}}</p>
         <p class="text-primary">Catégories : {{categories}} </p>
         <p class="text-primary">Mots-clefs : {{keywords}} </p>
-        <!--<hr class="my-4">-->
         <div class="my-5"></div>
         <p class="lead">
           {{#isRegular}}
@@ -39,11 +38,12 @@
           <div class="col-sm-9 mx-auto">
             <div class="card mt-3">
               <div class="card-header">
-                Evènement créé par {{creator}} le {{date}}
+                Evènement créé par {{creator}}
               </div>
               <div class="card-body">
                 <h5 class="card-title text-primary">{{title}}</h5>
                 <p class="card-text">{{description}}</p>
+                <span class="card-text text-secondary">Prévu le {{date}}</span>
                 {{#isCreatorOfProject}}
                 <p class="lead">
                   <a class="btn btn-primary text-white float-right mx-1" href="/project-details/{{projectId}}/{{title}}/delete-event" role="button">Supprimer</a>
