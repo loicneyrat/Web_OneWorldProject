@@ -33,3 +33,8 @@ A chaque semaine correspondra une partie des routes du serveur à accomplir ains
         • Raccordement au modèle.
 
 - Du 17 au 23 Avril : REGLAGES D'EVENTUELS BUGS, OPTIMISATION / AMELIORATION DU CODE, BONUS
+
+
+Notes à Robin : 
+        - modifier les renderUnauthorized pour inclure un message détaillé (seul un admin, bla bla bla);
+        - modifier le model pour que le fichier "model" fasse la complétion pour getProjectDetails et éviter des require ailleurs. Simplifie maintenance.

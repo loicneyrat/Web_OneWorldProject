@@ -71,7 +71,7 @@ app.post('/signup', (req, res) => {
     }
     else {
         let regular = "regular";
-        if (model.createUser(email, username, password, regular)) {
+        if (! model.createUser(email, username, password, regular)) {
             renderError(req, res);
         }
         else {
@@ -251,17 +251,32 @@ app.get('/create-project-form', isAuthenticated, (req, res) => {
 
 app.post('/creating-project', isAuthenticated, (req, res) => {
     let categories = getCategoriesArray(req.body);
+    let date = new Date().toISOString();
     let keywords = req.body.keywords.split(',');
+    let keywordsTooBig = false;
 
     for(let i = 0; i < keywords.length; i++) {
         keywords[i] = keywords[i].trim();
+        if(keywords[i].length() > 15) {
+            keywordsTooBig = true;
+            break;
+        }
     }
-    let date = new Date().toISOString();
-    let result = model.createProject(req.body.title, req.body.description, categories, req.session.user, date, keywords);
-    if (result === null)
+    if(keywordsTooBig) {
+        res.locals.keywordHasTooManyCharacters = true;
+        let data = {};
+        data["title"] = req.body.title;
+        data["description"] = req.body.description;
+        data["keywords"] = req.body.keywords;
+        res.render("projects/create-project-form", data);
+
+    }else {
+        let result = model.createProject(req.body.title, req.body.description, categories, req.session.user, date, keywords);
+        if (result === null)
         renderError(req, res);
-    else {
-        res.redirect('/project-details/' + result);
+        else {
+            res.redirect('/project-details/' + result);
+        }
     }
 });
 
@@ -406,6 +421,27 @@ app.get('/confirming-member-ban', isAuthenticated, (req, res) => {
     }
 });
 
+
+app.get("/project-details/membership/:projectId", isAuthenticated, (req, res) => {
+    let userEmail = req.session.userEmail;
+    let projectId = req.params.projectId;
+    let errorOccured = false;
+    if(model.isMember(userEmail, projectId)) {
+        errorOccured = !model.removeMember(projectId, userEmail);
+    }
+    else if (isCreatorOfProject(userEmail, projectId)) {
+        res.render('projects/NameNewCreator');
+    }
+    else {
+        errorOccured = !model.addMember(projectId, userEmail)
+    }
+    if(errorOccured) {
+        renderError(req, res);
+    }
+    res.redirect("/project-details/" + projectId);
+});
+
+
 app.get("/project-details/:projectId/create-event", isAuthenticated, (req, res) => {
     let userEmail = req.session.user;
     let projectId = req.params.projectId;
@@ -464,6 +500,7 @@ app.get("/project-details/:projectId/:title/update-event", isAuthenticated, (req
     let projectId = req.params.projectId;
     let title = req.params.title;
     if(!isAdmin(requestingUserStatus) && !isSupervisor(requestingUserStatus) && !isCreatorOfProject(requestingUserEmail, projectId) && !isCreatorOfEvent(requestingUserEmail, projectId, title)) {
+        res.locals.details = true;
         renderUnauthorizedAction(req, res);
     }
     else {
@@ -526,6 +563,7 @@ app.get("/project-details/:projectId/:title/delete-event", isAuthenticated, (req
     let title = req.params.title;
 
     if (!isAdmin(requestingUserStatus) && !isSupervisor(requestingUserStatus) && !isCreatorOfProject(requestingUserEmail, projectId) && !isCreatorOfEvent(requestingUserEmail, projectId, title)) {
+        res.locals.details = true;
         renderUnauthorizedAction(req, res);
     }
     else {
@@ -572,7 +610,7 @@ app.use((req, res, next) => {
 
 /***
  * =============================================
- * |                FUNCTIONS                  |
+ * |           INTERNAL FUNCTIONS              |
  * =============================================
  */
 
@@ -638,11 +676,11 @@ function setProjectStatus(user, userStatus, projectId, details) {
     if (isCreatorOfProject(user, projectId)) {
         details.isCreatorOfProject = true;
     } else if (isAdmin(userStatus) || isSupervisor(userStatus)) {
-        details.isSupervisor = true;
-    } else switch (status) {
-        case 'member' : details.isSupporting = true; break;
-        case 'follower' : details.isFollowing = true; break;
-        case 'moderator' : details.isModerator = true; break;
-        default : details.isRegular = true; break;
+        details.isSupervisorOrAbove = true;
+    } else if(isModerator(user, projectId)) {
+        details.isModerator = true;
+    }
+    if (isAdmin(userStatus) || isSupervisor(userStatus) || isCreatorOfProject(user, projectId) || isModerator(user, projectId)) {
+        details.isModeratorOrAbove = true;
     }
 }

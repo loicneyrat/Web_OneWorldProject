@@ -3,7 +3,7 @@ var db = new sqlite('database.sqlite');
 
 
 exports.createUser = function(email, username, password, status) {
-    let insert = db.prepare('INSERT INTO users VALUES(?, ?, ?, ?)');
+    let insert = db.prepare('INSERT INTO users (email, username, password, status) VALUES(?, ?, ?, ?)');
     let result = insert.run([email, username, password, status]);
     return result.changes === 1;
 }
@@ -48,7 +48,9 @@ exports.getUsername = function(userId) {
 exports.getProjects = function(email) {
     let projects = {};
     projects.created = db.prepare('SELECT projectId, title, creator, date(date) date FROM projects WHERE creator=?').all([email]);
-    projects.supported = db.prepare('SELECT P.projectId, P.title, P.creator, date(P.date) date FROM projects P WHERE P.projectId IN (SELECT projectId FROM projectLinkedUsers WHERE user=? AND status=?)').all([email, "members"]);
+    projects.supported = db.prepare('SELECT P.projectId, P.title, P.creator, date(P.date) date FROM projects P WHERE P.projectId IN (SELECT projectId FROM projectLinkedUsers WHERE user=? AND status=?').all([email, "member"]);
+    
+    //projects.supported = db.prepare('SELECT P.projectId, P.title, P.creator, date(P.date) date FROM projects P WHERE P.projectId IN (SELECT projectId FROM projectLinkedUsers WHERE user=? AND (status=? OR status=?)').all([email, "member", "moderator"]);
     projects.followed = db.prepare('SELECT P.projectId, P.title, P.creator, date(P.date) date FROM projects P WHERE P.projectId IN (SELECT projectId FROM projectLinkedUsers WHERE user=? AND status=?)').all([email, "followers"]);
     
     setCategories(projects.created);

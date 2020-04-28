@@ -14,6 +14,7 @@ db.prepare('DROP TABLE projectCategories').run();
 db.prepare('DROP TABLE projectLinkedUsers').run();
 db.prepare('DROP TABLE projectKeyWords').run();
 db.prepare('DROP TABLE projects').run();
+db.prepare('DROP TABLE users').run();
 */
 
 
@@ -76,7 +77,7 @@ exports.getUsername = function(userId) {
     return usersHandler.getUsername(userId);
 }
 
-//TODO modifier la function pour associer un tableau de catégories au résultat. 
+
 exports.getProjects = function(email) {
     return usersHandler.getProjects(email);
 }

@@ -10,12 +10,7 @@
         <p class="text-primary">Mots-clefs : {{keywords}} </p>
         <div class="my-5"></div>
         <p class="lead">
-          {{#isRegular}}
-          {{^isFollowing}}<a class="btn btn-primary mx-1" href="" role="button">Suivre</a>{{/isFollowing}}
-          {{#isFollowing}}<a class="btn btn-primary mx-1" href="#" role="button">Ne plus suivre</a>{{/isFollowing}}
-          {{^isSupporting}}<a class="btn btn-primary mx-1" href="#" role="button">Adhérer</a>{{/isSupporting}}
-          {{#isSupporting}}<a class="btn btn-primary mx-1" href="#" role="button">Ne plus adhérer</a>{{/isSupporting}}
-          {{/isRegular}}
+          <a class="btn btn-primary mx-1" href="/project-details/membership/{{projectId}}" role="button">{{membershipButtonValue}}</a>
           {{#isCreatorOfProject}}
           <a class="btn btn-primary mx-1" href="/project-details/{{projectId}}/create-event" role="button">Ajouter un évènement</a>
           <a class="btn btn-primary mx-1" href="/membersList/{{projectId}}" role="button">Gestion des membres</a>
@@ -27,9 +22,11 @@
           <a class="btn btn-primary mx-1" href="/membersList/{{projectId}}" role="button">Gestion des membres</a>
           <a class="btn btn-warning mx-1" href="/update-project-form/{{projectId}}" role="button">Modifier</a>
           {{/isModerator}}
-          {{#isSupervisor}}
+          {{#isSupervisorOrAbove}}
+          <a class="btn btn-primary mx-1" href="/membersList/{{projectId}}" role="button">Gestion des membres</a>
           <a class="btn btn-warning mx-1" href="/update-project-form/{{projectId}}" role="button">Modifier</a>
-          {{/isSupervisor}}
+          <a class="btn btn-danger mx-1" href="/delete-project/{{projectId}}" role="button">Supprimer</a>
+          {{/isSupervisorOrAbove}}
         </p>
         <hr class="my-4">
         <p class="h4 col-sm-9">Evènements : </p>
@@ -44,22 +41,12 @@
                 <h5 class="card-title text-primary">{{title}}</h5>
                 <p class="card-text">{{description}}</p>
                 <span class="card-text text-secondary">Prévu le {{date}}</span>
-                {{#isCreatorOfProject}}
+                {{#isModeratorOrAbove}}
                 <p class="lead">
+                  <a class="btn btn-primary text-white float-right mx-1" href="/project-details/{{projectId}}/{{title}}/update-event" role="button">Modifier</a>
                   <a class="btn btn-primary text-white float-right mx-1" href="/project-details/{{projectId}}/{{title}}/delete-event" role="button">Supprimer</a>
-                  <a class="btn btn-primary text-white float-right mx-1" href="/project-details/{{projectId}}/{{title}}/update-event" role="button">Modifier</a>
                 </p>
-                {{/isCreatorOfProject}}
-                {{#isModerator}}
-                <p class="lead">
-                  <a class="btn btn-primary text-white float-right mx-1" href="/project-details/{{projectId}}/{{title}}/update-event" role="button">Modifier</a>
-                </p>
-                {{/isModerator}}
-                {{#isSupervisor}}
-                <p class="lead">
-                  <a class="btn btn-primary text-white float-right mx-1" href="/project-details/{{projectId}}/{{title}}/update-event" role="button">Modifier</a>
-                </p>
-                {{/isSupervisor}}
+                {{/isModeratorOrAbove}}
               </div>
             </div>
           </div>
