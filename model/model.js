@@ -38,12 +38,12 @@ exports.allCategories = getAllCategories();
 
 function getAllCategories() {
     let result = [];
-    result[0] = {"name": "person", "value": "Aide à la personne"};
-    result[1] = {"name": "recycling", "value": "Recyclage"};
-    result[2] = {"name": "lobbying", "value": "Lobbying"};
-    result[3] = {"name": "cleaning", "value": "Nettoyage"};
-    result[4] = {"name": "awarness", "value": "Sensibilisation"};
-    result[5] = {"name": "socialLink", "value": "Lien social"};
+    result.push({"name": "person", "value": "Aide à la personne"});
+    result.push({"name": "recycling", "value": "Recyclage"});
+    result.push({"name": "lobbying", "value": "Lobbying"});
+    result.push({"name": "cleaning", "value": "Nettoyage"});
+    result.push({"name": "awarness", "value": "Sensibilisation"});
+    result.push({"name": "socialLink", "value": "Lien social"});
 
     return result;
 }
