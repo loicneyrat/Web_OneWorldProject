@@ -32,8 +32,8 @@ exports.updateProject = function(projectId, title, description, categories, keyw
     for(let i = 0; i < categories.length; i++){
         categoriesHandler.addCategory(projectId, categories[i]);
     }
-
-    let update = db.prepare('UPDATE projects SET title=?, description=?, date=? creator=? WHERE projectId=?');
+    let update = db.prepare('UPDATE projects SET title=?, description=? WHERE projectId=?');
+    //'UPDATE projects SET title=?, description=?, date=?, creator=? WHERE projectId=?'
     let result = update.run([title, description, projectId]);
 
     return result.changes === 1;
