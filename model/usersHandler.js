@@ -30,7 +30,7 @@ exports.deleteUser = function(email) {
 exports.getUserStatus = function(email) {
     let query = db.prepare('SELECT status FROM users WHERE email=?');
     let result = query.get([email]);
-    return result === undefined ? result : result.status;
+    return result === undefined ? undefined : result.status;
 }
 
 exports.getUserId = function(username) {
