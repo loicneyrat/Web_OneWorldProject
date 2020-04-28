@@ -18,9 +18,13 @@
         {{#isAdmin}}
         <a class="list-group-item" href="/usersList">Liste des utilisateurs du site</a>
         {{/isAdmin}}
+        <a class="list-group-item" id="list-messages-list" href="/create-project-form">Créer un projet</a>
+
         <a class="list-group-item list-group-item-action" id="list-home-list" data-toggle="list" href="#list-home" role="tab" aria-controls="home">Projets créés</a>
-        <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="profile">Projets dont je suis membre</a>
+        <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="profile">Projets que je soutiens</a>
+        <!--
         <a class="list-group-item list-group-item-action"id="list-messages-list" data-toggle="list" href="#list-messages" role="tab" aria-controls="messages">Projets que je suis</a>
+        -->
         <a href="/logout" class="list-group-item" id="logout-item"><b>Log out</b></a>
       </div>
     </div>
@@ -42,7 +46,7 @@
             </p>
             <a href="/project-details/{{projectId}}" class="card-link">Voir les détails</a>
             <a href="/update-project-form/{{projectId}}" class="card-link">Modifier</a>
-            <a href="/update-project-form/{{projectId}}" class="card-link">Gérer les évènements</a>
+            <a href="/project-details/{{projectId}}/create-event" class="card-link">Créer un évènement</a>
             <a href="/update-project-form/{{projectId}}" class="card-link">Gérer les membres</a>
             <a href="/delete-project/{{projectId}}" class="card-link">Supprimer</a>
           </div>
@@ -58,19 +62,28 @@
             <h6 class="card-subtitle mb-2 text-muted">Créé le {{date}} par {{creator}}</h6>
             <p class="card-text">{{description}}</p>
             <p class="card-text text-muted">{{category}}</p>
-            <a href="#" class="card-link">Voir les détails</a>
+            <a href="/project-details/{{projectId}}" class="card-link">Voir les détails</a>
             <a href="#" class="card-link">Suivre</a>
           </div>
         </div>
         {{/supported}}
       </div>
+      <!--
       <div class="tab-pane fade" id="list-messages" role="tabpanel" aria-labelledby="list-messages-list" style="margin-top: 20px; margin-bottom: 75px;">
         <h1>Projets que je suis</h1>
         {{#followed}}
-        Titre : {{title}} <br>
-        Description : {{description}}<br>
+        <div class="card" style="margin-top: 20px; margin-bottom: 20px;">
+          <div class="card-body">
+            <h5 class="card-title">{{title}}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">Créé le {{date}} par {{creator}}</h6>
+            <p class="card-text">{{description}}</p>
+            <p class="card-text text-muted">{{category}}</p>
+            <a href="/project-details/{{projectId}}" class="card-link">Voir les détails</a>
+            <a href="#" class="card-link">Ne plus suivre</a>
+          </div>
+        </div>
         {{/followed}}
-      </div>
+      </div>-->
       {{/projects}}
     </div>
   
