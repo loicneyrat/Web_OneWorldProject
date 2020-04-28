@@ -202,8 +202,9 @@ exports.getUserProjectStatus = function(userEmail, projectId) {
 }
 
 exports.isMember = function(user, projectId) {
-    if (!exists2(projectId, user, "projectId", "user", "projectLinkedUsers")) return null;
-    return (projectLinkedUsersHandler.isMember(user, projectId) || projectsHandler.getCreator(user, projectId) == user);
+    if (!exists(user, "email", "users")) return null;
+    if (!exists(projectId, "projectId", "projects")) return null;
+    return (projectLinkedUsersHandler.isMember(user, projectId) || projectsHandler.getCreator(projectId) == user);
 }
 
 
