@@ -257,12 +257,12 @@ app.post('/creating-project', isAuthenticated, (req, res) => {
 
     for(let i = 0; i < keywords.length; i++) {
         keywords[i] = keywords[i].trim();
-        if(keywords[i].length() > 15) {
+        if(keywords[i].length > 15) {
             keywordsTooBig = true;
             break;
         }
     }
-    if(keywordsTooBig) {
+    if(keywordsTooBig || ) {
         res.locals.keywordHasTooManyCharacters = true;
         let data = {};
         data["title"] = req.body.title;

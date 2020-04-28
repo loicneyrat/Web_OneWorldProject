@@ -48,9 +48,7 @@ exports.getUsername = function(userId) {
 exports.getProjects = function(email) {
     let projects = {};
     projects.created = db.prepare('SELECT projectId, title, creator, date(date) date FROM projects WHERE creator=?').all([email]);
-    projects.supported = db.prepare('SELECT P.projectId, P.title, P.creator, date(P.date) date FROM projects P WHERE P.projectId IN (SELECT projectId FROM projectLinkedUsers WHERE user=? AND status=?').all([email, "member"]);
-    
-    //projects.supported = db.prepare('SELECT P.projectId, P.title, P.creator, date(P.date) date FROM projects P WHERE P.projectId IN (SELECT projectId FROM projectLinkedUsers WHERE user=? AND (status=? OR status=?)').all([email, "member", "moderator"]);
+    projects.supported = db.prepare('SELECT P.projectId, P.title, P.creator, date(P.date) date FROM projects P WHERE P.projectId IN (SELECT projectId FROM projectLinkedUsers WHERE user=? AND (status=? OR status=?))').all([email, "member", "moderator"]);
     projects.followed = db.prepare('SELECT P.projectId, P.title, P.creator, date(P.date) date FROM projects P WHERE P.projectId IN (SELECT projectId FROM projectLinkedUsers WHERE user=? AND status=?)').all([email, "followers"]);
     
     setCategories(projects.created);
