@@ -44,29 +44,18 @@
           </div>
           <small id="keywordsFormat" class="form-text text-muted"> Merci de les séparer par des virgules.</small>
         </div>
+        {{#noCategoriesChosen}}
+          <p class="text-danger font-italic">Vous devez choisir au moins une catégorie.</p>
+        {{/noCategoriesChosen}}
         <div class="form-group">
           <label for="categories">Categories : </label>
           <div class="input-group">
+            {{#allCategories}}
             <div class="custom-control custom-checkbox ml-4">
-              <input type="checkbox" class="custom-control-input" name="recycling" id="recycling" {{recycling}}>
-              <label class="custom-control-label" for="recycling">Recyclage</label>
+              <input type="checkbox" class="custom-control-input" name="{{name}}" id="{{name}}" {{check}}>
+              <label class="custom-control-label" for="{{name}}">{{value}}</label>
             </div>
-            <div class="custom-control custom-checkbox ml-4">
-              <input type="checkbox" class="custom-control-input" name="lobbying" id="lobbying" {{lobbying}}>
-              <label class="custom-control-label" for="lobbying">Lobbying</label>
-            </div>
-            <div class="custom-control custom-checkbox ml-4">
-              <input type="checkbox" class="custom-control-input" name="cleaning" id="cleaning" {{cleaning}}>
-              <label class="custom-control-label" for="cleaning">Nettoyage</label>
-            </div>
-            <div class="custom-control custom-checkbox ml-4">
-              <input type="checkbox" class="custom-control-input" name="person" id="person" {{person}}>
-              <label class="custom-control-label" for="person">Aide à la personne</label>
-            </div>
-            <div class="custom-control custom-checkbox ml-4">
-              <input type="checkbox" class="custom-control-input" name="awareness" id="awareness" {{awareness}}>
-              <label class="custom-control-label" for="awareness">Sensibilisation</label>
-            </div>
+            {{/allCategories}}
           </div>
         </div>
         <div class="row ml-2 mr-2">

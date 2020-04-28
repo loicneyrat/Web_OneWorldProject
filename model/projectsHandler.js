@@ -50,7 +50,7 @@ exports.getProjectDetails = function(projectId) {
 
     result['creator'] = db.prepare('SELECT username FROM users WHERE email=?').get([result.creator]).username;
 
-    result["numberOfMembers"] = projectLinkedUsersHandler.getNumberOfMember(projectId);
+    result["numberOfMembers"] = projectLinkedUsersHandler.getNumberOfMembers(projectId);
 
     result["categories"] = categoriesHandler.getCategoriesInString(projectId);
     result["keywords"] = keywordsHandler.getKeywordsInString(projectId);
@@ -60,7 +60,8 @@ exports.getProjectDetails = function(projectId) {
 
 exports.getCreator = function(projectId) {
     let query = db.prepare('SELECT creator FROM projects WHERE projectId=?');
-    return query.get([projectId]).creator;
+    let result = query.get([projectId]);
+    return result === undefined ? result : result.creator;
 }
 
 

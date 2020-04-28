@@ -3,9 +3,9 @@ var db = new sqlite('database.sqlite');
 
 
 
-exports.addMember = function(projectId, user, affiliation) {
-    let insert = db.prepare('INSERT INTO projectLinkedUsers VALUES (?, ?, ?, ?)');
-    let result = insert.run([projectId, user, "regular", affiliation]);
+exports.addMember = function(projectId, user) {
+    let insert = db.prepare('INSERT INTO projectLinkedUsers (projectId, user, status) VALUES (?, ?, ?)');
+    let result = insert.run([projectId, user, "member"]);
     return result.changes === 1;
 }
 
@@ -33,17 +33,13 @@ exports.isMember = function(user, projectId){
     return query !== undefined && (query.status === "member" || query.status === "moderator");
 }
 
-exports.isFollower= function(user, projectId) {
-    let query = db.prepare('SELECT status FROM projectLinkedUsers WHERE projectId=? AND user=?').get([projectId, user]);
-    return query !== undefined && query.status === "follower";
-}
 
 exports.getUserProjectStatus = function(userEmail, projectId) {
     let query = db.prepare('SELECT status FROM projectLinkedUsers WHERE user=? AND projectId=?');
     return query.get([userEmail, projectId]).status;
 }
 
-exports.getNumberOfMember = function(projectId) {
+exports.getNumberOfMembers = function(projectId) {
     let query = db.prepare('SELECT count(projectId) FROM projectLinkedUsers WHERE projectId=?');
     return query.get([projectId]).count;
 }

@@ -18,22 +18,35 @@ db.prepare('DROP TABLE users').run();
 */
 
 
-db.prepare('CREATE TABLE IF NOT EXISTS users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE, password VARCHAR2(50), status VARCHAR2(20))').run();
+db.prepare('CREATE TABLE IF NOT EXISTS users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE NOT NULL, password VARCHAR2(50) NOT NULL, status VARCHAR2(20) NOT NULL)').run();
 
-db.prepare('CREATE TABLE IF NOT EXISTS projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR2(100), description VARCHAR2(1000), creator VARCHAR2(30) REFERENCES users, date DATE)').run();
+db.prepare('CREATE TABLE IF NOT EXISTS projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR2(100) NOT NULL, description VARCHAR2(1000) NOT NULL, creator VARCHAR2(30) REFERENCES users NOT NULL, date DATE NOT NULL)').run();
 
-db.prepare('CREATE TABLE IF NOT EXISTS projectLinkedUsers(projectId INTEGER REFERENCES projects ON DELETE CASCADE, user VARCHAR2(30) REFERENCES users ON DELETE CASCADE, status VARCHAR2(15), affiliation VARCHAR2(20), PRIMARY KEY(projectId, user))').run();
+db.prepare('CREATE TABLE IF NOT EXISTS projectLinkedUsers(projectId INTEGER REFERENCES projects ON DELETE CASCADE NOT NULL, user VARCHAR2(30) REFERENCES users ON DELETE CASCADE NOT NULL, status VARCHAR2(15) NOT NULL, PRIMARY KEY(projectId, user))').run();
 
-db.prepare('CREATE TABLE IF NOT EXISTS projectKeyWords(projectId INTEGER REFERENCES projects ON DELETE CASCADE, keyword VARCHAR2(15), PRIMARY KEY(projectId, keyword))').run();
+db.prepare('CREATE TABLE IF NOT EXISTS projectKeyWords(projectId INTEGER REFERENCES projects ON DELETE CASCADE NOT NULL, keyword VARCHAR2(15) NOT NULL, PRIMARY KEY(projectId, keyword))').run();
 
-db.prepare('CREATE TABLE IF NOT EXISTS projectCategories (projectId INTEGER REFERENCES projects ON DELETE CASCADE, category VARCHAR(20), PRIMARY KEY(projectId, category))').run();
+db.prepare('CREATE TABLE IF NOT EXISTS projectCategories (projectId INTEGER REFERENCES projects ON DELETE CASCADE NOT NULL, category VARCHAR(20) NOT NULL, PRIMARY KEY(projectId, category))').run();
 
-db.prepare('CREATE TABLE IF NOT EXISTS projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE, title VARCHAR2(100), description VARCHAR2(750), creator VARCHAR2(30) REFERENCES users, date DATE, PRIMARY KEY(projectId, title))').run();
+db.prepare('CREATE TABLE IF NOT EXISTS projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE NOT NULL, title VARCHAR2(100) NOT NULL, description VARCHAR2(750) NOT NULL, creator VARCHAR2(30) REFERENCES users NOT NULL, date DATE NOT NULL, PRIMARY KEY(projectId, title))').run();
 
 
 //usersHandler.createUser('admin@admin.fr', 'Administrator', 'AZERTY', 'administrator');
 
 
+exports.allCategories = getAllCategories();
+
+function getAllCategories() {
+    let result = [];
+    result[0] = {"name": "person", "value": "Aide à la personne"};
+    result[1] = {"name": "recycling", "value": "Recyclage"};
+    result[2] = {"name": "lobbying", "value": "Lobbying"};
+    result[3] = {"name": "cleaning", "value": "Nettoyage"};
+    result[4] = {"name": "awarness", "value": "Sensibilisation"};
+    result[5] = {"name": "socialLink", "value": "Lien social"};
+
+    return result;
+}
 
 /***
  * 
@@ -163,9 +176,9 @@ exports.searchProjects = function(category, keywords) {
  */
 
 
-exports.addMember = function(projectIdConcerned, userToAdd, affiliation) {
+exports.addMember = function(projectIdConcerned, userToAdd) {
     if(exists2(projectIdConcerned, userToAdd, "projectId", "user", "projectLinkedUsers")) return null;
-    return projectLinkedUsersHandler.addMember(projectIdConcerned, userToAdd, affiliation);
+    return projectLinkedUsersHandler.addMember(projectIdConcerned, userToAdd);
 }
 
 exports.updateMemberStatus = function(projectIdConcerned, userConcerned, newStatus) {
@@ -189,13 +202,10 @@ exports.getUserProjectStatus = function(userEmail, projectId) {
 }
 
 exports.isMember = function(user, projectId) {
-    if (!exists2(projectId, user, "projectId", "user", "projectLinkedUsers")) return null;//`SELECT ${field1}, ${field2} FROM ${table} WHERE ${field1}=? AND ${field2}=?`
-    return projectLinkedUsersHandler.isMember(user, projectId);
+    if (!exists2(projectId, user, "projectId", "user", "projectLinkedUsers")) return null;
+    return (projectLinkedUsersHandler.isMember(user, projectId) || projectsHandler.getCreator(user, projectId) == user);
 }
 
-exports.isFollower = function(user, projectId) {
-    return projectLinkedUsersHandler.isFollower(user, projectId);
-}
 
 /***
  * 
@@ -290,18 +300,17 @@ exports.resetDatabase = function() {
 
     //creation of the clean tables.
 
-    db.prepare('CREATE TABLE IF NOT EXISTS users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE, password VARCHAR2(50), status VARCHAR2(20))').run();
+    db.prepare('CREATE TABLE IF NOT EXISTS users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE NOT NULL, password VARCHAR2(50) NOT NULL, status VARCHAR2(20) NOT NULL)').run();
 
-    db.prepare('CREATE TABLE IF NOT EXISTS projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR2(100), description VARCHAR2(1000), creator VARCHAR2(30) REFERENCES users, date DATE)').run();
-
-    db.prepare('CREATE TABLE IF NOT EXISTS projectLinkedUsers(projectId INTEGER REFERENCES projects ON DELETE CASCADE, user VARCHAR2(30) REFERENCES users ON DELETE CASCADE, status VARCHAR2(15), affiliation VARCHAR2(20), PRIMARY KEY(projectId, user))').run();
-
-    db.prepare('CREATE TABLE IF NOT EXISTS projectKeyWords(projectId INTEGER REFERENCES projects ON DELETE CASCADE, keyword VARCHAR2(15), PRIMARY KEY(projectId, keyword))').run();
-
-    db.prepare('CREATE TABLE IF NOT EXISTS projectCategories (projectId INTEGER REFERENCES projects, category VARCHAR(20), PRIMARY KEY(projectId, category))').run();
-
-    db.prepare('CREATE TABLE IF NOT EXISTS projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE, title VARCHAR2(100), description VARCHAR2(750), creator VARCHAR2(30) REFERENCES users, date DATE, PRIMARY KEY(projectId, title))').run();
-
+    db.prepare('CREATE TABLE IF NOT EXISTS projects (projectId INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR2(100) NOT NULL, description VARCHAR2(1000) NOT NULL, creator VARCHAR2(30) REFERENCES users NOT NULL, date DATE NOT NULL)').run();
+    
+    db.prepare('CREATE TABLE IF NOT EXISTS projectLinkedUsers(projectId INTEGER REFERENCES projects ON DELETE CASCADE NOT NULL, user VARCHAR2(30) REFERENCES users ON DELETE CASCADE NOT NULL, status VARCHAR2(15) NOT NULL, PRIMARY KEY(projectId, user))').run();
+    
+    db.prepare('CREATE TABLE IF NOT EXISTS projectKeyWords(projectId INTEGER REFERENCES projects ON DELETE CASCADE NOT NULL, keyword VARCHAR2(15) NOT NULL, PRIMARY KEY(projectId, keyword))').run();
+    
+    db.prepare('CREATE TABLE IF NOT EXISTS projectCategories (projectId INTEGER REFERENCES projects ON DELETE CASCADE NOT NULL, category VARCHAR(20) NOT NULL, PRIMARY KEY(projectId, category))').run();
+    
+    db.prepare('CREATE TABLE IF NOT EXISTS projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE NOT NULL, title VARCHAR2(100) NOT NULL, description VARCHAR2(750) NOT NULL, creator VARCHAR2(30) REFERENCES users NOT NULL, date DATE NOT NULL, PRIMARY KEY(projectId, title))').run();
 
     usersHandler.createUser('admin@admin.fr', 'Administrator', 'AZERTY', 'administrator');
 }

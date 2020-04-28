@@ -246,11 +246,12 @@ app.get('/usersList', isAuthenticated, (req, res) => {
 
 app.get('/create-project-form', isAuthenticated, (req, res) => {
     let fields = {"objective" : "Créer", "linkToRout" : "/creating-project"};
+    fields["allCategories"] = model.allCategories;
     res.render('projects/create-project-form', fields);
 });
 
 app.post('/creating-project', isAuthenticated, (req, res) => {
-    let categories = getCategoriesArray(req.body);
+    let categories = getCategoriesInArray(req.body);
     let date = new Date().toISOString();
     let keywords = req.body.keywords.split(',');
     let keywordsTooBig = false;
@@ -262,15 +263,27 @@ app.post('/creating-project', isAuthenticated, (req, res) => {
             break;
         }
     }
-    if(keywordsTooBig || ) {
+    if(keywordsTooBig) {
         res.locals.keywordHasTooManyCharacters = true;
         let data = {};
         data["title"] = req.body.title;
         data["description"] = req.body.description;
         data["keywords"] = req.body.keywords;
+        data["allCategories"] = model.allCategories;
+        data["objective"] = "Créer";
+        data["linkToRout"] = "/creating-project";
         res.render("projects/create-project-form", data);
-
-    }else {
+    }else if(categories.length == 0) {
+        res.locals.noCategoriesChosen = true;
+        let data = {};
+        data["title"] = req.body.title;
+        data["description"] = req.body.description;
+        data["keywords"] = req.body.keywords;
+        data["allCategories"] = model.allCategories;
+        data["objective"] = "Créer";
+        data["linkToRout"] = "/creating-project";
+        res.render("projects/create-project-form", data);
+    }else{
         let result = model.createProject(req.body.title, req.body.description, categories, req.session.user, date, keywords);
         if (result === null)
         renderError(req, res);
@@ -285,6 +298,10 @@ app.get('/project-details/:projectId', (req, res) => {
     let userStatus = req.session.userStatus;
     let projectId = req.params.projectId;
     let details = model.getProjectDetails(req.params.projectId);
+    //DEBUG
+    console.log(model.isMember(user, projectId));
+    //END
+    details["membershipButtonValue"] = model.isMember(user, projectId) ? "Quitter le projet" : "Devenir membre";
     setProjectStatus(user, userStatus, projectId, details);
     res.render('projects/project-details', details);
 });
@@ -296,28 +313,56 @@ app.get('/update-project-form/:projectId', isAuthenticated, (req, res) => {
     else {
         fields["objective"] = "Mettre à jour";
         fields["linkToRout"] = "/updating-project/" + req.params.projectId;
-        addCheckedToCategories(fields.categories, fields);
+        fields["allCategories"] = model.allCategories;
+        fields.allCategories = addCheckedToCategories(fields.categories, fields.allCategories);
         res.render('projects/create-project-form', fields);
     }
 });
 
 app.post('/updating-project/:projectId', isAuthenticated, (req, res) => {
-    let categories = getCategoriesArray(req.body);
+    let categories = getCategoriesInArray(req.body);
     let keywords = req.body.keywords.split(',');
+    let keywordsTooBig = false;
 
-    for (let i = 0 ; i < keywords.length ; i++) {
+    for(let i = 0; i < keywords.length; i++) {
         keywords[i] = keywords[i].trim();
+        if(keywords[i].length > 15) {
+            keywordsTooBig = true;
+            break;
+        }
     }
-    let result = model.updateProject(req.params.projectId, req.body.title, req.body.description, categories, keywords);
-    if (result === null) renderError(req, res);
-    else {
-        res.redirect(`/project-details/${req.params.projectId}`);
+    if(keywordsTooBig) {
+        res.locals.keywordHasTooManyCharacters = true;
+        let data = {};
+        data["title"] = req.body.title;
+        data["description"] = req.body.description;
+        data["keywords"] = req.body.keywords;
+        data["allCategories"] = model.allCategories;
+        data["objective"] = "Mettre à jour";
+        data["linkToRout"] = "/updating-project/" + req.params.projectId;
+        res.render("projects/create-project-form", data);
+    }else if(categories.length == 0) {
+        res.locals.noCategoriesChosen = true;
+        let data = {};
+        data["title"] = req.body.title;
+        data["description"] = req.body.description;
+        data["keywords"] = req.body.keywords;
+        data["allCategories"] = model.allCategories;
+        data["objective"] = "Mettre à jour";
+        data["linkToRout"] = "/updating-project/" + req.params.projectId;
+        res.render("projects/create-project-form", data);
+    }else{
+        let result = model.updateProject(req.params.projectId, req.body.title, req.body.description, categories, keywords);
+        if (result === null) renderError(req, res);
+        else {
+            res.redirect(`/project-details/${req.params.projectId}`);
+        }
     }
 });
 
 app.get('/delete-project/:projectId', isAuthenticated, (req, res) => {
     let user = req.session.user;
-    if (isAdmin(req.session.userStatus) || isSupervisor(user) || isCreatorOfProject(user, req.params.user)){
+    if (isAdmin(req.session.userStatus) || isSupervisor(user) || isCreatorOfProject(user, req.params.projectId)){
         res.render("projects/delete-project-form", {"projectId": req.params.projectId});
     }
     else 
@@ -423,22 +468,26 @@ app.get('/confirming-member-ban', isAuthenticated, (req, res) => {
 
 
 app.get("/project-details/membership/:projectId", isAuthenticated, (req, res) => {
-    let userEmail = req.session.userEmail;
+    let userEmail = req.session.user;
     let projectId = req.params.projectId;
     let errorOccured = false;
-    if(model.isMember(userEmail, projectId)) {
-        errorOccured = !model.removeMember(projectId, userEmail);
+    if(isCreatorOfProject(userEmail, projectId)) {
+        res.render('projects/name-new-creator', {"referer": req.headers.referer});
     }
-    else if (isCreatorOfProject(userEmail, projectId)) {
-        res.render('projects/NameNewCreator');
+    else if(model.isMember(userEmail, projectId)) {
+        if(!model.removeMember(projectId, userEmail)){
+            renderError(req, res);
+        }else {
+            res.redirect("/project-details/" + projectId);
+        }
     }
     else {
-        errorOccured = !model.addMember(projectId, userEmail)
+        if(!model.addMember(projectId, userEmail)){
+            renderError(req, res);
+        }else {
+            res.redirect("/project-details/" + projectId);
+        }
     }
-    if(errorOccured) {
-        renderError(req, res);
-    }
-    res.redirect("/project-details/" + projectId);
 });
 
 
@@ -450,7 +499,7 @@ app.get("/project-details/:projectId/create-event", isAuthenticated, (req, res) 
     }
     else {
         let today = new Date();
-        let todaysDate = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+        let todaysDate = formatDateToString(today);
         let data = {};
         data["linkToRout"] = `/project-details/${projectId}/creating-event`;
         data["objective"] = "Créer";
@@ -473,7 +522,7 @@ app.post("/project-details/:projectId/creating-event", isAuthenticated, (req, re
         res.locals.titleIsTaken = true;
 
         let today = new Date();
-        let todaysDate = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+        let todaysDate = formatDateToString(today);
 
         let data = {};
         data["linkToRout"] = `/project-details/${projectId}/creating-event`;
@@ -509,7 +558,7 @@ app.get("/project-details/:projectId/:title/update-event", isAuthenticated, (req
         else {
 
             let today = new Date();
-            let todaysDate = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+            let todaysDate = formatDateToString(today);
             data["linkToRout"] = `/project-details/${projectId}/` + title + "/updating-event";
             data["objective"] = "Mettre à jour";
             data["todaysDate"] = todaysDate;
@@ -534,7 +583,7 @@ app.post("/project-details/:projectId/:previousTitle/updating-event", isAuthenti
         res.locals.titleIsTaken = true;
 
         let today = new Date();
-        let todaysDate = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+        let todaysDate = formatDateToString(today);
 
         let data = {};
         data["linkToRout"] = "/project-details/:projectId/" + previousTitle + "/updating-event";
@@ -614,33 +663,24 @@ app.use((req, res, next) => {
  * =============================================
  */
 
-function getCategoriesArray(body) {
-    let AllCategories = ["recycling", "lobbying", "cleaning", "person", "awareness"];
-    let categories = []; let index = 0;
-    for (cat of AllCategories) {
-        if (body[cat] === undefined) continue;
-        categories[index] = cat; 
-        index++;
+function getCategoriesInArray(body) {
+    let allCategories = model.allCategories;
+    let categories = [];
+    for (let i = 0 ; i < allCategories.length ; i++) {
+        let catName = allCategories[i].name;
+        let catValue = allCategories[i].value;
+        if (body[catName] === undefined) continue;
+        categories.push(catValue);
     }
     return categories;
 }
 
 function addCheckedToCategories(categoriesToString, target) {
-    if (categoriesToString.includes('recycling')) {
-        target["recycling"] = "checked";
+    let allCategories = model.allCategories;
+    for(let i = 0 ; i < allCategories.length ; i++) {
+        target[i]["check"] = categoriesToString.includes(allCategories[i].value) ? "checked" : "";
     }
-    if (categoriesToString.includes('lobbying')) {
-        target['lobbying'] = "checked";
-    }
-    if (categoriesToString.includes('cleaning')) {
-        target['cleaning'] = "checked";
-    }
-    if (categoriesToString.includes('person')) {
-        target['person'] = "checked";
-    }
-    if (categoriesToString.includes('awareness')) {
-        target['awareness'] = "checked";
-    }
+    return target;
 }
 
 function isAdmin(userStatus) {
@@ -683,4 +723,11 @@ function setProjectStatus(user, userStatus, projectId, details) {
     if (isAdmin(userStatus) || isSupervisor(userStatus) || isCreatorOfProject(user, projectId) || isModerator(user, projectId)) {
         details.isModeratorOrAbove = true;
     }
+}
+
+function formatDateToString(date) {
+    var dd = (date.getDate() < 10 ? '0' : '') + date.getDate(); 
+    var MM = ((date.getMonth() + 1) < 10 ? '0' : '') + (date.getMonth() + 1);
+    var yyyy = date.getFullYear();
+    return (yyyy + "-" + MM + "-" + dd);
 }
