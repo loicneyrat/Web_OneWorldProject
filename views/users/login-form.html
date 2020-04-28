@@ -15,7 +15,7 @@
         {{/wrongCredentials}}
         <form action="/login" method="post">
           <div class="form-group">
-            <label for="mail">Your email* : </label>
+            <label for="mail">Email : </label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-user"></i></span>
@@ -24,20 +24,20 @@
             </div>
           </div>
           <div class="form-group">
-            <label for="pwd">Your password* : </label>
+            <label for="pwd">Mot de passe : </label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fas fa-key"></i></span>
               </div>
-              <input class="form-control" type="password" placeholder="Password" name="password" required id="password">
+              <input class="form-control" type="password" placeholder="mot de passe" name="password" required id="password">
             </div>
           </div>
           <div class="row ml-2 mr-2">
             <div class="col-sm-6">
-              <small class="form-text"><input type="checkbox" onclick="pwdVisibility()"> Show password</small>
+              <small class="form-text"><input type="checkbox" onclick="pwdVisibility()">Afficher le mot de passe</small>
             </div>
             <div class="col-sm-6" style="padding-left: 170px;">
-              <button class="btn btn-primary" type="submit">Log in!</button>
+              <button class="btn btn-primary" type="submit">Se connecter</button>
             </div>
           </div>
         </form> 

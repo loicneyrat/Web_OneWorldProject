@@ -7,34 +7,34 @@
       <div class="card-body">
         <form action="/update-username" method="post"></form>
         {{#usernameTaken}}
-          <p class="text-danger font-italic">This username is already used! Please, choose another one.</p>
+          <p class="text-danger font-italic">Ce nom d'utilisateur est déjà pris.Merci d'en choisir un autre.</p>
         {{/usernameTaken}}
           <div class="form-group">
-            <label for="username">Your new username* : </label>
+            <label for="username">Votre nouveau nom d'utilisateur : </label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-user"></i></span>
               </div>
-              <input class="form-control" type="text" placeholder="Username" name="username" value="{{username}}" required>
+              <input class="form-control" type="text" placeholder="nom d'utilisateur" name="username" value="{{username}}" required>
             </div>
           </div>
-          {{#wrongPassword}} <p class="text-danger font-italic">This password doesn't match with our database. Please try again.</p>
+          {{#wrongPassword}} <p class="text-danger font-italic">Mot de passe invalide.</p>
           {{/wrongPassword}}
           <div class="form-group">
-            <label for="pwd">Your password* : </label>
+            <label for="pwd">Votre mot de passe : </label>
             <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fas fa-key"></i></span>
               </div>
-              <input class="form-control" type="password" placeholder="Password" name="pwd" required id="pwd">
+              <input class="form-control" type="password" placeholder="mot de passe" name="pwd" required id="pwd">
             </div>
           </div>
           <div class="row ml-2 mr-2">
             <div class="col-sm-6">
-              <small class="form-text"><input type="checkbox" onclick="pwdVisibility()"> Show password</small>
+              <small class="form-text"><input type="checkbox" onclick="pwdVisibility()">Afficher le mot de passe.</small>
             </div>
             <div class="col-sm-6">
-              <button class="btn btn-primary float-right" type="submit">Confirm</button>
+              <button class="btn btn-primary float-right" type="submit">Confirmer la modification</button>
             </div>
           </div>
         </form> 

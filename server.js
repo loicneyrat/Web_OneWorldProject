@@ -298,9 +298,6 @@ app.get('/project-details/:projectId', (req, res) => {
     let userStatus = req.session.userStatus;
     let projectId = req.params.projectId;
     let details = model.getProjectDetails(req.params.projectId);
-    //DEBUG
-    console.log(model.isMember(user, projectId));
-    //END
     details["membershipButtonValue"] = model.isMember(user, projectId) ? "Quitter le projet" : "Devenir membre";
     setProjectStatus(user, userStatus, projectId, details);
     res.render('projects/project-details', details);
