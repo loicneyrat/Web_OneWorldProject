@@ -11,7 +11,7 @@ exports.addCategory = function(projectId, category) {
 
  exports.removeAllCategories = function(projectId) {
   let numberOfCategories = db.prepare('SELECT count(category) FROM projectCategories WHERE projectId=?').get([projectId]);
-  let result = db.prepare('DELETE FROM projectCategories WHERE projectID=?').run({projectId});
+  let result = db.prepare('DELETE FROM projectCategories WHERE projectID=?').run(projectId);
   return result.changes === numberOfCategories;
 }
 
