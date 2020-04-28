@@ -12,7 +12,7 @@ app.set('view engine', 'html');
 app.set('views', './views');
 
 app.use(cookieSession({secret: 'WeLoveBeingConfined',
-                        cookie: {maxAge="3*60*60*1000"}}));
+                        cookie: {maxAge: "3*60*60*1000"}}));
 app.use(bodyParser.urlencoded({extended : false}));
 
 app.use('/styles', express.static(__dirname + '/styles'));
@@ -32,6 +32,12 @@ function isAuthenticated(req, res, next) {
         next();
     }
 }
+
+app.use((req, res, next) => {
+    req.url = decodeURI(req.url);
+    req.headers.referer = decodeURI(req.headers.referer);
+    next();
+});
 
 app.get('/', (req, res) => {
     res.render('index.html');
@@ -122,9 +128,6 @@ app.get('/home', isAuthenticated, (req, res) => {
         res.render('users/home', {"isAdmin": isAdministrator, "username": username, "projects": projects});
 });
 
-app.get('/#', (req, res) => {
-    res.redirect('/');
-});
 
 app.get('/confirm-user-delete/:username', isAuthenticated, (req, res) => {
     let userEmail = model.getUserId(req.params.username);
@@ -307,7 +310,6 @@ app.get('/delete-project/:projectId', isAuthenticated, (req, res) => {
     let user = req.session.user;
     if(isAdmin(req.session.userStatus) || isSupervisor(user) || isCreatorOfProject(user, req.params.user)){
         res.render("moderationTools/delete-project-form", {"projectId": req.params.projectId});
-        console.log("Passed 2");
     }
     else 
         renderUnauthorizedAction(req, res);
@@ -345,7 +347,7 @@ app.get('/membersList/:projectId', isAuthenticated, (req, res) => {
     let userStatus = req.session.userStatus;
     if (isAdmin(userStatus) || isSupervisor(userStatus) || isCreatorOfProject(userId, req.params.projectId) || isModerator(userId)) {
         let membersList = model.getMembers(req.params.projectId);
-        if (usersList === null) 
+        if (membersList === null) 
             renderError(req, res);
         else {
             let dictionnary = {};
@@ -387,7 +389,7 @@ app.get('/confirming-member-ban', isAuthenticated, (req, res) => {
     else if(!isAdmin(askingUserStatus) && !isSupervisor(askingUserStatus) && !isCreatorOfProject(userWhoAsks, projectId) && !isModerator(userWhoAsks)) {
         renderUnauthorizedAction(req, res);
     }
-    else if(word !== "EXCLURE") {
+    else if (word !== "EXCLURE") {
         res.locals.wrongWord = true;
         let content = {};
         content["username"] = req.params.username;
@@ -413,7 +415,6 @@ app.get('/confirming-member-ban', isAuthenticated, (req, res) => {
 app.get("/project-details/:projectId/create-event", isAuthenticated, (req, res) => {
     let userEmail = req.session.user;
     let projectId = req.params.projectId;
-
     if(!isCreatorOfProject(userEmail, projectId) && !isModerator(userEmail, projectId)) {
         renderUnauthorizedAction(req, res);
     }
@@ -421,7 +422,7 @@ app.get("/project-details/:projectId/create-event", isAuthenticated, (req, res) 
         let today = new Date();
         let todaysDate = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
         let data = {};
-        data["linkToRout"] = "/project-details/:projectId/creating-event";
+        data["linkToRout"] = `/project-details/${projectId}/creating-event`;
         data["objective"] = "Créer";
         data["todaysDate"] = todaysDate;
         res.render("events/create-event-form", data);
@@ -445,7 +446,7 @@ app.post("/project-details/:projectId/creating-event", isAuthenticated, (req, re
         let todaysDate = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
 
         let data = {};
-        data["linkToRout"] = "/project-details/:projectId/creating-event";
+        data["linkToRout"] = `/project-details/${projectId}/creating-event`;
         data["objective"] = "Créer";
         data["title"] = title;
         data["description"] = description;
@@ -468,19 +469,17 @@ app.get("/project-details/:projectId/:title/update-event", isAuthenticated, (req
     let requestingUserStatus = req.session.userStatus;
     let projectId = req.params.projectId;
     let title = req.params.title;
-
     if(!isAdmin(requestingUserStatus) && !isSupervisor(requestingUserStatus) && !isCreatorOfProject(requestingUserEmail, projectId) && !isCreatorOfEvent(requestingUserEmail, projectId, title)) {
         renderUnauthorizedAction(req, res);
     }
     else {
         let data = model.getEventDetails(projectId, title);
         if (data === null) renderError(req, res);
-        else{
+        else {
 
             let today = new Date();
             let todaysDate = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-
-            data["linkToRout"] = "/project-details/:projectId/" + title + "/updating-event";
+            data["linkToRout"] = `/project-details/${projectId}/` + title + "/updating-event";
             data["objective"] = "Mettre à jour";
             data["todaysDate"] = todaysDate;
             res.render("events/create-event-form", data);
@@ -497,10 +496,10 @@ app.post("/project-details/:projectId/:previousTitle/updating-event", isAuthenti
     let description = req.body.description;
     let date = req.body.date;
 
-    if(!isAdmin(requestingUserStatus) && !isSupervisor(requestingUserStatus) && !isCreatorOfProject(requestingUserEmail, projectId) && !isCreatorOfEvent(requestingUserEmail, projectId, title)) {
+    if (!isAdmin(requestingUserStatus) && !isSupervisor(requestingUserStatus) && !isCreatorOfProject(requestingUserEmail, projectId) && !isCreatorOfEvent(requestingUserEmail, projectId, title)) {
         renderUnauthorizedAction(req, res);
     }
-    else if(model.titleIsTaken(projectId, newTitle)) {
+    else if (previousTitle !== newTitle && model.titleIsTaken(projectId, newTitle)) {
         res.locals.titleIsTaken = true;
 
         let today = new Date();
@@ -515,15 +514,16 @@ app.post("/project-details/:projectId/:previousTitle/updating-event", isAuthenti
         data["todaysDate"] = todaysDate;
         res.render("events/create-event-form", data);
     }
-    else{
-        if(model.updateEvent(projectId, previousTitle, newTitle, description, date)) {
+    else {
+        if (model.updateEvent(projectId, previousTitle, newTitle, description, date)) {
             res.redirect("/project-details/" + projectId);
         }
-        else{
+        else {
             renderError(req, res);
         }
     }
 });
+
 
 app.get("/project-details/:projectId/:title/delete-event", isAuthenticated, (req, res) => {
     let requestingUserEmail = req.session.user;
@@ -531,16 +531,18 @@ app.get("/project-details/:projectId/:title/delete-event", isAuthenticated, (req
     let projectId = req.params.projectId;
     let title = req.params.title;
 
-    if(!isAdmin(requestingUserStatus) && !isSupervisor(requestingUserStatus) && !isCreatorOfProject(requestingUserEmail, projectId) && !isCreatorOfEvent(requestingUserEmail, projectId, title)) {
+    if (!isAdmin(requestingUserStatus) && !isSupervisor(requestingUserStatus) && !isCreatorOfProject(requestingUserEmail, projectId) && !isCreatorOfEvent(requestingUserEmail, projectId, title)) {
         renderUnauthorizedAction(req, res);
     }
     else {
-        data["linkToRout"] = "/project-details/:projectId/" + title + "/confirm-event-delete";
+        let data = {};
+        data["linkToRout"] = `/project-details/${projectId}/${title}/confirm-event-delete`;
+        console.log(data.linkToRout);
         res.render("events/delete-event-form", data);
     }
 });
 
-app.post("/project-details/:projectId/:title/confirm-event-delete", isAuthenticated, (req, res) => {
+app.get("/project-details/:projectId/:title/confirm-event-delete", isAuthenticated, (req, res) => {
     let requestingUserEmail = req.session.user;
     let requestingUserStatus = req.session.userStatus;
     let projectId = req.params.projectId;
@@ -567,11 +569,18 @@ app.post("/project-details/:projectId/:title/confirm-event-delete", isAuthentica
     }
 });
 
+
+
 app.use((req, res, next) => {
     res.send("404 Not Found URL : " + req.url);
     next();
 });
 
+/***
+ * =============================================
+ * |                FUNCTIONS                  |
+ * =============================================
+ */
 
 function getCategoriesArray(body) {
     let AllCategories = ["recycling", "lobbying", "cleaning", "person", "awareness"];
@@ -585,19 +594,19 @@ function getCategoriesArray(body) {
 }
 
 function addCheckedToCategories(categoriesToString, target) {
-    if(categoriesToString.includes('recycling')) {
+    if (categoriesToString.includes('recycling')) {
         target["recycling"] = "checked";
     }
-    if(categoriesToString.includes('lobbying')) {
+    if (categoriesToString.includes('lobbying')) {
         target['lobbying'] = "checked";
     }
-    if(categoriesToString.includes('cleaning')) {
+    if (categoriesToString.includes('cleaning')) {
         target['cleaning'] = "checked";
     }
-    if(categoriesToString.includes('person')) {
+    if (categoriesToString.includes('person')) {
         target['person'] = "checked";
     }
-    if(categoriesToString.includes('awareness')) {
+    if (categoriesToString.includes('awareness')) {
         target['awareness'] = "checked";
     }
 }
@@ -632,15 +641,14 @@ function renderUnauthorizedAction(req, res) {
 
 function setProjectStatus(user, userStatus, projectId, details) {
     let status = model.getUserStatus(user, projectId);
-    switch (status) {
+    if (isCreatorOfProject(user, projectId)) {
+        details.isCreatorOfProject = true;
+    } else if (isAdmin(userStatus) || isSupervisor(userStatus)) {
+        details.isSupervisor = true;
+    } else switch (status) {
         case 'member' : details.isSupporting = true; break;
         case 'follower' : details.isFollowing = true; break;
         case 'moderator' : details.isModerator = true; break;
         default : details.isRegular = true; break;
     }
-    if (isCreatorOfProject(user, projectId)) {
-        details.isCreatorOfProject = true;
-    } else if (isAdmin(userStatus) || isSupervisor(userStatus)) {
-        details.isSupervisor = true;
-    } else details.isRegular = true;
 }
