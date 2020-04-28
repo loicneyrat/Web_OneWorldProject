@@ -11,7 +11,7 @@ exports.addKeyword = function(projectId, keyword) {
 
 exports.removeAllKeywords = function(projectId) {
     let numberOfKeywords = db.prepare('SELECT count(keyword) FROM projectKeywords WHERE projectId=?').get([projectId]);
-    let result = db.prepare('DELETE FROM projectKeywords WHERE projectID=?').run({projectId});
+    let result = db.prepare('DELETE FROM projectKeywords WHERE projectID=?').run(projectId);
     return result.changes === numberOfKeywords;
 }
 
