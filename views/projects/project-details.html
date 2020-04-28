@@ -12,53 +12,52 @@
         <div class="my-5"></div>
         <p class="lead">
           {{#isRegular}}
-          {{^isFollowing}}<a class="btn btn-primary mx-1" href="#" role="button">Suivre</a>{{/isFollowing}}
+          {{^isFollowing}}<a class="btn btn-primary mx-1" href="" role="button">Suivre</a>{{/isFollowing}}
           {{#isFollowing}}<a class="btn btn-primary mx-1" href="#" role="button">Ne plus suivre</a>{{/isFollowing}}
           {{^isSupporting}}<a class="btn btn-primary mx-1" href="#" role="button">Adhérer</a>{{/isSupporting}}
           {{#isSupporting}}<a class="btn btn-primary mx-1" href="#" role="button">Ne plus adhérer</a>{{/isSupporting}}
           {{/isRegular}}
-          
-          {{#isCreator}}
-          <a class="btn btn-primary mx-1" href="#" role="button">Ajouter un évènement</a>
-          <a class="btn btn-primary mx-1" href="#" role="button">Gestion des membres</a>
-          <a class="btn btn-warning mx-1" href="#" role="button">Modifier</a>
+          {{#isCreatorOfProject}}
+          <a class="btn btn-primary mx-1" href="/project-details/{{projectId}}/create-event" role="button">Ajouter un évènement</a>
+          <a class="btn btn-primary mx-1" href="/membersList/{{projectId}}" role="button">Gestion des membres</a>
+          <a class="btn btn-warning mx-1" href="/update-project-form/{{projectId}}" role="button">Modifier</a>
           <a class="btn btn-danger mx-1" href="/delete-project/{{projectId}}" role="button">Supprimer</a>
-          {{/isCreator}}
+          {{/isCreatorOfProject}}
           {{#isModerator}}
-          <a class="btn btn-primary mx-1" href="#" role="button">Ajouter un évènement</a>
-          <a class="btn btn-primary mx-1" href="#" role="button">Gestion des membres</a>
-          <a class="btn btn-warning mx-1" href="#" role="button">Modifier</a>
+          <a class="btn btn-primary mx-1" href="/project-details/{{projectId}}/create-event" role="button">Ajouter un évènement</a>
+          <a class="btn btn-primary mx-1" href="/membersList/{{projectId}}" role="button">Gestion des membres</a>
+          <a class="btn btn-warning mx-1" href="/update-project-form/{{projectId}}" role="button">Modifier</a>
           {{/isModerator}}
           {{#isSupervisor}}
-          <a class="btn btn-warning mx-1" href="#" role="button">Modifier</a>
+          <a class="btn btn-warning mx-1" href="/update-project-form/{{projectId}}" role="button">Modifier</a>
           {{/isSupervisor}}
         </p>
         <hr class="my-4">
         <p class="h4 col-sm-9">Evènements : </p>
         <div class="row">
           {{#events}}
-          <div class="col-sm-9 mx-auto"><!-- mx-auto-->
+          <div class="col-sm-9 mx-auto">
             <div class="card mt-3">
               <div class="card-header">
                 Evènement créé par {{creator}} le {{date}}
               </div>
               <div class="card-body">
                 <h5 class="card-title text-primary">{{title}}</h5>
-                <p class="card-text">{{event}}</p>
-                {{#isCreator}}
+                <p class="card-text">{{description}}</p>
+                {{#isCreatorOfProject}}
                 <p class="lead">
-                  <a class="btn btn-primary text-white float-right mx-1"role="button">Supprimer</a>
-                  <a class="btn btn-primary text-white float-right mx-1" role="button">Modifier</a>
+                  <a class="btn btn-primary text-white float-right mx-1" href="/project-details/{{projectId}}/{{title}}/delete-event" role="button">Supprimer</a>
+                  <a class="btn btn-primary text-white float-right mx-1" href="/project-details/{{projectId}}/{{title}}/update-event" role="button">Modifier</a>
                 </p>
-                {{/isCreator}}
+                {{/isCreatorOfProject}}
                 {{#isModerator}}
                 <p class="lead">
-                  <a class="btn btn-primary text-white float-right mx-1" role="button">Modifier</a>
+                  <a class="btn btn-primary text-white float-right mx-1" href="/project-details/{{projectId}}/{{title}}/update-event" role="button">Modifier</a>
                 </p>
                 {{/isModerator}}
                 {{#isSupervisor}}
                 <p class="lead">
-                  <a class="btn btn-primary text-white float-right mx-1" role="button">Modifier</a>
+                  <a class="btn btn-primary text-white float-right mx-1" href="/project-details/{{projectId}}/{{title}}/update-event" role="button">Modifier</a>
                 </p>
                 {{/isSupervisor}}
               </div>
