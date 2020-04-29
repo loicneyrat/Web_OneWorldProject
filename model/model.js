@@ -168,6 +168,9 @@ exports.searchProjects = function(category, keywords) {
     return projectsHandler.searchProjects(category, keywords);
 }
 
+exports.changeCreators = function(projectId, newCreatorId) {
+    return projectsHandler.changeCreators(projectId, newCreatorId);
+}
 
 /***
  * 
