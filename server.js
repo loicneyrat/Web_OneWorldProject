@@ -494,9 +494,9 @@ app.get('/membersList/:projectId', isAuthenticated, (req, res) => {
             let dictionnary = {};
             dictionnary["usersList"] = membersList;
             dictionnary["linkToDelete"] = "/confirm-member-delete/";
-            dictionnary.linkToUpdateStatus = `/update-user-status-project-form/${projectId}/`
+            dictionnary.linkToUpdateStatus = `/update-member-status-form/${projectId}/`
             dictionnary["objective"] = "membres du projet";
-            dictionnary["projectId"] = "+AND+" + projectId;
+            dictionnary["projectId"] = "-AND-" + projectId;
             res.render('moderationTools/users-list', dictionnary);
         }
     } else {
@@ -504,7 +504,7 @@ app.get('/membersList/:projectId', isAuthenticated, (req, res) => {
     }
 });
 
-app.get('/confirm-member-delete/:username+AND+:projectId', isAuthenticated, (req, res) => {
+app.get('/confirm-member-delete/:username-AND-:projectId', isAuthenticated, (req, res) => {
     let userEmail = model.getUserId(req.params.username);
     if (userEmail === null) renderError(req, res);
     
@@ -542,7 +542,7 @@ app.get('/confirming-member-ban', isAuthenticated, (req, res) => {
         if (model.removeMember(projectId, userToBan)){
             let data = {};
             data["linkToNext"] = "/membersList/" + projectId;
-            res.render('multiUsage/delete-confirmation');
+            res.render('multiUsage/delete-confirmation', data);
         }
         else {
             res.locals.deleteFailure = true;
@@ -578,7 +578,7 @@ app.get("/project-details/membership/:projectId", isAuthenticated, (req, res) =>
     }
 });
 
-app.get('/update-user-status-project-form/:projectId/:username', (req, res) => {
+app.get('/update-member-status-form/:projectId/:username', (req, res) => {
     let projectId = req.params.projectId;
     let user = req.session.user;
     let selectedUser = model.getUserId(req.params.username);
@@ -590,7 +590,7 @@ app.get('/update-user-status-project-form/:projectId/:username', (req, res) => {
             renderUnauthorizedAction(req, res);
         } else {
             let datas = {};
-            datas.linkToUpdateStatus = "/updating-user-status-project/" + projectId + "/" + req.params.username;
+            datas.linkToUpdateStatus = "/updating-member-status/" + projectId + "/" + req.params.username;
             datas.objective = "DU PROJET";
             datas.status = ["Member", "Moderator"];
             datas.actualStatus = selectedUserStatus;
@@ -600,7 +600,7 @@ app.get('/update-user-status-project-form/:projectId/:username', (req, res) => {
     }
 });
 
-app.get('/updating-user-status-project/:projectId/:username', (req, res) => {
+app.get('/updating-member-status/:projectId/:username', (req, res) => {
     let previousStatus = String(req.query.previousStatus).toLowerCase();
     let newStatus = String(req.query.newStatus).toLowerCase();
     let updatedUser = model.getUserId(req.params.username);
@@ -608,6 +608,7 @@ app.get('/updating-user-status-project/:projectId/:username', (req, res) => {
         res.redirect('/membersList/' + req.params.projectId);
     else {
         let isUpdated = model.updateMemberStatus(req.params.projectId, updatedUser, newStatus);
+        console.log(isUpdated);
         if (isUpdated === null || !isUpdated) renderError(req, res);
         else res.redirect('/membersList/' + req.params.projectId);
     }
