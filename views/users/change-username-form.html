@@ -15,7 +15,7 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fa fa-user"></i></span>
               </div>
-              <input class="form-control" type="text" placeholder="nom d'utilisateur" name="username" value="{{username}}" required>
+              <input class="form-control" type="text" placeholder="nom d'utilisateur" name="username" value="{{username}}" maxlength="20" required>
             </div>
           </div>
           {{#wrongPassword}} <p class="text-danger font-italic">Mot de passe invalide.</p>
