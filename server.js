@@ -272,6 +272,41 @@ app.get('/usersList', isAuthenticated, (req, res) => {
     }
 });
 
+app.get('/update-user-status-form/:username', (req, res) => {
+    let userStatus = req.session.userStatus;
+    let selectedUser = model.getUserId(req.params.username);
+    let selectedUserStatus = model.getUserStatus(selectedUser);
+    if (selectedUserStatus === null || selectedUser === null) {
+        renderError(req, res);
+    } else {
+        if (isAdmin(selectedUserStatus) || (! isAdmin(userStatus) && !isSupervisor(userStatus))) {
+            renderUnauthorizedAction(req, res);
+        } else {
+            let datas = {};
+            datas.linkToUpdateStatus = "/updating-user-status/" + req.params.username;
+            datas.objective = "DU SITE";
+            datas.status = ["Regular", "Supervisor"];
+            datas.actualStatus = selectedUserStatus;
+            datas.username = req.params.username;
+            res.render('moderationTools/update-user-status-form', datas);
+        }
+    }
+});
+
+app.get('/updating-user-status/:username', (req, res) => {
+    let previousStatus = String(req.query.previousStatus).toLowerCase();
+    let newStatus = String(req.query.newStatus).toLowerCase();
+    let updatedUser = model.getUserId(req.params.username);
+    if (previousStatus === newStatus)
+        res.redirect('/usersList');
+    else {
+        let isUpdated = model.updateUserStatus(updatedUser, newStatus);
+        if (isUpdated === null || !isUpdated) renderError(req, res);
+        else res.redirect('/usersList');
+    }
+});
+
+
 
 
 
@@ -450,6 +485,7 @@ app.get('/confirm-project-delete', isAuthenticated, (req, res) => {
 app.get('/membersList/:projectId', isAuthenticated, (req, res) => {
     let userId = req.session.user;
     let userStatus = req.session.userStatus;
+    let projectId = req.params.projectId;
     if (isAdmin(userStatus) || isSupervisor(userStatus) || isCreatorOfProject(userId, req.params.projectId) || isModerator(userId)) {
         let membersList = model.getMembers(req.params.projectId);
         if (membersList === null) 
@@ -458,8 +494,9 @@ app.get('/membersList/:projectId', isAuthenticated, (req, res) => {
             let dictionnary = {};
             dictionnary["usersList"] = membersList;
             dictionnary["linkToDelete"] = "/confirm-member-delete/";
+            dictionnary.linkToUpdateStatus = `/update-user-status-project-form/${projectId}/`
             dictionnary["objective"] = "membres du projet";
-            dictionnary["projectId"] = "+AND+" + req.params.projectId;
+            dictionnary["projectId"] = "+AND+" + projectId;
             res.render('moderationTools/users-list', dictionnary);
         }
     } else {
@@ -541,6 +578,60 @@ app.get("/project-details/membership/:projectId", isAuthenticated, (req, res) =>
     }
 });
 
+app.get('/update-user-status-project-form/:projectId/:username', (req, res) => {
+    let projectId = req.params.projectId;
+    let user = req.session.user;
+    let selectedUser = model.getUserId(req.params.username);
+    let selectedUserStatus = model.getUserProjectStatus(selectedUser, projectId);
+    if (selectedUserStatus === null || selectedUser === null) {
+        renderError(req, res);
+    } else {
+        if (isCreatorOfProject(selectedUser, projectId) || !(isCreatorOfProject(user, projectId) || isModerator(user, projectId))) {
+            renderUnauthorizedAction(req, res);
+        } else {
+            let datas = {};
+            datas.linkToUpdateStatus = "/updating-user-status-project/" + projectId + "/" + req.params.username;
+            datas.objective = "DU PROJET";
+            datas.status = ["Member", "Moderator"];
+            datas.actualStatus = selectedUserStatus;
+            datas.username = req.params.username;
+            res.render('moderationTools/update-user-status-form', datas);
+        }
+    }
+});
+
+app.get('/updating-user-status-project/:projectId/:username', (req, res) => {
+    let previousStatus = String(req.query.previousStatus).toLowerCase();
+    let newStatus = String(req.query.newStatus).toLowerCase();
+    let updatedUser = model.getUserId(req.params.username);
+    if (previousStatus === newStatus)
+        res.redirect('/membersList/' + req.params.projectId);
+    else {
+        let isUpdated = model.updateMemberStatus(req.params.projectId, updatedUser, newStatus);
+        if (isUpdated === null || !isUpdated) renderError(req, res);
+        else res.redirect('/membersList/' + req.params.projectId);
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * 
+ * 
+ * 
+ *              PROJECT EVENTS ROUTES
+ * 
+ * 
+ * 
+ */
 
 app.get("/project-details/:projectId/create-event", isAuthenticated, (req, res) => {
     let userEmail = req.session.user;
@@ -701,6 +792,23 @@ app.get("/project-details/:projectId/:title/confirm-event-delete", isAuthenticat
         res.render("events/delete-event-form");
     }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
