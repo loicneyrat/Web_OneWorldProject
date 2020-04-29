@@ -1,0 +1,33 @@
+{{> header}}
+
+
+<div class="container">
+    <div class="card" style="margin-top: 25vh; margin-left: 150px; margin-right: 150px;">
+        <div class="card-header">
+            <strong>CHANGER LE STATUT D'UN UTILISATEUR AU SEIN {{objective}}</strong>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">
+                Vous vous apprêtez à changer le statut de <i>{{username}}</i> (statut actuel :  {{actualStatus}}). 
+            </h5>
+            <form class="form-inline" method="GET" action="{{linkToUpdateStatus}}">
+                    <label for="delete"><p class="card-body"></p></label>
+                    <input hidden="true" name="previousStatus" value="{{actualStatus}}">
+                    <div class="form-group">
+                        <label for="newStatus">Sélectionner un statut dans le menu déroulant : </label>
+                        <select class="form-control ml-2" id="newStatus" name="newStatus">
+                        {{#status}}
+                          <option>{{.}}</option>
+                        {{/status}}
+                        </select>
+                      </div>
+                    <button class="btn btn-warning ml-5" type="submit">Mettre à jour</button> 
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+{{> footer}}
