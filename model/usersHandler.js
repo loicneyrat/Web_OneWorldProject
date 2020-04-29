@@ -69,13 +69,33 @@ function getProjectInfoString(table, field, projectId) {
 
 function setComplementariesInformationsProjects(projects, user) {
     for (project of projects) {
-        project.creator = db.prepare('SELECT username FROM users WHERE email=?').get([project.creator]).username;
-        project.keywords = getProjectInfoString("projectKeyWords", "keyword", project.projectId);
-        project.categories = getProjectInfoString("projectCategories", "category", project.projectId);
-        project.isModerator = db.prepare('SELECT status FROM projectLinkedUsers WHERE projectId=? AND user=?').get([project.projectId, user]).status === "moderator"; 
+        let projectId = project.projectId;
+        setCreator(project);
+        project.keywords = getKeywordsAsString(projectId);
+        project.categories = getCategoriesAsString(projectId);
+        project.isModerator = isModerator(projectId, user); 
     }
 }
 
+function setCreator(project) {
+    if (project !== {}) return;
+    project.creator = db.prepare('SELECT username FROM users WHERE email=?').get([project.creator]).username;
+}
+
+function getKeywordsAsString(projectId) {
+    return project.keywords = getProjectInfoString("projectKeyWords", "keyword", projectId);
+}
+
+function getCategoriesAsString(projectId) {
+    return project.categories = getProjectInfoString("projectCategories", "category", project.projectId);
+}
+
+function isModerator(projectId, user) {
+    let result = db.prepare('SELECT status FROM projectLinkedUsers WHERE projectId=? AND user=?').get([projectId, user]);
+    if (result === undefined) return;
+    return result.status === "moderator";
+
+}
 
 
 exports.isTheRightPassword = function(email, userPassword) {
