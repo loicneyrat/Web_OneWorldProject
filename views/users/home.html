@@ -13,6 +13,7 @@
           <div class="list-group list-group-flush">
             <a class="list-group-item param-link" href="/update-username-form">Changer le nom d'utilisateur</a>
             <a class="list-group-item param-link" href="/change-password-form">Changer le mot de passe</a>
+            <a class="list-group-item param-link exit-item" href="/confirm-user-delete/{{username}}"><b>Supprimer mon compte</b></a>
           </div>
         </div>
         {{#isAdmin}}
@@ -22,10 +23,7 @@
 
         <a class="list-group-item list-group-item-action" id="list-home-list" data-toggle="list" href="#list-home" role="tab" aria-controls="home">Projets créés</a>
         <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="profile">Projets que je soutiens</a>
-        <!--
-        <a class="list-group-item list-group-item-action"id="list-messages-list" data-toggle="list" href="#list-messages" role="tab" aria-controls="messages">Projets que je suis</a>
-        -->
-        <a href="/logout" class="list-group-item" id="logout-item"><b>Log out</b></a>
+        <a href="/logout" class="list-group-item exit-item"><b>Se déconnecter</b></a>
       </div>
     </div>
   </div>
@@ -40,7 +38,7 @@
             <h5 class="card-title">{{title}}</h5>
             <h6 class="card-subtitle mb-2 text-muted">Créé le {{date}}</h6>
             <p class="card-text">{{description}}</p>
-            <p class="card-text text-muted">
+            <p class="card-text text-secondary">
               Catégories : {{categories}}<br>
               Mots-clefs : {{keywords}}<br>
             </p>
