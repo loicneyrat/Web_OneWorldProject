@@ -17,12 +17,12 @@
           </div>
         </div>
         {{#isAdmin}}
-        <a class="list-group-item" href="/usersList">Liste des utilisateurs du site</a>
+        <a class="list-group-item text-primary" href="/usersList">Liste des utilisateurs du site</a>
         {{/isAdmin}}
-        <a class="list-group-item" id="list-messages-list" href="/create-project-form">Créer un projet</a>
+        <a class="list-group-item text-success" id="list-messages-list" href="/create-project-form">Créer un projet</a>
 
-        <a class="list-group-item list-group-item-action" id="list-home-list" data-toggle="list" href="#list-home" role="tab" aria-controls="home">Projets créés</a>
-        <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="profile">Projets que je soutiens</a>
+        <a class="list-group-item list-group-item-action" id="list-home-list" data-toggle="list" href="#list-home" role="tab" aria-controls="home">Vos créations</a>
+        <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="profile">Projets auxquels vous participez</a>
         <a href="/logout" class="list-group-item exit-item"><b>Se déconnecter</b></a>
       </div>
     </div>
@@ -31,7 +31,7 @@
     <div class="tab-content" id="nav-tabContent">
       {{#projects}}
       <div class="tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list" style="margin-top: 20px; margin-bottom: 75px;">
-        <h1>Mes projets</h1>
+        <h1>Vos projets</h1>
         {{#created}}
         <div class="card" style="margin-top: 20px; margin-bottom: 20px;"><!--width: 18rem; -->
           <div class="card-body">
@@ -52,9 +52,9 @@
         {{/created}}
       </div>
       <div class="tab-pane fade" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list" style="margin-top: 20px; margin-bottom: 75px;">
-        <h1>Projets auxquels je participe</h1>
+        <h1>Projets auxquels vous participez</h1>
         {{#supported}}
-        <div class="card" style="margin-top: 20px; margin-bottom: 20px;"><!--width: 18rem; -->
+        <div class="card" style="margin-top: 20px; margin-bottom: 20px;">
           <div class="card-body">
             <h5 class="card-title">{{title}}</h5>
             <h6 class="card-subtitle mb-2 text-muted">Créé le {{date}} par {{creator}}</h6>
