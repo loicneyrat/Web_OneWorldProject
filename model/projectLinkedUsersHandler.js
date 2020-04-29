@@ -24,7 +24,7 @@ exports.removeMember = function(projectId, user) {
 }
 
 exports.getMembers = function(projectId) {
-    let query = db.prepare('SELECT U.username, P.status, P.affiliation FROM projectLinkedUsers P, users U WHERE P.user = U.email AND projectId=? ORDER BY username');
+    let query = db.prepare('SELECT U.username, P.status FROM projectLinkedUsers P, users U WHERE P.user = U.email AND projectId=? ORDER BY username');
     return query.all([projectId]);
 }
 
