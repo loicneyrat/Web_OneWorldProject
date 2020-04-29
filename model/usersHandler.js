@@ -49,25 +49,15 @@ exports.getProjects = function(email) {
     let projects = {};
     projects.created = db.prepare('SELECT projectId, title, creator, date(date) date FROM projects WHERE creator=?').all([email]);
     projects.supported = db.prepare('SELECT P.projectId, P.title, P.creator, date(P.date) date FROM projects P WHERE P.projectId IN (SELECT projectId FROM projectLinkedUsers WHERE user=? AND (status=? OR status=?))').all([email, "member", "moderator"]);
-    
-    setCategories(projects.created);
-    setCategories(projects.supported);
 
-    setCreator(projects.created);
-    setCreator(projects.supported);
+    setComplementariesInformationsProjects(projects.created, email);
+    setComplementariesInformationsProjects(projects.supported, email);
 
-    setKeywords(projects.created);
-    setKeywords(projects.supported);
     return projects;
 }
 
-function setKeywords(projects) {
-    for (project of projects) {
-        project.keywords = getInfoString("projectKeyWords", "keyword", project.projectId);
-    }
-}
 
-function getInfoString(table, field, projectId) {
+function getProjectInfoString(table, field, projectId) {
     let array = db.prepare(`SELECT ${field} FROM ${table} WHERE projectId=?`).all([projectId]);
     if (array.length == 0) return "";
     let infos = array[0][field];
@@ -77,18 +67,15 @@ function getInfoString(table, field, projectId) {
     return infos;
 }
 
-function setCreator(projects) {
-    let query = db.prepare('SELECT username FROM users WHERE email=?');
+function setComplementariesInformationsProjects(projects, user) {
     for (project of projects) {
-        project.creator = query.get([project.creator]).username;
+        project.creator = db.prepare('SELECT username FROM users WHERE email=?').get([project.creator]).username;
+        project.keywords = getProjectInfoString("projectKeyWords", "keyword", project.projectId);
+        project.categories = getProjectInfoString("projectCategories", "category", project.projectId);
+        project.isModerator = db.prepare('SELECT status FROM projectLinkedUsers WHERE projectId=? AND user=?').get([project.projectId, user]).status === "moderator"; 
     }
 }
 
-function setCategories(projects) {
-    for (project of projects) {
-        project.categories = getInfoString("projectCategories", "category", project.projectId);
-    }
-}
 
 
 exports.isTheRightPassword = function(email, userPassword) {
