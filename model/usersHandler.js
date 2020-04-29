@@ -78,7 +78,7 @@ function setComplementariesInformationsProjects(projects, user) {
 }
 
 function setCreator(project) {
-    if (project !== {}) return;
+    if ((typeof project) !== (typeof {})) return;
     project.creator = db.prepare('SELECT username FROM users WHERE email=?').get([project.creator]).username;
 }
 
