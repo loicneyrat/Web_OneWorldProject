@@ -177,13 +177,13 @@ exports.searchProjects = function(category, keywords) {
 
 
 exports.addMember = function(projectIdConcerned, userToAdd) {
-    if(exists2(projectIdConcerned, userToAdd, "projectId", "user", "projectLinkedUsers")) return null;
+    if (exists2(projectIdConcerned, userToAdd, "projectId", "user", "projectLinkedUsers")) return null;
     return projectLinkedUsersHandler.addMember(projectIdConcerned, userToAdd);
 }
 
 exports.updateMemberStatus = function(projectIdConcerned, userConcerned, newStatus) {
     if(! exists2(projectIdConcerned, userConcerned, "projectId", "user", "projectLinkedUsers")) return null;
-    return projectLinkedUsersHandler.updateMemberStatus(projectIdConcered, userConcerned, newStatus);
+    return projectLinkedUsersHandler.updateMemberStatus(projectIdConcerned, userConcerned, newStatus);
 }
 
 exports.removeMember = function(projectId, userToRemove) {
