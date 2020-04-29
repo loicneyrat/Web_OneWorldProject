@@ -40,6 +40,6 @@ exports.getUserProjectStatus = function(userEmail, projectId) {
 }
 
 exports.getNumberOfMembers = function(projectId) {
-    let query = db.prepare('SELECT count(projectId) FROM projectLinkedUsers WHERE projectId=?');
+    let query = db.prepare('SELECT count(DISTINCT user) count FROM projectLinkedUsers WHERE projectId=?');
     return query.get([projectId]).count;
 }
