@@ -486,7 +486,7 @@ app.get('/membersList/:projectId', isAuthenticated, (req, res) => {
     let userId = req.session.user;
     let userStatus = req.session.userStatus;
     let projectId = req.params.projectId;
-    if (isAdmin(userStatus) || isSupervisor(userStatus) || isCreatorOfProject(userId, req.params.projectId) || isModerator(userId)) {
+    if (isAdmin(userStatus) || isSupervisor(userStatus) || isCreatorOfProject(userId, projectId) || isModerator(userId, projectId)) {
         let membersList = model.getMembers(req.params.projectId);
         if (membersList === null) 
             renderError(req, res);
@@ -608,7 +608,6 @@ app.get('/updating-member-status/:projectId/:username', (req, res) => {
         res.redirect('/membersList/' + req.params.projectId);
     else {
         let isUpdated = model.updateMemberStatus(req.params.projectId, updatedUser, newStatus);
-        console.log(isUpdated);
         if (isUpdated === null || !isUpdated) renderError(req, res);
         else res.redirect('/membersList/' + req.params.projectId);
     }
@@ -762,7 +761,6 @@ app.get("/project-details/:projectId/:title/delete-event", isAuthenticated, (req
     else {
         let data = {};
         data["linkToRout"] = `/project-details/${projectId}/${title}/confirm-event-delete`;
-        console.log(data.linkToRout);
         res.render("events/delete-event-form", data);
     }
 });
