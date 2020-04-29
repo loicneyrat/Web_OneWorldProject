@@ -33,13 +33,13 @@
     border-bottom: 1px solid black;
 }
 
-#logout-item {
+.exit-item {
     text-align: center;
     color: red;
-    background-color: #F2F2F2;
+    /*background-color: #F2F2F2;*/
 }
 
-#logout-item:hover {
+.exit-item:hover {
     background: #B40404;
     color: white;
     transition-duration: 200ms;
