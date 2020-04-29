@@ -65,6 +65,22 @@ exports.getCreator = function(projectId) {
 }
 
 
+exports.changeCreators = function(projectId, newCreatorId) {
+    let actualCreatorId = this.getCreator(projectId);
+    if (actualCreatorId === undefined) return false;
+    let setCreator = db.prepare('UPDATE projects SET creator=? WHERE projectId=?').run([newCreatorId, projectId]);
+    let deleting = db.prepare('DELETE FROM projectLinkedUsers WHERE projectId=? AND user=?').run([projectId, newCreatorId]);
+    if (deleting === undefined || deleting.changes !== 1) return false;
+    let isPresent = db.prepare('SELECT * FROM projectLinkedUsers WHERE projectId=? AND user=?').get([projectId, actualCreatorId]);
+    let final;
+    if (isPresent === undefined) {
+        final = db.prepare('INSERT INTO projectLinkedUsers (projectId, user, status) VALUES (?, ?, ?)').run([projectId, actualCreatorId, "moderator"]);
+    } else {
+        final = projectLinkedUsersHandler.updateMemberStatus(projectId, actualCreatorId, "moderator"); db.prepare('UPDATE projectLinkedUsers SET status=? WHERE projectId=? AND user=?').run(["moderator", projectId, actualCreatorId]);
+    }                       
+    return final !== undefined && final.changes === 1; 
+}
+
 exports.searchProjects = function(category, keywords) {
     let resultOfQuery;
     let request = "";
