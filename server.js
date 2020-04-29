@@ -38,6 +38,15 @@ app.get('/', (req, res) => {
     res.render('index.html');
 });
 
+
+/**
+ * 
+ * 
+ *              CONNEXION ROUTES
+ * 
+ */
+
+
 app.get('/signup-form', (req, res) => {
     res.render('users/signup-form');
 });
@@ -112,6 +121,24 @@ app.get('/logout', (req, res) => {
     req.session = null;
     res.redirect('/');
 });
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * 
+ * 
+ *              USERS HANDLING ROUTES
+ * 
+ */
 
 app.get('/home', isAuthenticated, (req, res) => {
     let isAdministrator = isAdmin(req.session.userStatus);
@@ -238,11 +265,38 @@ app.get('/usersList', isAuthenticated, (req, res) => {
             let dictionnary = {};
             dictionnary["usersList"] = usersList;
             dictionnary["linkToDelete"] = "/confirm-user-delete/";
+            dictionnary.linkToUpdateStatus = "/update-user-status-form/"
             dictionnary["objective"] = "utilisateurs du site"
             res.render('moderationTools/users-list', dictionnary);
         }
     }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * 
+ * 
+ *              PROJECTS ROUTES
+ * 
+ */
+
+
+
+
 
 app.get('/create-project-form', isAuthenticated, (req, res) => {
     let fields = {"objective" : "Créer", "linkToRout" : "/creating-project"};
