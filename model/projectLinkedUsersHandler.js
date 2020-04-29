@@ -12,8 +12,8 @@ exports.addMember = function(projectId, user) {
 exports.updateMemberStatus = function(projectId, user, status) {
     let check = db.prepare('SELECT projectId, user FROM projectLinkedUsers WHERE projectId=? AND user=?').get([projectId, user]);
     if(check === undefined) return false;
-    let update = db.prepare('UPDATE projectLinkedUsers SET status=? WHERE projectId=?');
-    let result = update.run([status, projectId]);
+    let update = db.prepare('UPDATE projectLinkedUsers SET status=? WHERE projectId=? AND user=?');
+    let result = update.run([status, projectId, user]);
     return result.changes === 1;
 }
 
