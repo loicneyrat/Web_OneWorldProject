@@ -26,7 +26,7 @@ app.use ((req, res, next) => {
 
 
 function isAuthenticated(req, res, next) {
-    if (req.session.user === undefined) {
+    if (req.session == undefined) {
         res.render("users/login-form");
     } else {
         next();
@@ -189,7 +189,6 @@ app.get('/confirm-user-delete', isAuthenticated, (req, res) => {
             if (req.session.user === userToDelete) {
                 req.session = null;
                 res.locals.authenticated = false;
-                isAuthenticated(req, res);
                 data["linkToNext"] = "/";
             }
             res.render('multiUsage/delete-confirmation', data);
