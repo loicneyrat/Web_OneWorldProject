@@ -26,8 +26,18 @@ exports.getUserPassword = function(email) {
 }
 
 exports.deleteUser = function(email) {
-    let query = db.prepare('DELETE FROM users WHERE email=?');
-    let result = query.run([email]);
+    let projects = db.prepare('SELECT projectId FROM projects WHERE creator=?').all([email]);
+    if (projects.length !== 0) {
+        for (let i = 0; i < projects.length; i++) {
+            let projectId = projects[i].projectId;
+            db.prepare('DELETE FROM projectEvents WHERE projectId=? OR creator=?').run([projectId, email]);
+            db.prepare('DELETE FROM projectKeywords WHERE projectId=?').run([projectId]);
+            db.prepare('DELETE FROM projectCategories WHERE projectId=?').run([projectId]);
+            db.prepare('DELETE FROM projects WHERE projectId=?').run([projectId]);
+        }
+    }
+    db.prepare('DELETE FROM projectLinkedUsers WHERE user=?').run([email]);
+    let result = db.prepare('DELETE FROM users WHERE email=?').run([email]);
     return result.changes === 1;
 }
 
