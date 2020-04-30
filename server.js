@@ -233,11 +233,9 @@ app.get('/update-username-form', isAuthenticated, (req, res) => {
 
 app.post('/update-username', isAuthenticated, (req, res) => {
     let username = req.body.username;
-    console.log(username);
     let password = req.body.pwd;
     let checkResult = model.credentialsAreFree(req.session.user, username);
     let expectedPassword = model.getUserPassword(req.session.user);
-
     if (expectedPassword === null || checkResult === null) 
         renderError(req, res);
     else if (password !== expectedPassword) {
