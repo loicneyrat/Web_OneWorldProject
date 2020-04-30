@@ -26,7 +26,7 @@ app.use ((req, res, next) => {
 
 
 function isAuthenticated(req, res, next) {
-    if (req.session.user == undefined) {
+    if (req.session.user === undefined) {
         res.render("users/login-form");
     } else {
         next();
@@ -159,9 +159,11 @@ app.get('/home', isAuthenticated, (req, res) => {
 app.get('/confirm-user-delete/:username', isAuthenticated, (req, res) => {
     let userEmail = model.getUserId(req.params.username);
     let userStatus = req.session.userStatus;
+    let userToDeleteStatus = model.getUserStatus(userEmail);
     if (userEmail === null) 
         renderError(req, res);
-    
+    else if (userStatus === userToDeleteStatus && userEmail !== req.session.user)
+        renderUnauthorizedAction(req, res);
     else if (isAdmin(userStatus) || isSupervisor(userStatus) || userEmail === req.session.user)
         res.render('moderationTools/delete-user-form', {"username" : req.params.username});
     else {
@@ -173,23 +175,31 @@ app.get('/confirm-user-delete', isAuthenticated, (req, res) => {
     let userToDelete = model.getUserId(req.query.username);
     let word = req.query.delete.toUpperCase();
     let userStatus = req.session.userStatus;
+    let userToDeleteStatus = model.getUserStatus(userToDelete);
     if (userToDelete === null) 
         renderError(req, res);
+    else if (userStatus === userToDeleteStatus && userToDelete !== req.session.user)
+        renderUnauthorizedAction(req, res);
     else if(!isAdmin(userStatus) && !isSupervisor(userStatus) && req.session.user !== userToDelete) {
         renderUnauthorizedAction(req, res);
     }
-    else if(word === "SUPPRIMER") {
-        if (model.deleteUser(userToDelete)){
+    else if (word === "SUPPRIMER") {
+        if (model.deleteUser(userToDelete)) {
             let data = {};
-            data["linkToNext"] = "/usersList"
-            res.render('multiUsage/delete-confirmation', data);
-        }
-        else {
-            res.locals.deleteFailure = true;
-            res.render('moderationTools/delete-user-form', {"username" : req.params.username});
+            data["linkToNext"] = "/usersList";
+            if (req.session.user === userToDelete) {
+                req.session = null;
+                res.locals.authenticated = false;
+                isAuthenticated(req, res);
+                data["linkToNext"] = "/";
             }
+            res.render('multiUsage/delete-confirmation', data);
+        } else {
+                res.locals.deleteFailure = true;
+                res.render('moderationTools/delete-user-form', {"username" : req.params.username});
+                
         }
-    else {
+    } else {
         res.locals.wrongWord = true;
         res.render('moderationTools/delete-user-form', {"username" : req.params.username});
     }
@@ -236,6 +246,7 @@ app.post('/update-username', isAuthenticated, (req, res) => {
     let password = req.body.pwd;
     let checkResult = model.credentialsAreFree(req.session.user, username);
     let expectedPassword = model.getUserPassword(req.session.user);
+
     if (expectedPassword === null || checkResult === null) 
         renderError(req, res);
     else if (password !== expectedPassword) {
@@ -259,7 +270,8 @@ app.post('/update-username', isAuthenticated, (req, res) => {
 
 app.get('/usersList', isAuthenticated, (req, res) => {
     let userStatus = req.session.userStatus;
-    if (!isAdmin(userStatus) && !isSupervisor(userStatus)) {
+    let isAdministrator = isAdmin(userStatus);
+    if (!isAdministrator && !isSupervisor(userStatus)) {
         renderUnauthorizedAction(req, res);
     } else {
         let usersList = model.getUsersList();
@@ -271,6 +283,7 @@ app.get('/usersList', isAuthenticated, (req, res) => {
             dictionnary["linkToDelete"] = "/confirm-user-delete/";
             dictionnary.linkToUpdateStatus = "/update-user-status-form/"
             dictionnary["objective"] = "utilisateurs du site"
+            dictionnary["hasFullRights"] = isAdministrator;
             res.render('moderationTools/users-list', dictionnary);
         }
     }
@@ -452,7 +465,7 @@ app.post('/updating-project/:projectId', isAuthenticated, (req, res) => {
 
 app.get('/delete-project/:projectId', isAuthenticated, (req, res) => {
     let user = req.session.user;
-    if (isAdmin(req.session.userStatus) || isSupervisor(user) || isCreatorOfProject(user, req.params.projectId)){
+    if (isAdmin(req.session.userStatus) || isSupervisor(req.session.userStatus) || isCreatorOfProject(user, req.params.projectId)){
         res.render("projects/delete-project-form", {"projectId": req.params.projectId});
     }
     else 
@@ -490,8 +503,11 @@ app.get('/membersList/:projectId', isAuthenticated, (req, res) => {
     let userId = req.session.user;
     let userStatus = req.session.userStatus;
     let projectId = req.params.projectId;
-    if (isAdmin(userStatus) || isSupervisor(userStatus) || isCreatorOfProject(userId, projectId) || isModerator(userId, projectId)) {
+    if (!isAdmin(userStatus) && !isSupervisor(userStatus) && !isCreatorOfProject(userId, projectId) && !isModerator(userId, projectId)) {
+        renderUnauthorizedAction(req, res);
+    } else {
         let membersList = model.getMembers(req.params.projectId);
+        let hasFullRights = isAdmin(userStatus) || isSupervisor(userStatus) || isCreatorOfProject(userId, projectId);
         if (membersList === null) 
             renderError(req, res);
         else {
@@ -501,18 +517,22 @@ app.get('/membersList/:projectId', isAuthenticated, (req, res) => {
             dictionnary.linkToUpdateStatus = `/update-member-status-form/${projectId}/`
             dictionnary["objective"] = "membres du projet";
             dictionnary["projectId"] = "-AND-" + projectId;
+            dictionnary["hasFullRights"] = hasFullRights;
             res.render('moderationTools/users-list', dictionnary);
         }
-    } else {
-        renderUnauthorizedAction(req, res);
     }
 });
 
 app.get('/confirm-member-delete/:username-AND-:projectId', isAuthenticated, (req, res) => {
-    let userEmail = model.getUserId(req.params.username);
-    if (userEmail === null) renderError(req, res);
-    
-    else if (isAdmin(req.session.userStatus) || isSupervisor(req.session.userStatus) || isCreatorOfProject(req.session.user, req.params.projectId) || isModerator(req.session.user)) {
+    let projectId = req.params.projectId;
+    let userToDelete = model.getUserId(req.params.username);
+    let requester = req.session.user;
+    if (userToDelete === null) renderError(req, res);
+    if (isCreatorOfProject(userToDelete, projectId))
+        renderUnauthorizedAction(req, res);
+    else if (isModerator(requester, projectId) && isModerator(userToDelete, projectId)) {
+        renderUnauthorizedAction(req, res);
+    } else if (isAdmin(req.session.userStatus) || isSupervisor(req.session.userStatus) || isCreatorOfProject(requester, projectId) || isModerator(requester, projectId)) {
         let content = {};
         content["username"] = req.params.username;
         content["projectId"] = req.params.projectId;
@@ -526,29 +546,27 @@ app.get('/confirm-member-delete/:username-AND-:projectId', isAuthenticated, (req
 app.get('/confirming-member-ban', isAuthenticated, (req, res) => {
     let userToBan = model.getUserId(req.query.username);
     let projectId = req.query.projectId;
-    let userWhoAsks = req.session.user;
-    let askingUserStatus = req.session.userStatus;
-    let word = req.query.delete.toUpperCase();
-
+    let requester = req.session.user;
+    let requesterStatus = req.session.userStatus;
+    let word = req.query.delete.toUpperCase(); 
     if (userToBan === null) renderError(req, res);
-
-    else if(!isAdmin(askingUserStatus) && !isSupervisor(askingUserStatus) && !isCreatorOfProject(userWhoAsks, projectId) && !isModerator(userWhoAsks)) {
+    if (isCreatorOfProject(userToBan, projectId)) renderUnauthorizedAction(req, res);
+    else if (!isAdmin(requesterStatus) && !isSupervisor(requesterStatus) && !isCreatorOfProject(requester, projectId) && !isModerator(requester, projectId)) {
         renderUnauthorizedAction(req, res);
-    }
-    else if (word !== "EXCLURE") {
+    } else if (isModerator(requester, projectId) && isModerator(userToBan, projectId) && requester !== userToBan) {
+        renderUnauthorizedAction(req, res)
+    } else if (word !== "EXCLURE") {
         res.locals.wrongWord = true;
         let content = {};
         content["username"] = req.params.username;
         content["projectId"] = req.params.projectId;
         res.render('moderationTools/ban-member-form', content);
-    }
-    else {
+    } else {
         if (model.removeMember(projectId, userToBan)){
             let data = {};
             data["linkToNext"] = "/membersList/" + projectId;
             res.render('multiUsage/delete-confirmation', data);
-        }
-        else {
+        } else {
             res.locals.deleteFailure = true;
             let content = {};
             content["username"] = req.params.username;
@@ -585,14 +603,16 @@ app.get("/project-details/membership/:projectId", isAuthenticated, (req, res) =>
 app.get('/update-member-status-form/:projectId/:username', (req, res) => {
     let projectId = req.params.projectId;
     let user = req.session.user;
+    let userStatus = model.getUserStatus(user);
     let selectedUser = model.getUserId(req.params.username);
     let selectedUserStatus = model.getUserProjectStatus(selectedUser, projectId);
     if (selectedUserStatus === null || selectedUser === null) {
         renderError(req, res);
-    } else {
-        if (isCreatorOfProject(selectedUser, projectId) || !(isCreatorOfProject(user, projectId) || isModerator(user, projectId))) {
+    } else if (isCreatorOfProject(selectedUser, projectId)) {
             renderUnauthorizedAction(req, res);
-        } else {
+    } else if (!isCreatorOfProject(user, projectId) && !isSupervisor(userStatus) && !isAdmin(userStatus)) {
+            renderUnauthorizedAction(req, res);
+    } else {
             let datas = {};
             datas.linkToUpdateStatus = "/updating-member-status/" + projectId + "/" + req.params.username;
             datas.objective = "DU PROJET";
@@ -601,25 +621,28 @@ app.get('/update-member-status-form/:projectId/:username', (req, res) => {
             datas.actualStatus = selectedUserStatus;
             datas.username = req.params.username;
             res.render('moderationTools/update-user-status-form', datas);
-        }
     }
 });
 
-app.get('/updating-member-status/:projectId/:username', (req, res) => {
-    let previousStatus = String(req.query.previousStatus).toLowerCase();
-    let newStatus = String(req.query.newStatus).toLowerCase();
-    let updatedUser = model.getUserId(req.params.username);
-    if (previousStatus === newStatus)
-        res.redirect('/membersList/' + req.params.projectId);
-    else {
-        if (newStatus === "creator") {
-            let isUpdated = model.changeCreators(req.params.projectId, updatedUser);
+app.get('/updating-member-status/:projectId/:username', isAuthenticated, (req, res) => {
+    if (res.locals.isAuthenticated) {
+        renderError(req, res); 
+    } else {
+        let previousStatus = String(req.query.previousStatus).toLowerCase();
+        let newStatus = String(req.query.newStatus).toLowerCase();
+        let updatedUser = model.getUserId(req.params.username);
+        if (previousStatus === newStatus)
+            res.redirect('/membersList/' + req.params.projectId);
+        else {
+            if (newStatus === "creator") {
+                let isUpdated = model.changeCreators(req.params.projectId, updatedUser);
             if (isUpdated) res.redirect('/membersList/' + req.params.projectId);
             else renderError(req, res);
-        } else {
-        let isUpdated = model.updateMemberStatus(req.params.projectId, updatedUser, newStatus);
-        if (isUpdated === null || !isUpdated) renderError(req, res);
-        else res.redirect('/membersList/' + req.params.projectId);
+            } else {
+                let isUpdated = model.updateMemberStatus(req.params.projectId, updatedUser, newStatus);
+                if (isUpdated === null || !isUpdated) renderError(req, res);
+                else res.redirect('/membersList/' + req.params.projectId);
+            }
         }
     }
 });
