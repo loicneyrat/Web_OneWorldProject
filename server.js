@@ -199,15 +199,14 @@ app.get('/change-password-form', isAuthenticated, (req, res) => {
     res.render('users/change-password-form');
 });
 
-app.post('/update-password', isAuthenticated, (res, req) => {
+app.post('/update-password', isAuthenticated, (req, res) => {
     let oldPassword = req.body.oldPwd;
     let newPassword = req.body.newPwd;
     let confirmedPassword = req.body.verifpwd;
-    let userEmail = req.session.email;
+    let userEmail = req.session.user;
     let isRightPassword = model.isTheRightPassword(userEmail, oldPassword);
     if (isRightPassword === null) 
         renderError(req, res);
-    
     else if(!isRightPassword) {
         res.locals.wrongPassword = true;
         res.render('users/change-password-form')
