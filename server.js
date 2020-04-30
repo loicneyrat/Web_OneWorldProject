@@ -228,11 +228,13 @@ app.post('/update-password', isAuthenticated, (res, req) => {
 });
 
 app.get('/update-username-form', isAuthenticated, (req, res) => {
-    res.render('users/change-username-form');
+    let username = model.getUsername(req.session.user);
+    res.render('users/change-username-form', {username});
 });
 
 app.post('/update-username', isAuthenticated, (req, res) => {
     let username = req.body.username;
+    console.log(username);
     let password = req.body.pwd;
     let checkResult = model.credentialsAreFree(req.session.user, username);
     let expectedPassword = model.getUserPassword(req.session.user);
