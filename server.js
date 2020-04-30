@@ -243,11 +243,11 @@ app.post('/update-username', isAuthenticated, (req, res) => {
         renderError(req, res);
     else if (password !== expectedPassword) {
         res.locals.wrongPassword = true;
-        res.render('users/update-username-form', {"username" : username});
+        res.render('users/change-username-form', {"username" : username});
     }
     else if (checkResult === -2) {
         res.locals.usernameTaken = true;
-        res.render('users/update-username-form', {"username" : username});
+        res.render('users/change-username-form', {"username" : username});
     }
     else {
         if (model.updateUserUsername(req.session.user, username)) {
