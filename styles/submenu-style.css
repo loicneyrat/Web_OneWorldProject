@@ -34,9 +34,7 @@
 }
 
 .exit-item {
-    text-align: center;
     color: red;
-    /*background-color: #F2F2F2;*/
 }
 
 .exit-item:hover {
