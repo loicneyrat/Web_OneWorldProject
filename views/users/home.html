@@ -2,8 +2,8 @@
 
 
 <div class="row">
-  <div class="col-lg-3 col-md-3 col-sm-12 fixed">
-    <div class="card" style="width: 18rem; margin-left: 2vw"> <!--- margin-left: 3vw; width: 18rem-->
+  <div class="col-lg-3 col-md-3 col-sm-12 fixed" style="width: 18rem; margin-left: 2vw;">
+    <div class="card" style="width: 18rem; margin-left: 2vw"> <!--- margin-left: 3vw-->
       <div class="card-header">
         <h3>Bienvenue à la maison, {{username}} !</h3>
       </div>
@@ -23,16 +23,16 @@
         {{/isAdmin}}
         <a class="list-group-item" id="list-messages-list" href="/create-project-form">Créer un projet</a>
 
-        <a class="list-group-item list-group-item-action" id="list-home-list" data-toggle="list" href="#list-home" role="tab" aria-controls="home">Vos créations</a>
-        <a class="list-group-item list-group-item-action" id="list-profile-list" data-toggle="list" href="#list-profile" role="tab" aria-controls="profile">Projets auxquels vous participez</a>
+        <a class="list-group-item list-group-item-action" id="created-projects-button" data-toggle="list" href="#created-projects" role="tab" aria-controls="home">Vos créations</a>
+        <a class="list-group-item list-group-item-action" id="supported-projects-button" data-toggle="list" href="#supported-projects" role="tab" aria-controls="profile">Projets auxquels vous participez</a>
         <a href="/logout" class="list-group-item exit-item"><b>Se déconnecter</b></a>
       </div>
     </div>
   </div>
-  <div class="col-7">
+  <div class="col-lg-7 col-md-12 col-sm-12">
     <div class="tab-content" id="nav-tabContent">
       {{#projects}}
-      <div class="tab-pane fade show active" id="list-home" role="tabpanel" aria-labelledby="list-home-list" style="margin-bottom: 75px;">
+      <div class="tab-pane fade show active" id="created-projects" role="tabpanel" aria-labelledby="created-projects-button" style="margin-bottom: 75px;">
         <h1 class="mb-3">Vos projets</h1>
         <hr class="mb-4"/>
         {{#created}}
@@ -53,7 +53,7 @@
         </div>
         {{/created}}
       </div>
-      <div class="tab-pane fade" id="list-profile" role="tabpanel" aria-labelledby="list-profile-list" style="margin-top: 20px; margin-bottom: 75px;">
+      <div class="tab-pane fade" id="supported-projects" role="tabpanel" aria-labelledby="supported-projects-button" style="margin-top: 20px; margin-bottom: 75px;">
         <h1>Projets auxquels vous participez</h1>
         <hr class="mb-4"/>
         {{#supported}}
