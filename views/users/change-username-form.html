@@ -5,10 +5,10 @@
     
     <div class="card mx-auto mt-4" style="width:550px; border: 1px solid black;">
       <div class="card-body">
-        <form action="/update-username" method="POST"></form>
-        {{#usernameTaken}}
+        <form action="/update-username" method="POST">
+          {{#usernameTaken}}
           <p class="text-danger font-italic">Ce nom d'utilisateur est déjà pris.Merci d'en choisir un autre.</p>
-        {{/usernameTaken}}
+          {{/usernameTaken}}
           <div class="form-group">
             <label for="username">Votre nouveau nom d'utilisateur : </label>
             <div class="input-group">
