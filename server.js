@@ -141,7 +141,7 @@ app.get('/logout', (req, res) => {
  */
 
 app.get('/home', isAuthenticated, (req, res) => {
-    let isAdministrator = isAdmin(req.session.userStatus);
+    let isAdministrator = isAdmin(req.session.userStatus) || isSupervisor(req.session.userStatus);
     let username = model.getUsername(req.session.user);
     let projects = model.getProjects(req.session.user);
     if (username === null || projects === null) 
