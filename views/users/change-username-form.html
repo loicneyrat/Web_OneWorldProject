@@ -5,7 +5,7 @@
     
     <div class="card mx-auto mt-4" style="width:550px; border: 1px solid black;">
       <div class="card-body">
-        <form action="/update-username" method="post"></form>
+        <form action="/update-username" method="POST">
         {{#usernameTaken}}
           <p class="text-danger font-italic">Ce nom d'utilisateur est déjà pris.Merci d'en choisir un autre.</p>
         {{/usernameTaken}}
