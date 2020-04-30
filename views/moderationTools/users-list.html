@@ -5,10 +5,10 @@
     <table class="table table-hover table-light" style="text-align: center;">
         <thead class="thead-dark">
             <tr>
-                <th scope="col">Username</th>
-                <th scope="col">Status</th>
-                <th scope="col">Change status</th>
-                <th scope="col">Delete user</th>
+                <th scope="col">Nom d'utilisateur</th>
+                <th scope="col">Statut</th>
+                <th scope="col">Changer le status</th>
+                <th scope="col">Expulsion</th>
             </tr>
         </thead>
         <tbody>
@@ -16,8 +16,8 @@
             <tr>
                 <th>{{username}}</th>
                 <td>{{status}}</td>
-                <td><a href="{{linkToUpdateStatus}}{{username}}">Change status</a></td>
-                <td><a href="{{linkToDelete}}{{username}}{{separator}}{{projectId}}">Delete user</a></td>
+                <td><a href="{{linkToUpdateStatus}}{{username}}">Changer le statut</a></td>
+                <td><a href="{{linkToDelete}}{{username}}{{separator}}{{projectId}}">Expulser</a></td>
             </tr>
             {{/usersList}}
         </tbody>
