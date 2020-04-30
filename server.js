@@ -173,7 +173,8 @@ app.get('/confirm-user-delete', isAuthenticated, (req, res) => {
     let userToDelete = model.getUserId(req.query.username);
     let word = req.query.delete.toUpperCase();
     let userStatus = req.session.userStatus;
-    let statusOfUserToDelete = model.getUserStatus(userEmail);
+    let userEmailToDelete = req.query.username;
+    let statusOfUserToDelete = model.getUserStatus(userEmailToDelete);
 
     if (userToDelete === null) {
         renderError(req, res);
