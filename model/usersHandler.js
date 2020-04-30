@@ -22,7 +22,7 @@ exports.updateUserUsername = function(email, username) {
 
 exports.getUserPassword = function(email) {
     let query = db.prepare('SELECT password FROM users WHERE email=?');
-    return query.get([email]);
+    return query.get([email]).password;
 }
 
 exports.deleteUser = function(email) {
