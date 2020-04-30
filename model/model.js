@@ -90,6 +90,11 @@ exports.getUsername = function(userId) {
     return usersHandler.getUsername(userId);
 }
 
+exports.getUserPassword = function(userId) {
+    if (!exists(userId, "email", "users")) return null;
+    return usersHandler.getUserPassword(userId);
+}
+
 
 exports.getProjects = function(email) {
     return usersHandler.getProjects(email);
