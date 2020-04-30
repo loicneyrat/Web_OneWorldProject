@@ -7,7 +7,7 @@
             <tr>
                 <th scope="col">Nom d'utilisateur</th>
                 <th scope="col">Statut</th>
-                <th scope="col">Changer le status</th>
+                <th scope="col">Changer le statut</th>
                 <th scope="col">Expulsion</th>
             </tr>
         </thead>
@@ -16,8 +16,10 @@
             <tr>
                 <th>{{username}}</th>
                 <td>{{status}}</td>
+                {{^isAdmin}}
                 <td><a href="{{linkToUpdateStatus}}{{username}}">Changer le statut</a></td>
                 <td><a href="{{linkToDelete}}{{username}}{{separator}}{{projectId}}">Expulser</a></td>
+                {{/isAdmin}}
             </tr>
             {{/usersList}}
         </tbody>

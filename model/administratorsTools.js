@@ -10,5 +10,9 @@ exports.updateUserStatus = function (email, status) {
 
 exports.getUsersList = function() {
     let query = db.prepare('SELECT username, status FROM Users ORDER BY username');
-    return query.all();
+    let result = query.all();
+    for (let i = 0; i < result.length; i++) {
+        result[i].isAdmin = result[i].status === "administrator";
+    }
+    return result;
 }
