@@ -18,9 +18,9 @@
             {{/isAdmin}}
           </div>
         </div>
-        {{#isAdmin}}
+        {{#isSupervisorOrAbove}}
         <a class="list-group-item text-primary" href="/usersList">Liste des utilisateurs du site</a>
-        {{/isAdmin}}
+        {{/isSupervisorOrAbove}}
         <a class="list-group-item" id="list-messages-list" href="/create-project-form">Créer un projet</a>
 
         <a class="list-group-item list-group-item-action" id="created-projects-button" data-toggle="list" href="#created-projects" role="tab" aria-controls="home">Vos créations</a>

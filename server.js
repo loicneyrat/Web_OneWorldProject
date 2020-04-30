@@ -141,13 +141,18 @@ app.get('/logout', (req, res) => {
  */
 
 app.get('/home', isAuthenticated, (req, res) => {
-    let isAdministrator = isAdmin(req.session.userStatus) || isSupervisor(req.session.userStatus);
+    let isAdministrator = isAdmin(req.session.userStatus);
+    let isSupervisorOrAbove = isSupervisor(req.session.userStatus)|| isAdmin(req.session.userStatus);
     let username = model.getUsername(req.session.user);
     let projects = model.getProjects(req.session.user);
     if (username === null || projects === null) 
         renderError(req, res);
     else
-        res.render('users/home', {"isAdmin": isAdministrator, "username": username, "projects": projects});
+        res.render('users/home', {"isSupervisorOrAbove" : isSupervisorOrAbove,
+                                  "isAdmin": isAdministrator, 
+                                  "username": username, 
+                                  "projects": projects
+                                });
 });
 
 
