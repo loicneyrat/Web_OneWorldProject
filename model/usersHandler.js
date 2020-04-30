@@ -39,7 +39,7 @@ exports.getUserId = function(username) {
     return result === undefined ? result : result.email;
 }
 
-exports.getUsername = function(userId) {
+exports.getUsername = function (userId) {
     let query = db.prepare('SELECT username FROM users WHERE email=?');
     let result = query.get([userId]);
     return result === undefined ? result : result.username;
@@ -70,16 +70,17 @@ function getProjectInfoString(table, field, projectId) {
 function setComplementariesInformationsProjects(projects, user) {
     for (project of projects) {
         let projectId = project.projectId;
-        setCreator(project);
+        project.creator = getUsername(project.creator);
         project.keywords = getKeywordsAsString(projectId);
         project.categories = getCategoriesAsString(projectId);
         project.isModerator = isModerator(projectId, user); 
     }
 }
 
-function setCreator(project) {
-    if ((typeof project) !== (typeof {})) return;
-    project.creator = db.prepare('SELECT username FROM users WHERE email=?').get([project.creator]).username;
+function getUsername(userId) {
+    let query = db.prepare('SELECT username FROM users WHERE email=?');
+    let result = query.get([userId]);
+    return result === undefined ? result : result.username;
 }
 
 function getKeywordsAsString(projectId) {

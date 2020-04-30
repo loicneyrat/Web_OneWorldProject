@@ -1,0 +1,36 @@
+{{> header}}
+
+
+    <div class="container">
+        <nav class="navbar nav-pills nav-fill bg-primary" style="border-radius: 10px;">
+            <form class="form-inline" action="/search" method="GET" style="width: 100%; box-sizing: border-box;">
+                <select class="form-control mr-3" name="category">
+                    {{#categories}}
+                    <option>{{value}}</option>
+                    {{/categories}}
+                </select>
+                <input class="nav-item form-control mr-3" name="keywords" placeholder="Entrez vos mots-clefs, séparés par des virgules" value="{{keywords}}"/>
+                <button class="btn btn-primary" type="submit">Rechercher !</button>
+            </form>
+          </nav>
+    </div>
+    <hr class="my-4">
+    <div class="container" style="margin-bottom: 75px;">
+        <h5>{{numberOfResults}}</h5>
+        {{#projects}}
+        <div class="card mx-auto" style="margin-top: 20px; margin-bottom: 20px;">
+          <div class="card-body">
+            <h5 class="card-title">{{title}}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">Créé le {{date}} par {{creator}}</h6>
+            <p class="card-text text-secondary">
+                Catégories : {{categories}}<br>
+                Mots-clefs : {{keywords}}<br>
+            </p>
+            <a href="/project-details/{{projectId}}" class="card-link">Voir les détails</a>
+          </div>
+        </div>
+        {{/projects}}
+    </div>
+<!--</div>-->
+
+{{> footer}}

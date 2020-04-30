@@ -593,6 +593,7 @@ app.get('/update-member-status-form/:projectId/:username', (req, res) => {
             datas.linkToUpdateStatus = "/updating-member-status/" + projectId + "/" + req.params.username;
             datas.objective = "DU PROJET";
             datas.status = ["Member", "Moderator"];
+            if (isCreatorOfProject(user, projectId)) datas.status.push("Creator");
             datas.actualStatus = selectedUserStatus;
             datas.username = req.params.username;
             res.render('moderationTools/update-user-status-form', datas);
@@ -607,9 +608,39 @@ app.get('/updating-member-status/:projectId/:username', (req, res) => {
     if (previousStatus === newStatus)
         res.redirect('/membersList/' + req.params.projectId);
     else {
+        if (newStatus === "creator") {
+            let isUpdated = model.changeCreators(req.params.projectId, updatedUser);
+            if (isUpdated) res.redirect('/membersList/' + req.params.projectId);
+            else renderError(req, res);
+        } else {
         let isUpdated = model.updateMemberStatus(req.params.projectId, updatedUser, newStatus);
         if (isUpdated === null || !isUpdated) renderError(req, res);
         else res.redirect('/membersList/' + req.params.projectId);
+        }
+    }
+});
+
+
+app.get("/project-details/membership/:projectId", isAuthenticated, (req, res) => {
+    let userEmail = req.session.user;
+    let projectId = req.params.projectId;
+    let errorOccured = false;
+    if(isCreatorOfProject(userEmail, projectId)) {
+        res.render('projects/name-new-creator', {"referer": req.headers.referer});
+    }
+    else if(model.isMember(userEmail, projectId)) {
+        if(!model.removeMember(projectId, userEmail)){
+            renderError(req, res);
+        }else {
+            res.redirect("/project-details/" + projectId);
+        }
+    }
+    else {
+        if(!model.addMember(projectId, userEmail)){
+            renderError(req, res);
+        }else {
+            res.redirect("/project-details/" + projectId);
+        }
     }
 });
 
@@ -792,10 +823,25 @@ app.get("/project-details/:projectId/:title/confirm-event-delete", isAuthenticat
     }
 });
 
+app.get('/search-form', (req, res) => {
+    let categories = [{name: "all", value: "Toutes les catégories"}].concat(model.allCategories);
+    res.render('search-form', {categories});
+});
 
-
-
-
+app.get('/search', (req, res) => {
+    let category = req.query.category;
+    let keywords = req.query.keywords;
+    let projects = model.searchProjects(category, keywords);
+    
+    let categories = [{name: "all", value: "Toutes les catégories"}].concat(model.allCategories);
+    let datas = {category: "selected", "keywords": keywords};   
+    datas.projects = projects;
+    datas.numberOfResults = projects.length + (projects.length > 1 ? " résultats" : " résultat");
+    datas[category] = "selected"; 
+    datas.categories = categories;
+    datas.keywords = keywords;
+    res.render('search-form', datas);
+});
 
 
 

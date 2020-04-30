@@ -2,7 +2,7 @@ var sqlite = require('better-sqlite3');
 var keywordsHandler = require('./keywordsHandler.js');
 var categoriesHandler = require('./categoriesHandler.js');
 var eventsHandler = require('./eventsHandler.js');
-var projectLinkedUsersHandler = require('./projectLinkedUsersHandler.js')
+var projectLinkedUsersHandler = require('./projectLinkedUsersHandler.js');
 var db = new sqlite('database.sqlite');
 
 exports.createProject = function(title, description, categories, creator, date, keywords) {
@@ -35,7 +35,6 @@ exports.updateProject = function(projectId, title, description, categories, keyw
     }
     let update = db.prepare('UPDATE projects SET title=?, description=? WHERE projectId=?');
     let result = update.run([title, description, projectId]);
-
     return result.changes === 1;
 }
 
@@ -65,25 +64,41 @@ exports.getCreator = function(projectId) {
 }
 
 
+exports.changeCreators = function(projectId, newCreatorId) {
+    let actualCreatorId = this.getCreator(projectId);
+    if (actualCreatorId === undefined) return false;
+    let setCreator = db.prepare('UPDATE projects SET creator=? WHERE projectId=?').run([newCreatorId, projectId]);
+    let deleting = db.prepare('DELETE FROM projectLinkedUsers WHERE projectId=? AND user=?').run([projectId, newCreatorId]);
+    if (deleting === undefined || deleting.changes !== 1) return false;
+    let isPresent = db.prepare('SELECT * FROM projectLinkedUsers WHERE projectId=? AND user=?').get([projectId, actualCreatorId]);
+    let final;
+    if (isPresent === undefined) {
+        final = db.prepare('INSERT INTO projectLinkedUsers (projectId, user, status) VALUES (?, ?, ?)').run([projectId, actualCreatorId, "moderator"]);
+    } else {
+        final = projectLinkedUsersHandler.updateMemberStatus(projectId, actualCreatorId, "moderator"); db.prepare('UPDATE projectLinkedUsers SET status=? WHERE projectId=? AND user=?').run(["moderator", projectId, actualCreatorId]);
+    }                       
+    return final !== undefined && final.changes === 1; 
+}
+
+
 exports.searchProjects = function(category, keywords) {
     let resultOfQuery;
     let request = "";
-
-    if(keywords !== undefined) {
+    if(keywords !== "") {
         keywords = keywords.split(",");
         trimStringsOfArray(keywords);
         
-        if(category != "all") {
+        if (category != "Toutes les catégories") {
             request = buildRequestWithKeywordsAndCategory(keywords);
             resultOfQuery = db.prepare(request).all(category, keywords);
         }
         else {
             request = buildRequestWithKeywords(keywords);
-            resultOfQuery = db.prepare(request.all(keywords));
+            resultOfQuery = db.prepare(request).all(keywords);
         }
     }
     else {
-        if (category == "all") {
+        if (category == "Toutes les catégories") {
             let query = db.prepare('SELECT projectId FROM projects ORDER BY RANDOM() LIMIT 100');
             resultOfQuery = query.all();
         }
@@ -91,12 +106,11 @@ exports.searchProjects = function(category, keywords) {
             resultOfQuery = categoriesHandler.getProjectsWithCategory(category);
         }
     }
-
     let validProjects = [];
 
-    for (let i = 0 ; i < resultOfQuery.length() ; i++) {
+    for (let i = 0 ; i < resultOfQuery.length ; i++) {
         let projectId = resultOfQuery[i].projectId;
-        validProjects[i] = getProjectDetails(projectId);
+        validProjects.push(this.getProjectDetails(projectId));
     }
 
     return validProjects;
@@ -104,20 +118,24 @@ exports.searchProjects = function(category, keywords) {
 
 
 function trimStringsOfArray(arrayOfString) {
-    for (let i = 0 ; i < arrayOfString.length() ; i++) {
+    for (let i = 0 ; i < arrayOfString.length ; i++) {
         arrayOfString[i] = arrayOfString[i].trim();
     }
 }
 
 
 function buildRequestWithKeywordsAndCategory(keywords) {
-    let request = "SELECT projectID FROM projectKeywords K, projectCategories C WHERE K.projectId = C.projectId AND category=? AND ";
+    let request = "SELECT K.projectId FROM projectKeywords K, projectCategories C WHERE K.projectId = C.projectId AND category=? AND ";
+    return fillWithKeywordsAndFinalParameters(request, keywords);
+}
 
+function buildRequestWithKeywords(keywords) {
+    let request = "SELECT projectId FROM projectKeywords WHERE ";
     return fillWithKeywordsAndFinalParameters(request, keywords);
 }
 
 function fillWithKeywordsAndFinalParameters(request, keywords) {
-    for (let i = 0 ; i < keywords.length() ; i++) {
+    for (let i = 0 ; i < keywords.length ; i++) {
         request += "keyword=? AND ";
     }
 
@@ -126,5 +144,6 @@ function fillWithKeywordsAndFinalParameters(request, keywords) {
 }
 
 function removeFinalAND(string) {
-    return string.substring(0, request.length() - 5);
+    return string.substring(0, string.length - 5);
 }
+
