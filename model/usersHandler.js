@@ -110,9 +110,9 @@ exports.isTheRightPassword = function(email, userPassword) {
 }
 
 exports.credentialsAreFree = function(email, username) {
-    let query = db.prepare('SELECT email FROM Users WHERE email=?');
-    if (query.get([email]) !== undefined) return -1;
-    query = db.prepare('SELECT username FROM Users WHERE username=?');
+    let query = db.prepare('SELECT username FROM users WHERE username=?');
     if (query.get([username]) !== undefined) return -2;
+    query = db.prepare('SELECT email FROM users WHERE email=?');
+    if (query.get([email]) !== undefined) return -1;
     return 1;
 }
