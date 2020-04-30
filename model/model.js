@@ -8,14 +8,14 @@ var keywordsHandler = require('./keywordsHandler.js');
 var projectLinkedUsersHandler = require('./projectLinkedUsersHandler.js');
 var db = new sqlite('database.sqlite');
 
-
+/*
 db.prepare('DROP TABLE projectEvents').run();
 db.prepare('DROP TABLE projectCategories').run();
 db.prepare('DROP TABLE projectLinkedUsers').run();
 db.prepare('DROP TABLE projectKeyWords').run();
 db.prepare('DROP TABLE projects').run();
 db.prepare('DROP TABLE users').run();
-
+*/
 
 
 db.prepare('CREATE TABLE IF NOT EXISTS users (email VARCHAR2(30) PRIMARY KEY, username VARCHAR2(20) UNIQUE NOT NULL, password VARCHAR2(50) NOT NULL, status VARCHAR2(20) NOT NULL)').run();
@@ -31,7 +31,7 @@ db.prepare('CREATE TABLE IF NOT EXISTS projectCategories (projectId INTEGER REFE
 db.prepare('CREATE TABLE IF NOT EXISTS projectEvents(projectId INTEGER REFERENCES projects ON DELETE CASCADE NOT NULL, title VARCHAR2(100) NOT NULL, description VARCHAR2(750) NOT NULL, creator VARCHAR2(30) REFERENCES users NOT NULL, date DATE NOT NULL, PRIMARY KEY(projectId, title))').run();
 
 
-usersHandler.createUser('admin@admin.fr', 'Administrator', 'AZERTY', 'administrator');
+//usersHandler.createUser('admin@admin.fr', 'Administrator', 'AZERTY', 'administrator');
 
 
 exports.allCategories = getAllCategories();

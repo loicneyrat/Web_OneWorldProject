@@ -87,13 +87,14 @@ exports.searchProjects = function(category, keywords) {
     if(keywords !== "") {
         keywords = keywords.split(",");
         trimStringsOfArray(keywords);
-        
+        console.log(keywords);
         if (category != "Toutes les catégories") {
             request = buildRequestWithKeywordsAndCategory(keywords);
             resultOfQuery = db.prepare(request).all(category, keywords);
         }
         else {
             request = buildRequestWithKeywords(keywords);
+            console.log(request);
             resultOfQuery = db.prepare(request).all(keywords);
         }
     }
@@ -135,15 +136,16 @@ function buildRequestWithKeywords(keywords) {
 }
 
 function fillWithKeywordsAndFinalParameters(request, keywords) {
+    console.log(keywords);
     for (let i = 0 ; i < keywords.length ; i++) {
-        request += "keyword=? AND ";
+        request += "keyword=? OR ";
     }
 
-    request = removeFinalAND(request);
+    request = removeFinalOR(request);
     return request + " ORDER BY RANDOM() LIMIT 100";
 }
 
-function removeFinalAND(string) {
-    return string.substring(0, string.length - 5);
+function removeFinalOR(string) {
+    return string.substring(0, string.length - 4);
 }
 
