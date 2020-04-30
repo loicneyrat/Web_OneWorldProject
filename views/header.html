@@ -6,9 +6,6 @@
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
         <link rel="stylesheet" href="/styles/style.css">
         <link rel="stylesheet" href="/styles/submenu-style.css"/>
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script> 
         <title>The One World Project</title>
         <link rel="icon" href="../resources/earth-icon.png"/>
     </head>
@@ -16,37 +13,29 @@
     <header>
       <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
         <a class="navbar-brand ml-1 mr-1" href="/"><strong>The One World Project</strong></a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMenu" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="#navbarSupportedContent">
-          <div class="navbar-nav ml-2">
-            <a class="nav-item nav-link active" href="https://github.com/loicneyrat/Web_OneWorldProject" title="GitHub du projet">
-              <i class="fab fa-github fa-1x"></i>
-            </a>
+        <div class="collapse navbar-collapse" id="navbarMenu">
+          <div class="mx-auto nav-item text-white navbar-text">
+            <strong>Créez, recherchez, participez à des projets pour améliorer notre monde !</strong>
           </div>
-          <form class="form-inline mx-auto"  action="" method="GET">
-            <div class="input-group">
-              <input type="text" class="form-control" id="searchNav" style="width: 40vw;" placeholder="Recherche" value="">
-              <div class="input-group-append">
-                <button class="input-group-text btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
-              </div>
-            </div>
-          </form>
-          <div class="pl-5">
+          <div class="pl-5 navbar-right">
+            <a class="btn btn-primary mr-2" href="/search-form" alt="Rechercher" title="Rechercher"><i class="fas fa-search"></i></a>
             {{^authenticated}}
-            <a class="btn btn-primary mr-2 float-right" href="/signup-form" type="button">S'inscrire</a>
-            <a class="btn btn-primary mr-2 float-right" type="button" href="/login-form">Se connecter</a>
+            <a class="btn btn-primary mr-2" type="button" href="/login-form">Se connecter</a>
+            <a class="btn btn-primary mr-2" href="/signup-form" type="button">S'inscrire</a>
             {{/authenticated}}
             {{#authenticated}}
-            <a class="btn btn-primary mr-2 float-right" type="button" href="/logout" alt="Log out" title="Se déconnecter"><i class="fas fa-power-off"></i></a>
-            <a class="btn btn-primary mr-2 float-right" href="/home" type="button" alt="Home" title="Accueil"><i class="fas fa-home"></i></a>
-            <a class="btn btn-primary mr-2 float-right" type="button" href="/create-project-form" alt="Create project" title="Créer un projet"><i class="fas fa-plus-square"></i></a>
+            <a class="btn btn-primary mr-2" href="/create-project-form" data-toggle="tooltip" data-placement="bottom" title="Créer un projet"><i class="fas fa-plus-square"></i></a>
+            <a class="btn btn-primary mr-2" href="/home" data-toggle="tooltip" data-placement="bottom" title="Accueil"><i class="fas fa-home"></i></a>
+            <a class="btn btn-primary mr-2" href="/logout" data-toggle="tooltip" data-placement="bottom" title="Se déconnecter"><i class="fas fa-power-off"></i></a>
             {{/authenticated}}
-          </div>            
+          </div>   
+                   
         </div>
       </nav>
     </header>
 
     <body>
-      <main role="main" class="container-fluid" style="margin-top: 55px;">
+      <main role="main" class="container-fluid" style="margin-top: 75px;">
