@@ -1,6 +1,0 @@
-Ce document permet de garder en mémoire les micro-fonctionnalités que nous voulons implémenter.
-
-    - un utilisateur doit pouvoir changer son mot de passe et son username. 
-    - un créateur doit pouvoir nommer un nouveau créateur (celui qui disposera de tous les droits). Cela lui fera perdre son statut (mettre deux couches de vérification). 
-    - si un utilisateur non connecté veut aller sur la page home, il doit être renvoyé vers la page de connexion.
-

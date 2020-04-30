@@ -6,7 +6,7 @@
         <p class="lead" style="text-align: center;">Un projet créé par {{creator}} le {{date}}</p>
         <p class="lead" style="text-align: center;">Suivi par {{numberOfMembers}} personne(s)</p>
         <hr class="my-4">
-        <p>{{description}}</p>
+        <p>{{&description}}</p>
         <hr class="mb-3 mt-4">
         <p class="text-primary">Catégories : {{categories}} </p>
         <p class="text-primary">Mots-clefs : {{keywords}} </p>
@@ -23,7 +23,6 @@
           {{#isModerator}}
           <a class="btn btn-primary mx-1" href="/project-details/{{projectId}}/create-event" role="button">Ajouter un évènement</a>
           <a class="btn btn-primary mx-1" href="/membersList/{{projectId}}" role="button">Gestion des membres</a>
-          <a class="btn btn-warning mx-1" href="/update-project-form/{{projectId}}" role="button">Modifier</a>
           {{/isModerator}}
           {{#isSupervisorOrAbove}}
           <a class="btn btn-primary mx-1" href="/membersList/{{projectId}}" role="button">Gestion des membres</a>
@@ -42,7 +41,7 @@
               </div>
               <div class="card-body">
                 <h5 class="card-title text-primary">{{title}}</h5>
-                <p class="card-text">{{description}}</p>
+                <p class="card-text">{{&description}}</p>
                 <span class="card-text text-secondary">Prévu le {{date}}</span>
                 {{#isModeratorOrAbove}}
                 <p class="lead">

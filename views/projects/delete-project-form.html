@@ -13,7 +13,7 @@
             <form class="form-inline" method="GET" action="/confirm-project-delete">
                     <input type="hidden" name="projectId" value="{{projectId}}">
                     <label for="delete"><p class="card-body">Pour confirmer la supression, tapez "SUPPRIMER" dans la barre ci-contre</p></label>
-                    {{#wrongWord}}Le champ n'a pas été correctement rempli. Merci de réessayer.{{/wrongWord}}
+                    {{#wrongWord}}Le champ n'a pas été correctement rempli. Merci de réessayer. <br />{{/wrongWord}}
                     <div class="mx-auto">
                         <input class="form-control mr-2" style="width: 200px" type="text" name="delete" id="delete">
                         <button class="btn btn-warning" type="submit">Supprimer</button> 

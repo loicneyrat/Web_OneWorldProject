@@ -33,7 +33,7 @@
     <div class="tab-content" id="nav-tabContent">
       {{#projects}}
       <div class="tab-pane fade show active" id="created-projects" role="tabpanel" aria-labelledby="created-projects-button" style="margin-bottom: 75px;">
-        <h1 class="mb-3">Vos projets</h1>
+        <h1 class="mb-3">Projets que vous avez créé</h1>
         <hr class="mb-4"/>
         {{#created}}
         <div class="card" style="margin-top: 20px; margin-bottom: 20px;"><!--width: 18rem; -->
@@ -70,7 +70,6 @@
             {{/isModerator}}
             <a href="/project-details/{{projectId}}" class="card-link">Voir les détails</a>
             {{#isModerator}}
-            <a href="/update-project-form/{{projectId}}" class="card-link">Modifier</a>
             <a href="/project-details/{{projectId}}/create-event" class="card-link">Créer un évènement</a>
             <a href="/membersList/{{projectId}}" class="card-link">Gérer les membres</a>
             {{/isModerator}}
