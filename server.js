@@ -903,13 +903,6 @@ function preSelectCategory(category, arrayOfCategories) {
 
 
 
-
-
-
-
-
-
-
 app.use((req, res, next) => {
     res.send("404 Not Found URL : " + req.url);
     next();
