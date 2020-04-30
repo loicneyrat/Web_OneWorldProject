@@ -61,8 +61,9 @@ app.post('/signup', (req, res) => {
         content["username"] = username;
 
     if (password !== confirmedPassword) {
-        res.locals.pwdNotConfirmed;
+        res.locals.pwdNotConfirmed = true;
         res.render('users/signup-form', content);
+        return;
     }
 
     let checkResult = model.credentialsAreFree(email, username);
@@ -99,8 +100,10 @@ app.post('/login', (req, res) => {
     let email = req.body.mail;
     let password = req.body.password;
     let isRightPassword = model.isTheRightPassword(email, password);
-    if (isRightPassword === null) 
-        renderError(req, res);
+    if (isRightPassword === null || isRightPassword === false) {
+        res.locals.wrongCredentials = true;
+        res.render('users/login-form', {"email" : email});
+    }
     else if (model.isTheRightPassword(email, password)) {
         req.session.user = email;
         let userStatus = model.getUserStatus(email);
@@ -110,10 +113,6 @@ app.post('/login', (req, res) => {
             req.session.userStatus = userStatus;
             res.redirect('/home');
         }
-    }
-    else {
-        res.locals.wrongCredentials = true;
-        res.render('users/login-form', {"email" : email});
     }
 });
 
@@ -154,22 +153,30 @@ app.get('/home', isAuthenticated, (req, res) => {
 app.get('/confirm-user-delete/:username', isAuthenticated, (req, res) => {
     let userEmail = model.getUserId(req.params.username);
     let userStatus = req.session.userStatus;
-    if (userEmail === null) 
+    let statusOfUserToDelete = model.getUserStatus(userEmail);
+    if (userEmail === null) {
         renderError(req, res);
-    
-    else if (isAdmin(userStatus) || isSupervisor(userStatus) || userEmail === req.session.user)
-        res.render('moderationTools/delete-user-form', {"username" : req.params.username});
-    else {
+    }
+    else if (isAdmin(statusOfUserToDelete)) {
         renderUnauthorizedAction(req, res);
     }
+    else (isAdmin(userStatus) || isSupervisor(userStatus) || userEmail === req.session.user)
+        res.render('moderationTools/delete-user-form', {"username" : req.params.username});
 });
 
 app.get('/confirm-user-delete', isAuthenticated, (req, res) => {
     let userToDelete = model.getUserId(req.query.username);
     let word = req.query.delete.toUpperCase();
     let userStatus = req.session.userStatus;
-    if (userToDelete === null) 
+    let statusOfUserToDelete = model.getUserStatus(userEmail);
+
+    if (userToDelete === null) {
         renderError(req, res);
+        return;
+    }
+    else if (isAdmin(statusOfUserToDelete)) {
+        renderUnauthorizedAction(req, res);
+    }
     else if(!isAdmin(userStatus) && !isSupervisor(userStatus) && req.session.user !== userToDelete) {
         renderUnauthorizedAction(req, res);
     }
@@ -178,15 +185,16 @@ app.get('/confirm-user-delete', isAuthenticated, (req, res) => {
             let data = {};
             data["linkToNext"] = "/usersList"
             res.render('multiUsage/delete-confirmation', data);
+            req.session = null;
         }
         else {
             res.locals.deleteFailure = true;
-            res.render('moderationTools/delete-user-form', {"username" : req.params.username});
+            res.render('moderationTools/delete-user-form', {"username" : req.query.username});
             }
         }
     else {
         res.locals.wrongWord = true;
-        res.render('moderationTools/delete-user-form', {"username" : req.params.username});
+        res.render('moderationTools/delete-user-form', {"username" : req.query.username});
     }
 });
 
@@ -336,8 +344,15 @@ app.get('/updating-user-status/:username', (req, res) => {
 app.get('/create-project-form', isAuthenticated, (req, res) => {
     let fields = {"objective" : "Créer", "linkToRout" : "/creating-project"};
     fields["allCategories"] = model.allCategories;
+    uncheckAllCategories(fields);
     res.render('projects/create-project-form', fields);
 });
+
+function uncheckAllCategories(fields) {
+    for(let i = 0 ; i < fields.allCategories.length ; i++) {
+        fields["allCategories"][i]["check"] = "";
+    }
+}
 
 app.post('/creating-project', isAuthenticated, (req, res) => {
     let categories = getCategoriesInArray(req.body);
@@ -386,7 +401,8 @@ app.get('/project-details/:projectId', (req, res) => {
     let user = req.session.user;
     let userStatus = req.session.userStatus;
     let projectId = req.params.projectId;
-    let details = model.getProjectDetails(req.params.projectId);
+    let details = model.getProjectDetails(projectId);
+    details.description = details.description.replace(/\r\n/g, "<br/>").replace(/\n/g, "<br/>").replace(/\r/g, "<br/>");
     details["membershipButtonValue"] = model.isMember(user, projectId) ? "Quitter le projet" : "Devenir membre";
     setProjectStatus(user, userStatus, projectId, details);
     res.render('projects/project-details', details);
@@ -394,6 +410,11 @@ app.get('/project-details/:projectId', (req, res) => {
 
 app.get('/update-project-form/:projectId', isAuthenticated, (req, res) => {
     let fields = model.getProjectDetails(req.params.projectId);
+    let user = req.session.user;
+    if (!isAdmin(req.session.userStatus) && !isSupervisor(user) && !isCreatorOfProject(user, req.params.projectId)){
+        renderUnauthorizedAction(req, res);
+        return;
+    }
     if(fields === null)
         renderError(req, res);
     else {
@@ -407,9 +428,14 @@ app.get('/update-project-form/:projectId', isAuthenticated, (req, res) => {
 
 app.post('/updating-project/:projectId', isAuthenticated, (req, res) => {
     let categories = getCategoriesInArray(req.body);
+    let projectId = req.params.projectId;
     let keywords = req.body.keywords.split(',');
     let keywordsTooBig = false;
 
+    if (!isAdmin(req.session.userStatus) && !isSupervisor(req.session.userStatus) && !isCreatorOfProject(req.session.user, projectId)){
+        renderUnauthorizedAction(req, res);
+        return;
+    }
     for(let i = 0; i < keywords.length; i++) {
         keywords[i] = keywords[i].trim();
         if(keywords[i].length > 15) {
@@ -425,7 +451,7 @@ app.post('/updating-project/:projectId', isAuthenticated, (req, res) => {
         data["keywords"] = req.body.keywords;
         data["allCategories"] = model.allCategories;
         data["objective"] = "Mettre à jour";
-        data["linkToRout"] = "/updating-project/" + req.params.projectId;
+        data["linkToRout"] = "/updating-project/" + projectId;
         res.render("projects/create-project-form", data);
     }else if(categories.length == 0) {
         res.locals.noCategoriesChosen = true;
@@ -435,13 +461,13 @@ app.post('/updating-project/:projectId', isAuthenticated, (req, res) => {
         data["keywords"] = req.body.keywords;
         data["allCategories"] = model.allCategories;
         data["objective"] = "Mettre à jour";
-        data["linkToRout"] = "/updating-project/" + req.params.projectId;
+        data["linkToRout"] = "/updating-project/" + projectId;
         res.render("projects/create-project-form", data);
     }else{
-        let result = model.updateProject(req.params.projectId, req.body.title, req.body.description, categories, keywords);
+        let result = model.updateProject(projectId, req.body.title, req.body.description, categories, keywords);
         if (result === null) renderError(req, res);
         else {
-            res.redirect(`/project-details/${req.params.projectId}`);
+            res.redirect(`/project-details/${projectId}`);
         }
     }
 });
@@ -685,8 +711,8 @@ app.post("/project-details/:projectId/creating-event", isAuthenticated, (req, re
     let creatorOfEvent = req.session.user;
     let projectId = req.params.projectId;
     let title = req.body.title;
-    let description = req.body.description;
     let date = req.body.date;
+    let description = req.body.description;
 
     if(!isCreatorOfProject(creatorOfEvent, projectId) && !isModerator(creatorOfEvent, projectId)) {
         renderUnauthorizedAction(req, res);
@@ -749,7 +775,7 @@ app.post("/project-details/:projectId/:previousTitle/updating-event", isAuthenti
     let description = req.body.description;
     let date = req.body.date;
 
-    if (!isAdmin(requestingUserStatus) && !isSupervisor(requestingUserStatus) && !isCreatorOfProject(requestingUserEmail, projectId) && !isCreatorOfEvent(requestingUserEmail, projectId, title)) {
+    if (!isAdmin(requestingUserStatus) && !isSupervisor(requestingUserStatus) && !isCreatorOfProject(requestingUserEmail, projectId) && !isCreatorOfEvent(requestingUserEmail, projectId, previousTitle)) {
         res.locals.details = true;
         renderUnauthorizedAction(req, res);
     }
@@ -825,6 +851,7 @@ app.get("/project-details/:projectId/:title/confirm-event-delete", isAuthenticat
 
 app.get('/search-form', (req, res) => {
     let categories = [{name: "all", value: "Toutes les catégories"}].concat(model.allCategories);
+    categories = preSelectCategory("Toutes les catégories", categories);
     res.render('search-form', {categories});
 });
 
@@ -837,13 +864,22 @@ app.get('/search', (req, res) => {
     let datas = {category: "selected", "keywords": keywords};   
     datas.projects = projects;
     datas.numberOfResults = projects.length + (projects.length > 1 ? " résultats" : " résultat");
-    datas[category] = "selected"; 
+    categories = preSelectCategory(category, categories);
     datas.categories = categories;
     datas.keywords = keywords;
     res.render('search-form', datas);
 });
 
-
+function preSelectCategory(category, arrayOfCategories) {
+    for (let i = 0 ; i < arrayOfCategories.length ; i++) {
+        if (arrayOfCategories[i].value === category) {
+            arrayOfCategories[i]["select"] = "selected";
+        } else {
+            arrayOfCategories[i]["select"] = "";
+        }
+    }
+    return arrayOfCategories;
+}
 
 
 

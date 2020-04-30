@@ -6,7 +6,7 @@
             <form class="form-inline" action="/search" method="GET" style="width: 100%; box-sizing: border-box;">
                 <select class="form-control mr-3" name="category">
                     {{#categories}}
-                    <option>{{value}}</option>
+                    <option {{select}}>{{value}}</option>
                     {{/categories}}
                 </select>
                 <input class="nav-item form-control mr-3" name="keywords" placeholder="Entrez vos mots-clefs, séparés par des virgules" value="{{keywords}}"/>

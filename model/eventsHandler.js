@@ -29,13 +29,14 @@ exports.getEventDetails = function(projectId, title) {
 
 exports.getCreator = function(projectId, title) {
     let query = db.prepare("SELECT creator FROM projectEvents WHERE projectId=? AND title=?");
-    return query.get([projectId, title]);
+    return query.get([projectId, title]).creator;
 }
 
 exports.getProjectEvents = function(projectId) {
     let result = db.prepare('SELECT * FROM projectEvents WHERE projectId=?').all(projectId);
     for (event of result) {
         event.creator = usersHandler.getUsername(event.creator);
+        event.description = event.description.replace(/\r\n/g, "<br/>").replace(/\n/g, "<br/>").replace(/\r/g, "<br/>");
     }
     return result;
 }

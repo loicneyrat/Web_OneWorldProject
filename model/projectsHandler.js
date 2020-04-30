@@ -12,7 +12,8 @@ exports.createProject = function(title, description, categories, creator, date, 
     //remove all duplicates from the array.
     keywords.filter((item, index) => keywords.indexOf(item) === index);
     for(let i = 0 ; i < keywords.length ; i++) {
-        keywordsHandler.addKeyword(projectId, keywords[i]);
+        if (keywords[i] != "")
+            keywordsHandler.addKeyword(projectId, keywords[i]);
     }
 
     categories.filter((item, index) => categories.indexOf(item) === index);
@@ -26,7 +27,8 @@ exports.updateProject = function(projectId, title, description, categories, keyw
 
     keywordsHandler.removeAllKeywords(projectId);
     for(let i = 0; i < keywords.length; i++){
-        keywordsHandler.addKeyword(projectId, keywords[i]);
+        if (keywords[i] != "")
+            keywordsHandler.addKeyword(projectId, keywords[i]);
     }
 
     categoriesHandler.removeAllCategories(projectId);
@@ -87,14 +89,12 @@ exports.searchProjects = function(category, keywords) {
     if(keywords !== "") {
         keywords = keywords.split(",");
         trimStringsOfArray(keywords);
-        console.log(keywords);
         if (category != "Toutes les catégories") {
             request = buildRequestWithKeywordsAndCategory(keywords);
             resultOfQuery = db.prepare(request).all(category, keywords);
         }
         else {
             request = buildRequestWithKeywords(keywords);
-            console.log(request);
             resultOfQuery = db.prepare(request).all(keywords);
         }
     }
@@ -136,7 +136,6 @@ function buildRequestWithKeywords(keywords) {
 }
 
 function fillWithKeywordsAndFinalParameters(request, keywords) {
-    console.log(keywords);
     for (let i = 0 ; i < keywords.length ; i++) {
         request += "keyword=? OR ";
     }
