@@ -20,6 +20,10 @@ exports.updateUserUsername = function(email, username) {
     return result.changes === 1;
 }
 
+exports.getUserPassword = function(email) {
+    let query = db.prepare('SELECT password FROM users WHERE email=?');
+    return query.get([email]).password;
+}
 
 exports.deleteUser = function(email) {
     let query = db.prepare('DELETE FROM users WHERE email=?');
@@ -106,9 +110,9 @@ exports.isTheRightPassword = function(email, userPassword) {
 }
 
 exports.credentialsAreFree = function(email, username) {
-    let query = db.prepare('SELECT email FROM Users WHERE email=?');
-    if (query.get([email]) !== undefined) return -1;
-    query = db.prepare('SELECT username FROM Users WHERE username=?');
+    let query = db.prepare('SELECT username FROM users WHERE username=?');
     if (query.get([username]) !== undefined) return -2;
+    query = db.prepare('SELECT email FROM users WHERE email=?');
+    if (query.get([email]) !== undefined) return -1;
     return 1;
 }
